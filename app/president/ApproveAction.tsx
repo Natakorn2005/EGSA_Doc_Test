@@ -2,8 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { SignerOption } from "@/lib/roles";
 
-export default function ApproveAction({ trackingId }: { trackingId: string }) {
+export default function ApproveAction({
+  trackingId,
+  approverOptions,
+}: {
+  trackingId: string;
+  approverOptions: SignerOption[];
+}) {
   const [approverName, setApproverName] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -12,7 +19,7 @@ export default function ApproveAction({ trackingId }: { trackingId: string }) {
 
   async function handleSubmit() {
     if (!approverName.trim()) {
-      setErrorMsg("กรุณากรอกชื่อผู้เซ็นอนุมัติ");
+      setErrorMsg("กรุณาเลือกผู้เซ็นอนุมัติ");
       setStatus("error");
       return;
     }
@@ -52,9 +59,7 @@ export default function ApproveAction({ trackingId }: { trackingId: string }) {
 
   return (
     <div style={{ marginTop: 10, padding: 12, border: "1px solid #cde5cf", borderRadius: 8, background: "#f6fbf6" }}>
-      <input
-        type="text"
-        placeholder="ชื่อผู้เซ็นอนุมัติ"
+      <select
         value={approverName}
         onChange={(e) => setApproverName(e.target.value)}
         disabled={status === "loading"}
@@ -66,7 +71,16 @@ export default function ApproveAction({ trackingId }: { trackingId: string }) {
           borderRadius: 6,
           marginBottom: 8,
         }}
-      />
+      >
+        <option value="">-- เลือกผู้เซ็นอนุมัติ --</option>
+        {approverOptions.map((opt) => (
+          <option key={opt.name} value={opt.name}>
+            {opt.name}
+            {opt.roleLabel ? ` (${opt.roleLabel})` : ""}
+          </option>
+        ))}
+      </select>
+
       <input
         type="file"
         accept="application/pdf"
@@ -74,6 +88,7 @@ export default function ApproveAction({ trackingId }: { trackingId: string }) {
         disabled={status === "loading"}
         style={{ marginBottom: 8, fontSize: 13, display: "block" }}
       />
+
       <button
         onClick={handleSubmit}
         disabled={status === "loading"}
@@ -89,6 +104,7 @@ export default function ApproveAction({ trackingId }: { trackingId: string }) {
       >
         {status === "loading" ? "กำลังส่ง..." : "อนุมัติและออกเลขเอกสาร"}
       </button>
+
       {status === "error" && <p style={{ color: "#b00020", fontSize: 12, marginTop: 6 }}>{errorMsg}</p>}
     </div>
   );

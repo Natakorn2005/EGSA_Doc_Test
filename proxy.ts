@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
+const SIGNER_ROLES = ["president", "vp_internal", "vp_external"];
+
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
@@ -15,7 +17,7 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/login", nextUrl));
   }
 
-  if ((isSecretary && role !== "secretary") || (isPresident && role !== "president")) {
+  if ((isSecretary && role !== "secretary") || (isPresident && !SIGNER_ROLES.includes(role || ""))) {
     return NextResponse.redirect(new URL("/unauthorized", nextUrl));
   }
 

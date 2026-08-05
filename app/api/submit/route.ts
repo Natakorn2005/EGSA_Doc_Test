@@ -1,20 +1,23 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 
 export async function POST(req: Request) {
-  const session = await auth();
-const SIGNER_ROLES = ["president", "vp_internal", "vp_external"];
-if (!session?.user?.role || !SIGNER_ROLES.includes(session.user.role)) {
-  return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
-}
-
   const formData = await req.formData();
-  const trackingId = formData.get("trackingId") as string;
-  const approverName = formData.get("approverName") as string;
+  const name = formData.get("name") as string;
+  const studentId = formData.get("studentId") as string;
+  const email = formData.get("email") as string;
+  const phone = formData.get("phone") as string;
+  const docName = formData.get("docName") as string;
+  const agencyType = formData.get("agencyType") as string;
+  const agencyValue = formData.get("agencyValue") as string;
+  const previousTrackingId = formData.get("previousTrackingId") as string;
+  const acknowledged = formData.get("acknowledged") === "true";
   const file = formData.get("file") as File | null;
 
-  if (!trackingId || !file) {
+  if (!name || !email || !docName || !agencyType || !agencyValue || !file) {
     return NextResponse.json({ success: false, error: "กรอกข้อมูลไม่ครบ" }, { status: 400 });
+  }
+  if (!acknowledged) {
+    return NextResponse.json({ success: false, error: "กรุณายืนยันว่าท่านรับทราบกระบวนการ" }, { status: 400 });
   }
 
   const MAX_SIZE = 3 * 1024 * 1024;
@@ -39,10 +42,17 @@ if (!session?.user?.role || !SIGNER_ROLES.includes(session.user.role)) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        action: "approve",
+        action: "submit",
         secret,
-        trackingId,
-        approverName,
+        name,
+        studentId,
+        email,
+        phone,
+        docName,
+        agencyType,
+        agencyValue,
+        previousTrackingId,
+        acknowledged,
         fileBase64: base64,
         fileName: file.name,
         mimeType: file.type,

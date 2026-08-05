@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { getSecretarySheet } from "@/lib/googleSheets";
+import { getSignerOptions } from "@/lib/roles";
 import ApproveAction from "./ApproveAction";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,8 @@ export default async function PresidentPage() {
   } catch (e) {
     error = e instanceof Error ? e.message : "Unknown error";
   }
+
+  const approverOptions = await getSignerOptions();
 
   return (
     <main style={{ padding: 24, fontFamily: "sans-serif" }}>
@@ -70,7 +73,7 @@ export default async function PresidentPage() {
               </a>
             )}
 
-            <ApproveAction trackingId={trackingId} />
+            <ApproveAction trackingId={trackingId} approverOptions={approverOptions} />
           </div>
         );
       })}
