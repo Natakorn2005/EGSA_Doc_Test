@@ -16,9 +16,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: "กรอกข้อมูลไม่ครบ" }, { status: 400 });
   }
 
-  const MAX_SIZE = 4 * 1024 * 1024;
+  const MAX_SIZE = 3 * 1024 * 1024;
   if (file.size > MAX_SIZE) {
-    return NextResponse.json({ success: false, error: "ไฟล์ใหญ่เกินไป (จำกัด 4MB)" }, { status: 400 });
+    return NextResponse.json({ success: false, error: "ไฟล์ใหญ่เกินไป (จำกัด 3MB)" }, { status: 400 });
   }
   if (file.type !== "application/pdf") {
     return NextResponse.json({ success: false, error: "รองรับเฉพาะไฟล์ PDF" }, { status: 400 });
