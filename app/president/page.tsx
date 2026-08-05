@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { getSecretarySheet } from "@/lib/googleSheets";
+import ApproveAction from "./ApproveAction";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,8 @@ export default async function PresidentPage() {
                 เปิดเอกสารเพื่อพิจารณาเซ็น →
               </a>
             )}
+
+            <ApproveAction trackingId={trackingId} />
           </div>
         );
       })}

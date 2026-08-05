@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { getSecretarySheet } from "@/lib/googleSheets";
-import AdvanceButton from "./AdvanceButton";
+import DocumentActions from "./DocumentActions";
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +64,8 @@ export default async function SecretaryPage() {
                 เปิดเอกสารเพื่อตรวจสอบ →
               </a>
             )}
-            <AdvanceButton trackingId={trackingId} />
+
+            <DocumentActions trackingId={trackingId} />
           </div>
         );
       })}
