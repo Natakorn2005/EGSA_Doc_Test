@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { getSecretarySheet } from "@/lib/googleSheets";
+import { getStaffNamesByRole } from "@/lib/roles";
 import DocumentActions from "./DocumentActions";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,8 @@ export default async function SecretaryPage() {
   } catch (e) {
     error = e instanceof Error ? e.message : "Unknown error";
   }
+
+  const reviewerOptions = await getStaffNamesByRole("secretary");
 
   return (
     <main style={{ padding: 24, fontFamily: "sans-serif" }}>
@@ -65,7 +68,7 @@ export default async function SecretaryPage() {
               </a>
             )}
 
-            <DocumentActions trackingId={trackingId} />
+            <DocumentActions trackingId={trackingId} reviewerOptions={reviewerOptions} />
           </div>
         );
       })}

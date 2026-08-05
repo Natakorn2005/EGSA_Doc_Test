@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function DocumentActions({ trackingId }: { trackingId: string }) {
+export default function DocumentActions({
+  trackingId,
+  reviewerOptions,
+}: {
+  trackingId: string;
+  reviewerOptions: string[];
+}) {
   const [reviewerName, setReviewerName] = useState("");
   const [rejectOpen, setRejectOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -14,7 +20,7 @@ export default function DocumentActions({ trackingId }: { trackingId: string }) 
 
   function requireReviewer(): boolean {
     if (!reviewerName.trim()) {
-      setErrorMsg("กรุณากรอกชื่อผู้ตรวจสอบก่อน");
+      setErrorMsg("กรุณาเลือกผู้ตรวจสอบก่อน");
       setStatus("error");
       return false;
     }
@@ -93,9 +99,7 @@ export default function DocumentActions({ trackingId }: { trackingId: string }) 
 
   return (
     <div style={{ marginTop: 10 }}>
-      <input
-        type="text"
-        placeholder="ชื่อผู้ตรวจสอบ"
+      <select
         value={reviewerName}
         onChange={(e) => setReviewerName(e.target.value)}
         disabled={status === "loading"}
@@ -108,7 +112,14 @@ export default function DocumentActions({ trackingId }: { trackingId: string }) 
           marginBottom: 8,
           display: "block",
         }}
-      />
+      >
+        <option value="">-- เลือกผู้ตรวจสอบ --</option>
+        {reviewerOptions.map((n) => (
+          <option key={n} value={n}>
+            {n}
+          </option>
+        ))}
+      </select>
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <button
