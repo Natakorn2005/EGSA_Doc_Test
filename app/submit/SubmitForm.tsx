@@ -9,15 +9,32 @@ const AGENCY_TYPES = [
   { value: "ภาควิชา - Department", label: "ภาควิชา", sheetKey: "ภาควิชา" as const },
 ];
 
-export default function SubmitForm({ agencyOptions }: { agencyOptions: AgencyOptions }) {
-  const [name, setName] = useState("");
-  const [studentId, setStudentId] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [docName, setDocName] = useState("");
-  const [agencyType, setAgencyType] = useState("");
-  const [agencyValue, setAgencyValue] = useState("");
-  const [previousTrackingId, setPreviousTrackingId] = useState("");
+type InitialValues = {
+  name: string;
+  studentId: string;
+  email: string;
+  phone: string;
+  docName: string;
+  agencyType: string;
+  agencyValue: string;
+  previousTrackingId: string;
+};
+
+export default function SubmitForm({
+  agencyOptions,
+  initialValues,
+}: {
+  agencyOptions: AgencyOptions;
+  initialValues?: InitialValues;
+}) {
+  const [name, setName] = useState(initialValues?.name || "");
+  const [studentId, setStudentId] = useState(initialValues?.studentId || "");
+  const [email, setEmail] = useState(initialValues?.email || "");
+  const [phone, setPhone] = useState(initialValues?.phone || "");
+  const [docName, setDocName] = useState(initialValues?.docName || "");
+  const [agencyType, setAgencyType] = useState(initialValues?.agencyType || "");
+  const [agencyValue, setAgencyValue] = useState(initialValues?.agencyValue || "");
+  const [previousTrackingId, setPreviousTrackingId] = useState(initialValues?.previousTrackingId || "");
   const [acknowledged, setAcknowledged] = useState(false);
   const [file, setFile] = useState<File | null>(null);
 
@@ -107,9 +124,15 @@ export default function SubmitForm({ agencyOptions }: { agencyOptions: AgencyOpt
   return (
     <main style={{ padding: 24, fontFamily: "sans-serif", maxWidth: 560, margin: "0 auto" }}>
       <h1 style={{ fontSize: 20, marginBottom: 4 }}>ยื่นเอกสาร</h1>
-      <p style={{ color: "#666", marginBottom: 20, fontSize: 13 }}>
+      <p style={{ color: "#666", marginBottom: 12, fontSize: 13 }}>
         กรอกข้อมูลและแนบไฟล์เอกสาร (PDF, ไม่เกิน 3MB)
       </p>
+
+      {initialValues?.previousTrackingId && (
+        <div style={{ background: "#fff8e1", border: "1px solid #ffe082", borderRadius: 6, padding: 10, marginBottom: 16, fontSize: 13 }}>
+          กำลังยื่นแก้ไขเอกสารที่เคยถูกตีกลับ (รหัสอ้างอิงเดิม: {initialValues.previousTrackingId})
+        </div>
+      )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <input placeholder="ชื่อ - นามสกุล *" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />

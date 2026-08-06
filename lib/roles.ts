@@ -12,6 +12,7 @@ const ROLE_MAP: Record<string, Exclude<StaffRole, null>> = {
 };
 
 const ROLE_DISPLAY: Record<string, string> = {
+  secretary: "เลขาธิการ",
   president: "นายกสโมสรฯ",
   vp_internal: "รองประธานฝ่ายใน",
   vp_external: "รองประธานฝ่ายนอก",
@@ -67,4 +68,10 @@ export async function getSignerOptions(): Promise<SignerOption[]> {
 
 export function isSignerRole(role: StaffRole): boolean {
   return !!role && SIGNER_ROLES.includes(role as Exclude<StaffRole, null>);
+}
+
+// *** ป้ายแสดงตำแหน่งสำหรับหน้าแรก — role ว่าง (นักศึกษาทั่วไป) ก็ยังได้ป้ายที่อ่านได้ ***
+export function getRoleDisplayLabel(role: StaffRole): string {
+  if (!role) return "นักศึกษา";
+  return ROLE_DISPLAY[role] || "นักศึกษา";
 }

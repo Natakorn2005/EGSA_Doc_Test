@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { getSecretarySheet } from "@/lib/googleSheets";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +33,12 @@ export default async function StatusPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const query = q?.trim() || "";
+  const session = await auth();
+
+  // ถ้ายังไม่ได้พิมพ์ค้นหาอะไรเลย แต่ล็อกอินอยู่ -> ใช้อีเมลของตัวเองเป็นค่าเริ่มต้นให้อัตโนมัติ
+  // ถ้าพิมพ์ค้นหาเองแล้ว (มี q) ให้ค่านั้นชนะเสมอ ไม่ว่าจะล็อกอินอยู่หรือไม่
+  const usingSessionDefault = !q && !!session?.user?.email;
+  const query = q?.trim() || (usingSessionDefault ? session!.user!.email!.trim() : "");
 
   let matches: string[][] = [];
   let headers: string[] = [];
@@ -43,6 +49,8 @@ export default async function StatusPage({
       const data = await getSecretarySheet();
       headers = data.headers;
       matches = findMatches(data.headers, data.rows, query);
+      // เรียงรายการล่าสุดขึ้นก่อน (ชีตเรียงตามลำดับเวลาที่ยื่นอยู่แล้ว -> reverse พอ)
+      matches = matches.slice().reverse();
     } catch (e) {
       error = e instanceof Error ? e.message : "Unknown error";
     }
@@ -54,6 +62,12 @@ export default async function StatusPage({
       <p style={{ color: "#666", marginBottom: 20 }}>
         กรอกรหัสอ้างอิง (Tracking ID) หรืออีเมลที่ใช้ยื่นเอกสาร
       </p>
+
+      {usingSessionDefault && (
+        <div style={{ background: "#f1f8f1", border: "1px solid #cde5cf", borderRadius: 6, padding: 10, marginBottom: 16, fontSize: 13 }}>
+          กำลังแสดงรายการที่ยื่นด้วยอีเมล {session!.user!.email} — พิมพ์ค้นหาด้านล่างเพื่อดูรายการอื่น
+        </div>
+      )}
 
       <form method="get" style={{ display: "flex", gap: 8, marginBottom: 24 }}>
         <input
