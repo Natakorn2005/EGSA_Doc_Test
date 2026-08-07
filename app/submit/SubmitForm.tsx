@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import type { AgencyOptions } from "@/lib/agencies";
+import { colors, inputStyle, buttonPrimaryStyle } from "@/lib/theme";
 
 const AGENCY_TYPES = [
-  { value: "สโมสรนักศึกษา- Student Association", label: "สโมสรนักศึกษา", sheetKey: "ฝ่ายภายในสโมสร" as const },
-  { value: "ชมรม - Student Club", label: "ชมรม", sheetKey: "ชมรม" as const },
-  { value: "ภาควิชา - Department", label: "ภาควิชา", sheetKey: "ภาควิชา" as const },
+  { value: "สโมสรนักศึกษา- Student Association", labelKey: "agencyStudentUnion", sheetKey: "ฝ่ายภายในสโมสร" as const },
+  { value: "ชมรม - Student Club", labelKey: "agencyClub", sheetKey: "ชมรม" as const },
+  { value: "ภาควิชา - Department", labelKey: "agencyDepartment", sheetKey: "ภาควิชา" as const },
 ];
 
 type InitialValues = {
@@ -23,10 +25,13 @@ type InitialValues = {
 export default function SubmitForm({
   agencyOptions,
   initialValues,
+  isLoggedIn,
 }: {
   agencyOptions: AgencyOptions;
   initialValues?: InitialValues;
+  isLoggedIn?: boolean;
 }) {
+  const t = useTranslations("submit");
   const [name, setName] = useState(initialValues?.name || "");
   const [studentId, setStudentId] = useState(initialValues?.studentId || "");
   const [email, setEmail] = useState(initialValues?.email || "");
@@ -37,6 +42,7 @@ export default function SubmitForm({
   const [previousTrackingId, setPreviousTrackingId] = useState(initialValues?.previousTrackingId || "");
   const [acknowledged, setAcknowledged] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -47,22 +53,22 @@ export default function SubmitForm({
 
   async function handleSubmit() {
     if (!name.trim() || !email.trim() || !docName.trim()) {
-      setErrorMsg("กรุณากรอกข้อมูลที่จำเป็นให้ครบ");
+      setErrorMsg(t("errMissingRequired"));
       setStatus("error");
       return;
     }
     if (!agencyType || !agencyValue) {
-      setErrorMsg("กรุณาเลือกหน่วยงานที่ยื่นเอกสารให้ครบ");
+      setErrorMsg(t("errMissingAgency"));
       setStatus("error");
       return;
     }
     if (!acknowledged) {
-      setErrorMsg("กรุณายืนยันว่าท่านรับทราบกระบวนการ");
+      setErrorMsg(t("errNotAcknowledged"));
       setStatus("error");
       return;
     }
     if (!file) {
-      setErrorMsg("กรุณาแนบไฟล์เอกสาร (PDF)");
+      setErrorMsg(t("errMissingFile"));
       setStatus("error");
       return;
     }
@@ -86,64 +92,85 @@ export default function SubmitForm({
       const res = await fetch("/api/submit", { method: "POST", body: formData });
       const data = await res.json();
       if (!data.success) {
-        setErrorMsg(data.error || "เกิดข้อผิดพลาด");
+        setErrorMsg(data.error || "");
         setStatus("error");
         return;
       }
       setResult(data.data);
       setStatus("success");
     } catch (e) {
-      setErrorMsg(e instanceof Error ? e.message : "เกิดข้อผิดพลาด");
+      setErrorMsg(e instanceof Error ? e.message : "");
       setStatus("error");
     }
   }
 
   if (status === "success" && result) {
     return (
-      <main style={{ padding: 24, fontFamily: "sans-serif", maxWidth: 560, margin: "0 auto" }}>
-        <div style={{ background: "#f1f8f1", border: "1px solid #cde5cf", borderRadius: 8, padding: 20 }}>
-          <h1 style={{ fontSize: 18, color: "#1b5e20", marginBottom: 8 }}>ส่งเอกสารสำเร็จ ✅</h1>
-          <p style={{ marginBottom: 12 }}>
-            เอกสารเรื่อง &quot;{result.docName}&quot; ถูกส่งเข้าระบบแล้ว
-          </p>
+      <div style={{ maxWidth: 480, margin: "0 auto", padding: "24px 20px" }}>
+        <div style={{ background: colors.tint, border: `1px solid ${colors.tintBorder}`, borderRadius: 12, padding: 20 }}>
+          <h1 style={{ fontSize: 18, color: colors.primaryDark, marginBottom: 8 }}>{t("successTitle")}</h1>
+          <p style={{ marginBottom: 12 }}>{t("successBody", { docName: result.docName })}</p>
           <p style={{ background: "#fff", padding: 12, borderRadius: 6, fontSize: 14 }}>
-            รหัสอ้างอิง (Tracking ID):<br />
+            {t("trackingIdLabel")}
+            <br />
             <strong style={{ fontSize: 18 }}>{result.trackingId}</strong>
           </p>
-          <p style={{ color: "#666", fontSize: 13, marginTop: 12 }}>
-            กรุณาเก็บรหัสนี้ไว้ตรวจสอบสถานะภายหลังที่หน้า{" "}
-            <a href={`/status?q=${encodeURIComponent(result.trackingId)}`} style={{ color: "#2e7d32" }}>
-              ตรวจสอบสถานะ
+          <p style={{ color: colors.textSecondary, fontSize: 13, marginTop: 12 }}>
+            {t("keepTrackingId")}{" "}
+            <a href={`/status?q=${encodeURIComponent(result.trackingId)}`} style={{ color: colors.primary }}>
+              {t("statusLink")}
             </a>
+            {isLoggedIn && (
+              <>
+                {" "}
+                {t("orSeeAll")}{" "}
+                <a href="/my" style={{ color: colors.primary }}>
+                  {t("myDocsLink")}
+                </a>
+              </>
+            )}
           </p>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main style={{ padding: 24, fontFamily: "sans-serif", maxWidth: 560, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 20, marginBottom: 4 }}>ยื่นเอกสาร</h1>
-      <p style={{ color: "#666", marginBottom: 12, fontSize: 13 }}>
-        กรอกข้อมูลและแนบไฟล์เอกสาร (PDF, ไม่เกิน 3MB)
-      </p>
+    <div style={{ maxWidth: 480, margin: "0 auto", padding: "24px 20px" }}>
+      <h1 style={{ fontSize: 20, marginBottom: 4 }}>{t("title")}</h1>
+      <p style={{ color: colors.textSecondary, marginBottom: 12, fontSize: 13 }}>{t("subtitle")}</p>
 
       {initialValues?.previousTrackingId && (
         <div style={{ background: "#fff8e1", border: "1px solid #ffe082", borderRadius: 6, padding: 10, marginBottom: 16, fontSize: 13 }}>
-          กำลังยื่นแก้ไขเอกสารที่เคยถูกตีกลับ (รหัสอ้างอิงเดิม: {initialValues.previousTrackingId})
+          {t("resubmitBanner", { id: initialValues.previousTrackingId })}
+        </div>
+      )}
+
+      {!initialValues?.previousTrackingId && isLoggedIn && (
+        <div style={{ background: colors.tint, border: `1px solid ${colors.tintBorder}`, borderRadius: 6, padding: 10, marginBottom: 16, fontSize: 13 }}>
+          {t("autofillBanner")}
+        </div>
+      )}
+
+      {!initialValues?.previousTrackingId && !isLoggedIn && (
+        <div style={{ background: "#f5f5f5", border: "1px solid #ddd", borderRadius: 6, padding: 10, marginBottom: 16, fontSize: 12, color: colors.textSecondary }}>
+          {t("loginHintBanner")}{" "}
+          <a href="/my" style={{ color: colors.primary }}>
+            {t("myDocsLink")}
+          </a>
         </div>
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <input placeholder="ชื่อ - นามสกุล *" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />
-        <input placeholder="รหัสนักศึกษา" value={studentId} onChange={(e) => setStudentId(e.target.value)} style={inputStyle} />
-        <input placeholder="อีเมล *" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
-        <input placeholder="เบอร์โทรสำหรับติดต่อ" value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} />
-        <input placeholder="ชื่อเอกสาร *" value={docName} onChange={(e) => setDocName(e.target.value)} style={inputStyle} />
+        <input placeholder={t("nameLabel")} value={name} onChange={(e) => setName(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
+        <input placeholder={t("studentIdLabel")} value={studentId} onChange={(e) => setStudentId(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
+        <input placeholder={t("emailLabel")} type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
+        <input placeholder={t("phoneLabel")} value={phone} onChange={(e) => setPhone(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
+        <input placeholder={t("docNameLabel")} value={docName} onChange={(e) => setDocName(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
 
         <div>
-          <label style={{ fontSize: 13, color: "#444", display: "block", marginBottom: 6 }}>
-            หน่วยงานที่ยื่นเอกสาร *
+          <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>
+            {t("agencyLabel")}
           </label>
           {AGENCY_TYPES.map((opt) => (
             <label key={opt.value} style={{ display: "block", fontSize: 13, marginBottom: 4 }}>
@@ -157,35 +184,74 @@ export default function SubmitForm({
                 }}
                 style={{ marginRight: 6 }}
               />
-              {opt.label}
+              {t(opt.labelKey)}
             </label>
           ))}
         </div>
 
         {selectedAgency && (
-          <select value={agencyValue} onChange={(e) => setAgencyValue(e.target.value)} style={inputStyle}>
-            <option value="">-- เลือก{selectedAgency.label} --</option>
+          <select
+            value={agencyValue}
+            onChange={(e) => setAgencyValue(e.target.value)}
+            style={{ ...inputStyle, boxSizing: "border-box" }}
+          >
+            <option value="">
+              {t("selectPrefix")}
+              {t(selectedAgency.labelKey)} --
+            </option>
             {valueOptions.map((v) => (
               <option key={v} value={v}>
                 {v}
               </option>
             ))}
-            {valueOptions.length === 0 && <option disabled>(ไม่พบรายชื่อ ตรวจสอบแท็บ รายชื่อหน่วยงาน)</option>}
+            {valueOptions.length === 0 && <option disabled>{t("noAgencyList")}</option>}
           </select>
         )}
 
         <input
-          placeholder="รหัสอ้างอิงเดิม (ถ้าเคยถูกตีกลับและยื่นแก้ไข)"
+          placeholder={t("previousTrackingLabel")}
           value={previousTrackingId}
           onChange={(e) => setPreviousTrackingId(e.target.value)}
-          style={inputStyle}
+          style={{ ...inputStyle, boxSizing: "border-box" }}
         />
 
         <div>
-          <label style={{ fontSize: 13, color: "#444", display: "block", marginBottom: 6 }}>
-            ไฟล์เอกสาร (PDF) *
+          <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>
+            {t("fileLabel")}
           </label>
-          <input type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            style={{ display: "none" }}
+          />
+          <div
+            onClick={() => fileRef.current?.click()}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "12px 14px",
+              border: `1px dashed ${colors.tintBorder}`,
+              borderRadius: 8,
+              cursor: "pointer",
+              background: colors.tint,
+            }}
+          >
+            <i className="ti ti-upload" style={{ fontSize: 18, color: colors.primary }} aria-hidden="true" />
+            <span
+              style={{
+                fontSize: 13,
+                color: file ? colors.primaryDark : colors.primary,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {file ? file.name : t("chooseFilePlaceholder")}
+            </span>
+          </div>
         </div>
 
         <label style={{ fontSize: 13, display: "flex", alignItems: "flex-start", gap: 6 }}>
@@ -195,7 +261,7 @@ export default function SubmitForm({
             onChange={(e) => setAcknowledged(e.target.checked)}
             style={{ marginTop: 2 }}
           />
-          ข้าพเจ้ารับทราบกระบวนการยื่นเอกสารและยืนยันว่าข้อมูลข้างต้นถูกต้อง
+          {t("acknowledgeLabel")}
         </label>
 
         {status === "error" && <p style={{ color: "#b00020", fontSize: 13 }}>{errorMsg}</p>}
@@ -203,26 +269,11 @@ export default function SubmitForm({
         <button
           onClick={handleSubmit}
           disabled={status === "loading"}
-          style={{
-            padding: "10px 20px",
-            background: status === "loading" ? "#999" : "#2e7d32",
-            color: "#fff",
-            border: "none",
-            borderRadius: 6,
-            cursor: status === "loading" ? "default" : "pointer",
-            fontSize: 14,
-          }}
+          style={{ ...buttonPrimaryStyle, opacity: status === "loading" ? 0.7 : 1 }}
         >
-          {status === "loading" ? "กำลังส่ง..." : "ส่งเอกสาร"}
+          {status === "loading" ? t("sending") : t("submitButton")}
         </button>
       </div>
-    </main>
+    </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  padding: "8px 10px",
-  border: "1px solid #ccc",
-  borderRadius: 6,
-  fontSize: 14,
-};

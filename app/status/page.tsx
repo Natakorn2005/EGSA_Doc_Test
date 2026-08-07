@@ -1,13 +1,16 @@
 import { auth } from "@/auth";
 import { getSecretarySheet } from "@/lib/googleSheets";
+import { getStaffRole } from "@/lib/roles";
+import { getTranslations } from "next-intl/server";
+import { colors } from "@/lib/theme";
 
 export const dynamic = "force-dynamic";
 
-const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  "รอตรวจสอบ": { label: "รอตรวจสอบ", color: "#665c00", bg: "#fff8e1" },
-  "รอเซ็น": { label: "รอเซ็นอนุมัติ", color: "#8a4b00", bg: "#fff3e0" },
-  "อนุมัติ": { label: "อนุมัติแล้ว", color: "#1b5e20", bg: "#f1f8f1" },
-  "ตีกลับ": { label: "ถูกตีกลับ", color: "#b00020", bg: "#fff3f3" },
+const STATUS_KEY_MAP: Record<string, { key: string; color: string; bg: string }> = {
+  "รอตรวจสอบ": { key: "statusPending", color: "#665c00", bg: "#fff8e1" },
+  "รอเซ็น": { key: "statusWaitingSign", color: "#8a4b00", bg: "#fff3e0" },
+  "อนุมัติ": { key: "statusApproved", color: "#1b5e20", bg: "#f1f8f1" },
+  "ตีกลับ": { key: "statusRejected", color: colors.primaryDark, bg: colors.tint },
 };
 
 function findMatches(headers: string[], rows: string[][], query: string) {
@@ -32,13 +35,13 @@ export default async function StatusPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
+  const t = await getTranslations("status");
+  const tc = await getTranslations("common");
   const { q } = await searchParams;
   const session = await auth();
 
-  // ถ้ายังไม่ได้พิมพ์ค้นหาอะไรเลย แต่ล็อกอินอยู่ -> ใช้อีเมลของตัวเองเป็นค่าเริ่มต้นให้อัตโนมัติ
-  // ถ้าพิมพ์ค้นหาเองแล้ว (มี q) ให้ค่านั้นชนะเสมอ ไม่ว่าจะล็อกอินอยู่หรือไม่
-  const usingSessionDefault = !q && !!session?.user?.email;
-  const query = q?.trim() || (usingSessionDefault ? session!.user!.email!.trim() : "");
+  // *** ไม่เติมอีเมลอัตโนมัติ — ต้องพิมพ์ค้นหาเองเสมอ (แยกจากเรื่องสิทธิ์ดูไฟล์ด้านล่าง) ***
+  const query = q?.trim() || "";
 
   let matches: string[][] = [];
   let headers: string[] = [];
@@ -49,36 +52,33 @@ export default async function StatusPage({
       const data = await getSecretarySheet();
       headers = data.headers;
       matches = findMatches(data.headers, data.rows, query);
-      // เรียงรายการล่าสุดขึ้นก่อน (ชีตเรียงตามลำดับเวลาที่ยื่นอยู่แล้ว -> reverse พอ)
       matches = matches.slice().reverse();
     } catch (e) {
       error = e instanceof Error ? e.message : "Unknown error";
     }
   }
 
-  return (
-    <main style={{ padding: 24, fontFamily: "sans-serif", maxWidth: 640, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 20, marginBottom: 4 }}>ตรวจสอบสถานะเอกสาร</h1>
-      <p style={{ color: "#666", marginBottom: 20 }}>
-        กรอกรหัสอ้างอิง (Tracking ID) หรืออีเมลที่ใช้ยื่นเอกสาร
-      </p>
+  // *** สิทธิ์ดูไฟล์: เจ้าของเอกสารเอง หรือเจ้าหน้าที่ (เลขาฯ/นายกฯ/รองประธาน) เท่านั้น ***
+  // ป้องกันคนอื่นที่รู้ Tracking ID ของคนอื่นแล้วมาเปิดไฟล์เอกสารที่ไม่ใช่ของตัวเอง
+  const viewerEmail = session?.user?.email?.trim().toLowerCase() || null;
+  const viewerRole = viewerEmail ? await getStaffRole(viewerEmail) : null;
+  const isStaffViewer = !!viewerRole;
 
-      {usingSessionDefault && (
-        <div style={{ background: "#f1f8f1", border: "1px solid #cde5cf", borderRadius: 6, padding: 10, marginBottom: 16, fontSize: 13 }}>
-          กำลังแสดงรายการที่ยื่นด้วยอีเมล {session!.user!.email} — พิมพ์ค้นหาด้านล่างเพื่อดูรายการอื่น
-        </div>
-      )}
+  return (
+    <div style={{ maxWidth: 640, margin: "0 auto", padding: "24px 20px" }}>
+      <h1 style={{ fontSize: 20, marginBottom: 4 }}>{t("title")}</h1>
+      <p style={{ color: colors.textSecondary, marginBottom: 20 }}>{t("subtitle")}</p>
 
       <form method="get" style={{ display: "flex", gap: 8, marginBottom: 24 }}>
         <input
           type="text"
           name="q"
           defaultValue={query}
-          placeholder="เช่น TRK-20260805-002 หรือ อีเมลของท่าน"
+          placeholder={t("searchPlaceholder")}
           style={{
             flex: 1,
             padding: "8px 12px",
-            border: "1px solid #ccc",
+            border: `1px solid ${colors.cardBorder}`,
             borderRadius: 6,
             fontSize: 14,
           }}
@@ -87,30 +87,32 @@ export default async function StatusPage({
           type="submit"
           style={{
             padding: "8px 20px",
-            background: "#2e7d32",
+            background: colors.primary,
             color: "#fff",
             border: "none",
             borderRadius: 6,
             cursor: "pointer",
+            fontFamily: "var(--font-body)",
           }}
         >
-          ค้นหา
+          {t("searchButton")}
         </button>
       </form>
 
       {error && (
         <div style={{ color: "#b00020", background: "#fff3f3", padding: 12, borderRadius: 6 }}>
-          เชื่อมต่อไม่สำเร็จ: {error}
+          {tc("connectionError")}: {error}
         </div>
       )}
 
-      {query && !error && matches.length === 0 && (
-        <p>ไม่พบเอกสารที่ตรงกับ &quot;{query}&quot; กรุณาตรวจสอบรหัสหรืออีเมลอีกครั้ง</p>
-      )}
+      {query && !error && matches.length === 0 && <p>{t("notFound", { query })}</p>}
 
       {matches.map((row, i) => {
         const status = getCell(headers, row, "สถานะ");
-        const meta = STATUS_LABELS[status] || { label: status || "ไม่ทราบสถานะ", color: "#444", bg: "#f5f5f5" };
+        const meta = STATUS_KEY_MAP[status];
+        const label = meta ? t(meta.key) : status || t("statusUnknown");
+        const color = meta?.color || "#444";
+        const bg = meta?.bg || "#f5f5f5";
         const trackingId = getCell(headers, row, "Tracking ID");
         const docName = getCell(headers, row, "ชื่อเอกสาร");
         const submittedAt = getCell(headers, row, "ประทับเวลา");
@@ -119,32 +121,26 @@ export default async function StatusPage({
         const docNumber = getCell(headers, row, "เลขเอกสาร");
         const finalLink = getCell(headers, row, "ลิงก์ไฟล์สุดท้าย (ประทับเลขแล้ว)");
         const approvedAt = getCell(headers, row, "เวลาที่อนุมัติ");
+        const rowEmail = getCell(headers, row, "อีเมล").trim().toLowerCase();
+        const canViewFile = isStaffViewer || (viewerEmail && viewerEmail === rowEmail);
 
         return (
-          <div
-            key={i}
-            style={{
-              border: "1px solid #eee",
-              borderRadius: 8,
-              padding: 16,
-              marginBottom: 12,
-              background: meta.bg,
-            }}
-          >
+          <div key={i} style={{ border: `1px solid ${colors.cardBorder}`, borderRadius: 8, padding: 16, marginBottom: 12, background: bg }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <strong style={{ fontSize: 15 }}>{docName || trackingId}</strong>
-              <span style={{ color: meta.color, fontWeight: 600, fontSize: 13 }}>{meta.label}</span>
+              <span style={{ color, fontWeight: 600, fontSize: 13 }}>{label}</span>
             </div>
-            <p style={{ color: "#666", fontSize: 13, margin: "6px 0" }}>
-              รหัสอ้างอิง: {trackingId} · ยื่นเมื่อ: {submittedAt || "-"}
+            <p style={{ color: colors.textSecondary, fontSize: 13, margin: "6px 0" }}>
+              {t("trackingId")}: {trackingId} · {t("submittedAt")}: {submittedAt || "-"}
             </p>
 
             {status === "ตีกลับ" && (
               <div style={{ marginTop: 8, fontSize: 13 }}>
-                <p style={{ color: "#b00020" }}>เหตุผล: {rejectReason || "-"}</p>
+                <p style={{ color: "#b00020", marginBottom: 8 }}>{t("reasonLabel")}: {rejectReason || "-"}</p>
                 {resubmitLink && (
-                  <a href={resubmitLink} style={{ color: "#2e7d32" }}>
-                    ยื่นเอกสารแก้ไข →
+                  <a href={resubmitLink} className="egsa-link-btn">
+                    <i className="ti ti-edit" style={{ fontSize: 16 }} aria-hidden="true" />
+                    {t("resubmitLink")}
                   </a>
                 )}
               </div>
@@ -152,11 +148,14 @@ export default async function StatusPage({
 
             {status === "อนุมัติ" && (
               <div style={{ marginTop: 8, fontSize: 13 }}>
-                <p>เลขที่เอกสาร: <strong>{docNumber}</strong></p>
-                <p style={{ color: "#666" }}>อนุมัติเมื่อ: {approvedAt || "-"}</p>
-                {finalLink && (
-                  <a href={finalLink} style={{ color: "#2e7d32" }}>
-                    เปิดไฟล์เอกสาร →
+                <p>
+                  {t("docNumberLabel")}: <strong>{docNumber}</strong>
+                </p>
+                <p style={{ color: colors.textSecondary, marginBottom: 8 }}>{t("approvedAt")}: {approvedAt || "-"}</p>
+                {finalLink && canViewFile && (
+                  <a href={finalLink} className="egsa-link-btn">
+                    <i className="ti ti-file-check" style={{ fontSize: 16 }} aria-hidden="true" />
+                    {t("openFile")}
                   </a>
                 )}
               </div>
@@ -164,6 +163,6 @@ export default async function StatusPage({
           </div>
         );
       })}
-    </main>
+    </div>
   );
 }

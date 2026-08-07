@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { colors, inputStyle } from "@/lib/theme";
 
 export default function ProfileForm({
   email,
@@ -16,6 +18,7 @@ export default function ProfileForm({
   initialPhone: string;
   hasSavedProfile: boolean;
 }) {
+  const t = useTranslations("profile");
   const [name, setName] = useState(initialName);
   const [studentId, setStudentId] = useState(initialStudentId);
   const [phone, setPhone] = useState(initialPhone);
@@ -25,7 +28,7 @@ export default function ProfileForm({
 
   async function handleSave() {
     if (!name.trim()) {
-      setErrorMsg("กรุณากรอกชื่อ - นามสกุล");
+      setErrorMsg(t("errMissingName"));
       setStatus("error");
       return;
     }
@@ -41,75 +44,96 @@ export default function ProfileForm({
       });
       const data = await res.json();
       if (!data.success) {
-        setErrorMsg(data.error || "เกิดข้อผิดพลาด");
+        setErrorMsg(data.error || "");
         setStatus("error");
         return;
       }
-      // บันทึกสำเร็จ -> กลับไปหน้าแรกทันที (หน้าแรกจะเช็คโปรไฟล์ใหม่และแสดงหน้ายินดีต้อนรับแทนการเด้งกลับมาที่นี่)
       router.push("/");
     } catch (e) {
-      setErrorMsg(e instanceof Error ? e.message : "เกิดข้อผิดพลาด");
+      setErrorMsg(e instanceof Error ? e.message : "");
       setStatus("error");
     }
   }
 
   return (
-    <main style={{ padding: 24, fontFamily: "sans-serif", maxWidth: 480, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 20, marginBottom: 4 }}>ข้อมูลส่วนตัว</h1>
-      <p style={{ color: "#666", marginBottom: 20, fontSize: 13 }}>
-        {hasSavedProfile
-          ? "แก้ไขข้อมูลที่ใช้เติมฟอร์มยื่นเอกสารอัตโนมัติ"
-          : "บันทึกครั้งแรก — ระบบจะเติมข้อมูลนี้ให้อัตโนมัติทุกครั้งที่ยื่นเอกสารในอนาคต"}
-      </p>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div>
-          <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>อีเมล</label>
-          <input value={email} disabled style={{ ...inputStyle, background: "#f5f5f5", color: "#888" }} />
+    <div style={{ maxWidth: 440, margin: "0 auto" }}>
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 14,
+          overflow: "hidden",
+          border: `1px solid ${colors.cardBorder}`,
+          boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+        }}
+      >
+        <div style={{ background: colors.primary, padding: "16px 20px" }}>
+          <h1 style={{ color: "#fff", fontSize: 17, margin: 0 }}>{t("title")}</h1>
+          <p style={{ color: "#F3D0D4", fontSize: 12, margin: "4px 0 0" }}>
+            {hasSavedProfile ? t("editSubtitle") : t("firstTimeSubtitle")}
+          </p>
         </div>
 
-        <div>
-          <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>ชื่อ - นามสกุล *</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} disabled={status === "loading"} style={inputStyle} />
+        <div style={{ padding: 20 }}>
+          <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>
+            {t("emailLabel")}
+          </label>
+          <input
+            value={email}
+            disabled
+            style={{ ...inputStyle, width: "100%", background: "#f5f5f5", color: colors.textMuted, marginBottom: 14, boxSizing: "border-box" }}
+          />
+
+          <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>
+            {t("nameLabel")}
+          </label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={status === "loading"}
+            style={{ ...inputStyle, width: "100%", marginBottom: 14, boxSizing: "border-box" }}
+          />
+
+          <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>
+            {t("studentIdLabel")}
+          </label>
+          <input
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value)}
+            disabled={status === "loading"}
+            style={{ ...inputStyle, width: "100%", marginBottom: 14, boxSizing: "border-box" }}
+          />
+
+          <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>
+            {t("phoneLabel")}
+          </label>
+          <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            disabled={status === "loading"}
+            style={{ ...inputStyle, width: "100%", marginBottom: 18, boxSizing: "border-box" }}
+          />
+
+          {status === "error" && <p style={{ color: "#b00020", fontSize: 13, margin: "0 0 14px" }}>{errorMsg}</p>}
+
+          <button
+            onClick={handleSave}
+            disabled={status === "loading"}
+            style={{
+              width: "100%",
+              padding: "10px 16px",
+              background: status === "loading" ? "#999" : colors.primary,
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              cursor: status === "loading" ? "default" : "pointer",
+              fontSize: 14,
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            {status === "loading" ? t("saving") : t("saveButton")}
+          </button>
         </div>
-
-        <div>
-          <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>รหัสนักศึกษา</label>
-          <input value={studentId} onChange={(e) => setStudentId(e.target.value)} disabled={status === "loading"} style={inputStyle} />
-        </div>
-
-        <div>
-          <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>เบอร์โทรสำหรับติดต่อ</label>
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} disabled={status === "loading"} style={inputStyle} />
-        </div>
-
-        {status === "error" && <p style={{ color: "#b00020", fontSize: 13 }}>{errorMsg}</p>}
-
-        <button
-          onClick={handleSave}
-          disabled={status === "loading"}
-          style={{
-            padding: "10px 20px",
-            background: status === "loading" ? "#999" : "#2e7d32",
-            color: "#fff",
-            border: "none",
-            borderRadius: 6,
-            cursor: status === "loading" ? "default" : "pointer",
-            fontSize: 14,
-          }}
-        >
-          {status === "loading" ? "กำลังบันทึก..." : "บันทึกและกลับหน้าแรก"}
-        </button>
       </div>
-    </main>
+    </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "8px 10px",
-  border: "1px solid #ccc",
-  borderRadius: 6,
-  fontSize: 14,
-  boxSizing: "border-box",
-};

@@ -1,14 +1,16 @@
 import type { NextAuthConfig } from "next-auth";
-
-const SIGNER_ROLES = ["president", "vp_internal", "vp_external"];
+import { isSecretaryRole, isSignerRole } from "@/lib/roles";
 
 export const authConfig = {
   pages: { signIn: "/login" },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
-      const role = auth?.user?.role;
-      if (nextUrl.pathname.startsWith("/secretary")) return role === "secretary";
-      if (nextUrl.pathname.startsWith("/president")) return SIGNER_ROLES.includes(role || "");
+      const role = auth?.user?.role || null;
+      if (nextUrl.pathname.startsWith("/secretary")) return isSecretaryRole(role);
+      if (nextUrl.pathname.startsWith("/president")) return isSignerRole(role);
+      if (nextUrl.pathname.startsWith("/records") || nextUrl.pathname.startsWith("/registry")) {
+        return isSecretaryRole(role) || isSignerRole(role);
+      }
       return true;
     },
   },

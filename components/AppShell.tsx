@@ -1,37 +1,46 @@
 import { auth, signOut } from "@/auth";
-import { getStaffRole, getRoleDisplayLabel, isSignerRole } from "@/lib/roles";
+import { getStaffRole, isSignerRole, isSecretaryRole, getRoleI18nKey } from "@/lib/roles";
 import { colors, layout } from "@/lib/theme";
+import { getTranslations } from "next-intl/server";
 import Sidebar from "./Sidebar";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 type NavLink = { href: string; icon: string; label: string };
 
 export default async function AppShell({ children }: { children: React.ReactNode }) {
   const session = await auth();
+  const t = await getTranslations();
 
-  // ผู้ที่ยังไม่ล็อกอิน ไม่ต้องมี sidebar — แสดงเนื้อหาเต็มพื้นที่ (หน้า login/submit/status สาธารณะ)
   if (!session?.user?.email) {
     return (
-      <div style={{ maxWidth: layout.contentMaxWidth, margin: "0 auto", padding: "24px 20px" }}>
+      <>
+        <div style={{ position: "fixed", top: 16, right: 16, zIndex: 40 }}>
+          <LanguageSwitcher variant="onLight" />
+        </div>
         {children}
-      </div>
+      </>
     );
   }
 
   const role = await getStaffRole(session.user.email);
-  const roleLabel = getRoleDisplayLabel(role);
+  const roleLabel = t(`role.${getRoleI18nKey(role)}`);
   const displayName = session.user.name || session.user.email;
 
-  const links: NavLink[] = [{ href: "/", icon: "ti-home", label: "หน้าแรก" }];
-  if (role === "secretary") {
-    links.push({ href: "/secretary", icon: "ti-inbox", label: "คิวเอกสารรอตรวจ" });
+  const links: NavLink[] = [{ href: "/", icon: "ti-home", label: t("nav.home") }];
+  if (isSecretaryRole(role)) {
+    links.push({ href: "/secretary", icon: "ti-inbox", label: t("nav.secretaryQueue") });
   }
   if (isSignerRole(role)) {
-    links.push({ href: "/president", icon: "ti-checkbox", label: "คิวเอกสารรอเซ็น" });
+    links.push({ href: "/president", icon: "ti-checkbox", label: t("nav.presidentQueue") });
   }
-  links.push({ href: "/submit", icon: "ti-file-plus", label: "ยื่นเอกสาร" });
-  links.push({ href: "/status", icon: "ti-search", label: "ตรวจสอบสถานะ" });
-  links.push({ href: "/my", icon: "ti-folder", label: "เอกสารของฉัน" });
-  links.push({ href: "/profile", icon: "ti-user", label: "ข้อมูลส่วนตัว" });
+  if (isSecretaryRole(role) || isSignerRole(role)) {
+    links.push({ href: "/records", icon: "ti-database", label: t("records.navLabel") });
+    links.push({ href: "/registry", icon: "ti-notebook", label: t("registry.navLabel") });
+  }
+  links.push({ href: "/submit", icon: "ti-file-plus", label: t("nav.submit") });
+  links.push({ href: "/status", icon: "ti-search", label: t("nav.status") });
+  links.push({ href: "/my", icon: "ti-folder", label: t("nav.myDocs") });
+  links.push({ href: "/profile", icon: "ti-user", label: t("nav.profile") });
 
   async function handleSignOut() {
     "use server";
@@ -41,9 +50,11 @@ export default async function AppShell({ children }: { children: React.ReactNode
   return (
     <div style={{ minHeight: "100vh", background: colors.pageBg }}>
       <Sidebar
+        orgName={t("nav.orgShort")}
         displayName={displayName}
         roleLabel={roleLabel}
         links={links}
+        signOutText={t("nav.signOut")}
         signOutAction={handleSignOut}
       />
       <div className="egsa-main" style={{ marginLeft: layout.sidebarWidth }}>

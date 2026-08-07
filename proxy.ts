@@ -1,23 +1,29 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-
-const SIGNER_ROLES = ["president", "vp_internal", "vp_external"];
+import { isSecretaryRole, isSignerRole } from "@/lib/roles";
 
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
   const role = req.auth?.user?.role;
 
-  const isSecretary = nextUrl.pathname.startsWith("/secretary");
-  const isPresident = nextUrl.pathname.startsWith("/president");
+  const isSecretaryPath = nextUrl.pathname.startsWith("/secretary");
+  const isPresidentPath = nextUrl.pathname.startsWith("/president");
+  const isRecordsPath = nextUrl.pathname.startsWith("/records");
+  const isRegistryPath = nextUrl.pathname.startsWith("/registry");
 
-  if (!isSecretary && !isPresident) return NextResponse.next();
+  if (!isSecretaryPath && !isPresidentPath && !isRecordsPath && !isRegistryPath) return NextResponse.next();
 
   if (!isLoggedIn) {
     return NextResponse.redirect(new URL("/login", nextUrl));
   }
 
-  if ((isSecretary && role !== "secretary") || (isPresident && !SIGNER_ROLES.includes(role || ""))) {
+  const denied =
+    (isSecretaryPath && !isSecretaryRole(role || null)) ||
+    (isPresidentPath && !isSignerRole(role || null)) ||
+    ((isRecordsPath || isRegistryPath) && !isSecretaryRole(role || null) && !isSignerRole(role || null));
+
+  if (denied) {
     return NextResponse.redirect(new URL("/unauthorized", nextUrl));
   }
 
@@ -25,5 +31,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/secretary/:path*", "/president/:path*"],
+  matcher: ["/secretary/:path*", "/president/:path*", "/records/:path*", "/registry/:path*"],
 };

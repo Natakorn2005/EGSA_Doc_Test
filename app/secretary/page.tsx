@@ -1,5 +1,6 @@
 import { getSecretarySheet } from "@/lib/googleSheets";
-import { getStaffNamesByRole } from "@/lib/roles";
+import { getReviewerOptions } from "@/lib/roles";
+import { getTranslations } from "next-intl/server";
 import QueuePanel, { QueueDoc } from "@/components/QueuePanel";
 import { colors } from "@/lib/theme";
 
@@ -11,6 +12,8 @@ function cell(headers: string[], row: string[], name: string): string {
 }
 
 export default async function SecretaryPage() {
+  const t = await getTranslations("queue");
+  const tc = await getTranslations("common");
   let docs: QueueDoc[] = [];
   let error: string | null = null;
 
@@ -23,7 +26,7 @@ export default async function SecretaryPage() {
         trackingId: cell(data.headers, row, "Tracking ID"),
         docName: cell(data.headers, row, "ชื่อเอกสาร"),
         applicant: cell(data.headers, row, "ชื่อ - นามสกุล"),
-        agencyType: cell(data.headers, row, "หน่วยงานที่ยื่นเอกสาร"),
+        agencyType: cell(data.headers, row, "หน่วยงานที่ยื่นเอกสาร").trim(),
         agencyValue:
           cell(data.headers, row, "ฝ่ายภายในสโมสร") ||
           cell(data.headers, row, "ชมรม") ||
@@ -36,18 +39,18 @@ export default async function SecretaryPage() {
     error = e instanceof Error ? e.message : "Unknown error";
   }
 
-  const reviewerOptions = await getStaffNamesByRole("secretary");
+  const reviewerOptions = await getReviewerOptions();
 
   return (
     <div>
-      <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>คิวเอกสารรอตรวจ</h1>
+      <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>{t("secretaryTitle")}</h1>
       <p style={{ color: colors.textSecondary, fontSize: 14, margin: "0 0 20px" }}>
-        {docs.length} รายการรอดำเนินการ
+        {docs.length} {t("itemsPending")}
       </p>
 
       {error ? (
         <div style={{ color: "#b00020", background: "#fff3f3", padding: 12, borderRadius: 8 }}>
-          เชื่อมต่อไม่สำเร็จ: {error}
+          {tc("connectionError")}: {error}
         </div>
       ) : (
         <QueuePanel docs={docs} mode="secretary" reviewerOptions={reviewerOptions} />

@@ -26,3 +26,38 @@ h3 {
   font-family: var(--font-heading);
   font-weight: 500;
 }
+
+/* ปุ่มลิงก์เปิดไฟล์ — ใช้แทนลิงก์ธรรมดา ให้ดูเป็นปุ่มที่กดได้จริง มี hover effect */
+.egsa-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #FBEAEC;
+  color: #6E1423;
+  text-decoration: none;
+  font-size: 13px;
+  font-family: var(--font-body);
+  transition: background 0.15s ease, transform 0.15s ease;
+  border: 1px solid #E8A9AE;
+}
+
+.egsa-link-btn:hover {
+  background: #F3D0D4;
+  transform: translateY(-1px);
+}
+
+.egsa-link-btn:active {
+  transform: translateY(0);
+}
+
+/* ฟอร์มต่าง ๆ (input/select/textarea/button) ไม่รับฟอนต์ตาม body โดยอัตโนมัติ
+   (พฤติกรรมมาตรฐานของเบราว์เซอร์) — บังคับให้ใช้ฟอนต์เดียวกันทั้งเว็บที่นี่ที่เดียว
+   กันปัญหาช่องกรอกข้อมูลบางจุดฟอนต์ไม่ตรงกับส่วนอื่นของหน้า */
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}

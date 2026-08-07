@@ -13,20 +13,23 @@ export async function POST(req: Request) {
   const reviewerName = formData.get("reviewerName") as string;
   const file = formData.get("file") as File | null;
 
-  if (!trackingId || !reason || !file) {
+  if (!trackingId || !reason) {
     return NextResponse.json({ success: false, error: "กรอกข้อมูลไม่ครบ" }, { status: 400 });
   }
 
-  const MAX_SIZE = 3 * 1024 * 1024; // stay under Vercel's request body ceiling
-  if (file.size > MAX_SIZE) {
-    return NextResponse.json({ success: false, error: "ไฟล์ใหญ่เกินไป (จำกัด 3MB)" }, { status: 400 });
+  // ไฟล์ไม่บังคับสำหรับการตีกลับ — ถ้าแนบมาก็ตรวจสอบขนาด/ชนิดไฟล์ตามปกติ
+  let base64: string | null = null;
+  if (file) {
+    const MAX_SIZE = 3 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json({ success: false, error: "ไฟล์ใหญ่เกินไป (จำกัด 3MB)" }, { status: 400 });
+    }
+    if (file.type !== "application/pdf") {
+      return NextResponse.json({ success: false, error: "รองรับเฉพาะไฟล์ PDF" }, { status: 400 });
+    }
+    const arrayBuffer = await file.arrayBuffer();
+    base64 = Buffer.from(arrayBuffer).toString("base64");
   }
-  if (file.type !== "application/pdf") {
-    return NextResponse.json({ success: false, error: "รองรับเฉพาะไฟล์ PDF" }, { status: 400 });
-  }
-
-  const arrayBuffer = await file.arrayBuffer();
-  const base64 = Buffer.from(arrayBuffer).toString("base64");
 
   const url = process.env.APPS_SCRIPT_WEB_APP_URL;
   const secret = process.env.APPS_SCRIPT_API_SECRET;
@@ -45,8 +48,8 @@ export async function POST(req: Request) {
         reason,
         reviewerName,
         fileBase64: base64,
-        fileName: file.name,
-        mimeType: file.type,
+        fileName: file?.name || "",
+        mimeType: file?.type || "",
       }),
     });
     const raw = await res.text();

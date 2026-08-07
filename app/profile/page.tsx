@@ -1,47 +1,36 @@
 import { auth, signIn } from "@/auth";
 import { getUserProfile } from "@/lib/profile";
 import { getLatestApplicantInfo } from "@/lib/applicantHistory";
+import { getTranslations } from "next-intl/server";
+import { colors, buttonPrimaryStyle } from "@/lib/theme";
 import ProfileForm from "./ProfileForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
+  const t = await getTranslations("profile");
+  const tn = await getTranslations("nav");
   const session = await auth();
 
   if (!session?.user?.email) {
     return (
-      <main style={{ padding: 24, fontFamily: "sans-serif", maxWidth: 480, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 20, marginBottom: 8 }}>ข้อมูลส่วนตัว</h1>
-        <p style={{ color: "#666", marginBottom: 16, fontSize: 14 }}>
-          เข้าสู่ระบบด้วย Google เพื่อบันทึกข้อมูลส่วนตัวไว้ใช้เติมฟอร์มอัตโนมัติ
-        </p>
+      <div style={{ maxWidth: 420, margin: "0 auto" }}>
+        <h1 style={{ fontSize: 20, marginBottom: 8 }}>{t("title")}</h1>
+        <p style={{ color: colors.textSecondary, marginBottom: 16, fontSize: 14 }}>{t("loginPrompt")}</p>
         <form
           action={async () => {
             "use server";
             await signIn("google", { redirectTo: "/profile" });
           }}
         >
-          <button
-            type="submit"
-            style={{
-              padding: "8px 16px",
-              background: "#2e7d32",
-              color: "#fff",
-              border: "none",
-              borderRadius: 6,
-              cursor: "pointer",
-              fontSize: 14,
-            }}
-          >
-            เข้าสู่ระบบด้วย Google
+          <button type="submit" style={buttonPrimaryStyle}>
+            {tn("signIn")}
           </button>
         </form>
-      </main>
+      </div>
     );
   }
 
-  // ลองหาจากโปรไฟล์ที่บันทึกไว้ก่อน ถ้ายังไม่มีค่อย fallback ไปดูจากการยื่นเอกสารครั้งล่าสุด
-  // (เผื่อคนที่เคยยื่นเอกสารมาก่อนหน้านี้ แต่ยังไม่เคยมาหน้านี้)
   const existingProfile = await getUserProfile(session.user.email);
   const history = existingProfile ? null : await getLatestApplicantInfo(session.user.email);
 

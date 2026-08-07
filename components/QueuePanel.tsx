@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { colors, statusColors } from "@/lib/theme";
 
 export type QueueDoc = {
@@ -26,14 +27,26 @@ export default function QueuePanel({
 }: {
   docs: QueueDoc[];
   mode: "secretary" | "president";
-  reviewerOptions?: string[];
+  reviewerOptions?: SignerOption[];
   signerOptions?: SignerOption[];
 }) {
+  const t = useTranslations("queue");
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [agencyFilter, setAgencyFilter] = useState("");
   const [flashId, setFlashId] = useState<string | null>(null);
+  const [flashWarning, setFlashWarning] = useState<string | null>(null);
   const [modal, setModal] = useState<{ doc: QueueDoc; action: ActionKind } | null>(null);
+  const [expandedFiles, setExpandedFiles] = useState<Set<string>>(new Set());
+
+  function toggleFile(trackingId: string) {
+    setExpandedFiles((prev) => {
+      const next = new Set(prev);
+      if (next.has(trackingId)) next.delete(trackingId);
+      else next.add(trackingId);
+      return next;
+    });
+  }
 
   const agencyTypes = useMemo(
     () => Array.from(new Set(docs.map((d) => d.agencyType).filter(Boolean))),
@@ -55,7 +68,7 @@ export default function QueuePanel({
 
   const nameOptions: SignerOption[] =
     mode === "secretary"
-      ? (reviewerOptions || []).map((n) => ({ name: n, roleLabel: "" }))
+      ? reviewerOptions || []
       : signerOptions || [];
 
   return (
@@ -63,7 +76,7 @@ export default function QueuePanel({
       <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
         <input
           type="text"
-          placeholder="ค้นหาชื่อเอกสาร ผู้ยื่น หรือรหัสอ้างอิง"
+          placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
@@ -89,7 +102,7 @@ export default function QueuePanel({
               background: "#fff",
             }}
           >
-            <option value="">ทุกหน่วยงาน</option>
+            <option value="">{t("allAgencies")}</option>
             {agencyTypes.map((a) => (
               <option key={a} value={a}>
                 {a}
@@ -114,23 +127,24 @@ export default function QueuePanel({
           <p style={{ margin: "10px 0 0", fontSize: 14 }}>
             {docs.length === 0
               ? mode === "secretary"
-                ? "ไม่มีเอกสารรอตรวจในขณะนี้"
-                : "ไม่มีเอกสารรอเซ็นในขณะนี้"
-              : "ไม่พบเอกสารที่ตรงกับการค้นหา"}
+                ? t("emptySecretary")
+                : t("emptyPresident")
+              : t("emptySearch")}
           </p>
         </div>
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 14 }}>
         {filtered.map((doc) => {
-          const pending = statusColors[mode === "secretary" ? "รอตรวจสอบ" : "รอเซ็น"];
+          const pendingKey = mode === "secretary" ? "รอตรวจสอบ" : "รอเซ็น";
+          const pending = statusColors[pendingKey];
           const flashing = flashId === doc.trackingId;
           return (
             <div
               key={doc.trackingId}
               style={{
-                background: flashing ? "#f1f8f1" : "#fff",
-                border: `1px solid ${flashing ? "#cde5cf" : colors.cardBorder}`,
+                background: flashing ? (flashWarning ? "#fff8e1" : "#f1f8f1") : "#fff",
+                border: `1px solid ${flashing ? (flashWarning ? "#ffe082" : "#cde5cf") : colors.cardBorder}`,
                 borderLeft: `4px solid ${colors.primary}`,
                 borderRadius: "0 12px 12px 0",
                 padding: 16,
@@ -138,9 +152,15 @@ export default function QueuePanel({
               }}
             >
               {flashing ? (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#1b5e20", padding: "8px 0" }}>
-                  <i className="ti ti-circle-check" style={{ fontSize: 20 }} aria-hidden="true" />
-                  <span style={{ fontSize: 14 }}>ดำเนินการเรียบร้อยแล้ว</span>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 0" }}>
+                  <i
+                    className={`ti ${flashWarning ? "ti-alert-triangle" : "ti-circle-check"}`}
+                    style={{ fontSize: 20, color: flashWarning ? "#8a4b00" : "#1b5e20", flexShrink: 0, marginTop: 1 }}
+                    aria-hidden="true"
+                  />
+                  <span style={{ fontSize: 14, color: flashWarning ? "#8a4b00" : "#1b5e20" }}>
+                    {flashWarning || t("actionSuccess")}
+                  </span>
                 </div>
               ) : (
                 <>
@@ -160,38 +180,63 @@ export default function QueuePanel({
                     </span>
                   </div>
                   <p style={{ color: colors.textSecondary, fontSize: 13, margin: "6px 0 2px" }}>
-                    ผู้ยื่น: {doc.applicant || "-"}
-                    {mode === "president" && doc.reviewer ? ` · ตรวจโดย: ${doc.reviewer}` : ""}
+                    {t("applicant")}: {doc.applicant || "-"}
+                    {mode === "president" && doc.reviewer ? ` · ${t("reviewedBy")}: ${doc.reviewer}` : ""}
                   </p>
                   <p style={{ color: colors.textMuted, fontSize: 12, margin: "0 0 10px" }}>
                     {doc.agencyValue || doc.agencyType} · {doc.trackingId}
                   </p>
 
                   {doc.fileUrl && (
-                    <a
-                      href={doc.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: colors.primary, fontSize: 13, display: "inline-flex", alignItems: "center", gap: 4 }}
-                    >
-                      <i className="ti ti-file-text" style={{ fontSize: 16 }} aria-hidden="true" />
-                      เปิดเอกสาร
-                    </a>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
+                      <button
+                        onClick={() => toggleFile(doc.trackingId)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          color: colors.textSecondary,
+                          fontSize: 12,
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                      >
+                        <i
+                          className={`ti ${expandedFiles.has(doc.trackingId) ? "ti-chevron-down" : "ti-chevron-right"}`}
+                          style={{ fontSize: 14 }}
+                          aria-hidden="true"
+                        />
+                        {t("attachedFile")}
+                      </button>
+                      {expandedFiles.has(doc.trackingId) && (
+                        <a
+                          href={doc.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="egsa-link-btn"
+                        >
+                          <i className="ti ti-file-text" style={{ fontSize: 16 }} aria-hidden="true" />
+                          {t("openDocument")}
+                        </a>
+                      )}
+                    </div>
                   )}
 
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
                     {mode === "secretary" ? (
                       <>
                         <button onClick={() => setModal({ doc, action: "advance" })} style={btnPrimary}>
-                          ส่งให้นายกฯ
+                          {t("advanceButton")}
                         </button>
                         <button onClick={() => setModal({ doc, action: "reject" })} style={btnOutline}>
-                          ตีกลับ
+                          {t("rejectButton")}
                         </button>
                       </>
                     ) : (
                       <button onClick={() => setModal({ doc, action: "approve" })} style={btnPrimary}>
-                        อนุมัติและออกเลขเอกสาร
+                        {t("approveButton")}
                       </button>
                     )}
                   </div>
@@ -208,11 +253,12 @@ export default function QueuePanel({
           action={modal.action}
           nameOptions={nameOptions}
           onClose={() => setModal(null)}
-          onSuccess={() => {
+          onSuccess={(warning) => {
             const id = modal.doc.trackingId;
             setModal(null);
             setFlashId(id);
-            setTimeout(() => router.refresh(), 700);
+            setFlashWarning(warning || null);
+            setTimeout(() => router.refresh(), warning ? 2200 : 700);
           }}
         />
       )}
@@ -231,8 +277,10 @@ function ActionModal({
   action: ActionKind;
   nameOptions: SignerOption[];
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (warning?: string) => void;
 }) {
+  const t = useTranslations("queue");
+  const tc = useTranslations("common");
   const [name, setName] = useState("");
   const [reason, setReason] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -240,24 +288,16 @@ function ActionModal({
   const [errorMsg, setErrorMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const needsFile = action === "reject" || action === "approve";
+  const showFilePicker = action === "reject" || action === "approve";
+  const requiresFile = action === "approve"; // ตีกลับ = ไฟล์ไม่บังคับ, อนุมัติ = ไฟล์บังคับ
   const needsReason = action === "reject";
 
   const title =
-    action === "advance" ? "ส่งเรื่องให้นายกฯ" : action === "reject" ? "ตีกลับเอกสาร" : "อนุมัติเอกสาร";
-  const nameLabel = action === "approve" ? "ผู้เซ็นอนุมัติ" : "ผู้ตรวจสอบ";
+    action === "advance" ? t("modalAdvanceTitle") : action === "reject" ? t("modalRejectTitle") : t("modalApproveTitle");
+  const nameLabel = action === "approve" ? t("approverLabel") : t("reviewerLabel");
   const confirmText =
-    action === "advance"
-      ? "ยืนยันส่งให้นายกฯ"
-      : action === "reject"
-      ? "ยืนยันตีกลับ"
-      : "ยืนยันอนุมัติและออกเลขเอกสาร";
-  const noteText =
-    action === "advance"
-      ? "ระบบจะส่งอีเมลแจ้งนายกสโมสรฯ ทันที"
-      : action === "reject"
-      ? "ระบบจะส่งอีเมลแจ้งผู้ยื่นทันที"
-      : "ระบบจะออกเลขเอกสารและส่งอีเมลแจ้งผู้ยื่นทันที การกระทำนี้ไม่สามารถย้อนกลับได้";
+    action === "advance" ? t("confirmAdvance") : action === "reject" ? t("confirmReject") : t("confirmApprove");
+  const noteText = action === "advance" ? t("noteAdvance") : action === "reject" ? t("noteReject") : t("noteApprove");
 
   function fail(msg: string) {
     setErrorMsg(msg);
@@ -265,9 +305,9 @@ function ActionModal({
   }
 
   async function handleConfirm() {
-    if (!name.trim()) return fail(`กรุณาเลือก${nameLabel}`);
-    if (needsReason && !reason.trim()) return fail("กรุณาระบุเหตุผลที่ตีกลับ");
-    if (needsFile && !file) return fail("กรุณาแนบไฟล์ PDF");
+    if (!name.trim()) return fail(action === "approve" ? t("pleaseSelectApprover") : t("pleaseSelectReviewer"));
+    if (needsReason && !reason.trim()) return fail(t("pleaseEnterReason"));
+    if (requiresFile && !file) return fail(t("pleaseAttachFile"));
 
     setStatus("loading");
     setErrorMsg("");
@@ -285,7 +325,7 @@ function ActionModal({
         fd.append("trackingId", doc.trackingId);
         fd.append("reason", reason.trim());
         fd.append("reviewerName", name.trim());
-        fd.append("file", file!);
+        if (file) fd.append("file", file);
         res = await fetch("/api/reject", { method: "POST", body: fd });
       } else {
         const fd = new FormData();
@@ -295,10 +335,19 @@ function ActionModal({
         res = await fetch("/api/approve", { method: "POST", body: fd });
       }
       const data = await res.json();
-      if (!data.success) return fail(data.error || "เกิดข้อผิดพลาด");
+      if (!data.success) return fail(data.error || t("genericError"));
+
+      // *** ตรวจเฉพาะ action "advance" ว่าอีเมลแจ้งนายกฯ ส่งจริงหรือไม่ ***
+      // ถ้าไม่พบอีเมลนายกฯ ในชีต "เจ้าหน้าที่" การส่งเรื่องยังสำเร็จ (เปลี่ยนสถานะแล้ว)
+      // แต่ต้องแจ้งเตือนเลขาฯ ว่าไม่มีใครได้รับอีเมล ไม่ใช่แค่ขึ้น "สำเร็จ" เฉย ๆ
+      if (action === "advance" && data.data?.emailSent === false) {
+        onSuccess(t("advanceEmailWarning"));
+        return;
+      }
+
       onSuccess();
     } catch (e) {
-      fail(e instanceof Error ? e.message : "เกิดข้อผิดพลาด");
+      fail(e instanceof Error ? e.message : t("genericError"));
     }
   }
 
@@ -332,19 +381,12 @@ function ActionModal({
         </div>
 
         <div style={{ padding: 20 }}>
-          <div
-            style={{
-              background: colors.tint,
-              borderRadius: 8,
-              padding: "10px 12px",
-              marginBottom: 16,
-            }}
-          >
+          <div style={{ background: colors.tint, borderRadius: 8, padding: "10px 12px", marginBottom: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 500, color: colors.primaryDark }}>
               {doc.docName || doc.trackingId}
             </div>
             <div style={{ fontSize: 12, color: colors.primary, marginTop: 2 }}>
-              ผู้ยื่น: {doc.applicant || "-"} · {doc.trackingId}
+              {t("applicant")}: {doc.applicant || "-"} · {doc.trackingId}
             </div>
           </div>
 
@@ -366,7 +408,7 @@ function ActionModal({
               background: "#fff",
             }}
           >
-            <option value="">-- เลือก{nameLabel} --</option>
+            <option value="">{action === "approve" ? t("selectApprover") : t("selectReviewer")}</option>
             {nameOptions.map((o) => (
               <option key={o.name} value={o.name}>
                 {o.name}
@@ -378,7 +420,7 @@ function ActionModal({
           {needsReason && (
             <>
               <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>
-                เหตุผลที่ตีกลับ *
+                {t("reasonLabel")} *
               </label>
               <textarea
                 value={reason}
@@ -399,10 +441,10 @@ function ActionModal({
             </>
           )}
 
-          {needsFile && (
+          {showFilePicker && (
             <>
               <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>
-                {action === "approve" ? "ไฟล์ที่เซ็นแล้ว (PDF) *" : "ไฟล์ที่ทำเครื่องหมาย (PDF) *"}
+                {action === "approve" ? t("fileLabelApprove") : t("fileLabelReject")}
               </label>
               <input
                 ref={fileRef}
@@ -426,8 +468,16 @@ function ActionModal({
                 }}
               >
                 <i className="ti ti-upload" style={{ fontSize: 18, color: colors.primary }} aria-hidden="true" />
-                <span style={{ fontSize: 13, color: file ? colors.primaryDark : colors.primary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {file ? file.name : "เลือกไฟล์ PDF"}
+                <span
+                  style={{
+                    fontSize: 13,
+                    color: file ? colors.primaryDark : colors.primary,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {file ? file.name : t("chooseFile")}
                 </span>
               </div>
             </>
@@ -435,9 +485,7 @@ function ActionModal({
 
           <p style={{ fontSize: 12, color: colors.textMuted, margin: "0 0 16px" }}>{noteText}</p>
 
-          {status === "error" && (
-            <p style={{ color: "#b00020", fontSize: 13, margin: "0 0 12px" }}>{errorMsg}</p>
-          )}
+          {status === "error" && <p style={{ color: "#b00020", fontSize: 13, margin: "0 0 12px" }}>{errorMsg}</p>}
 
           <div style={{ display: "flex", gap: 10 }}>
             <button
@@ -455,7 +503,7 @@ function ActionModal({
                 fontFamily: "var(--font-body)",
               }}
             >
-              {status === "loading" ? "กำลังดำเนินการ..." : confirmText}
+              {status === "loading" ? tc("loading") : confirmText}
             </button>
             <button
               onClick={onClose}
@@ -471,7 +519,7 @@ function ActionModal({
                 fontFamily: "var(--font-body)",
               }}
             >
-              ยกเลิก
+              {tc("cancel")}
             </button>
           </div>
         </div>

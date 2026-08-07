@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Kanit, IBM_Plex_Sans_Thai } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
 
@@ -22,13 +24,16 @@ export const metadata: Metadata = {
   description: "ระบบส่งเอกสารสโมสรนักศึกษา คณะวิศวกรรมศาสตร์",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="th" className={`${kanit.variable} ${plexThai.variable}`}>
+    <html lang={locale} className={`${kanit.variable} ${plexThai.variable}`}>
       <head>
         <link
           rel="stylesheet"
@@ -36,7 +41,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <AppShell>{children}</AppShell>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <AppShell>{children}</AppShell>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

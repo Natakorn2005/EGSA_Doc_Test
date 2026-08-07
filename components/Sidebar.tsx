@@ -3,18 +3,23 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { colors, layout } from "@/lib/theme";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 type NavLink = { href: string; icon: string; label: string };
 
 export default function Sidebar({
+  orgName,
   displayName,
   roleLabel,
   links,
+  signOutText,
   signOutAction,
 }: {
+  orgName: string;
   displayName: string | null;
   roleLabel: string | null;
   links: NavLink[];
+  signOutText: string;
   signOutAction: () => Promise<void>;
 }) {
   const pathname = usePathname();
@@ -22,25 +27,30 @@ export default function Sidebar({
 
   const sidebarInner = (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div style={{ padding: "20px 18px", display: "flex", alignItems: "center", gap: 10 }}>
-        <div
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: "50%",
-            background: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: colors.primary,
-            fontWeight: 500,
-            fontSize: 12,
-            flexShrink: 0,
-          }}
-        >
-          EGSA
+      <div style={{ padding: "18px 18px 14px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              background: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              padding: 4,
+            }}
+          >
+            <img
+              src="/egsa-logo.png"
+              alt="EGSA"
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          </div>
+          <span style={{ color: "#fff", fontSize: 13, lineHeight: 1.3 }}>{orgName}</span>
         </div>
-        <span style={{ color: "#fff", fontSize: 13, lineHeight: 1.3 }}>ระบบส่งเอกสาร<br />สโมสรนักศึกษา</span>
+        <LanguageSwitcher />
       </div>
 
       <nav style={{ flex: 1, padding: "8px 10px", display: "flex", flexDirection: "column", gap: 2 }}>
@@ -92,7 +102,7 @@ export default function Sidebar({
               fontFamily: "var(--font-body)",
             }}
           >
-            ออกจากระบบ
+            {signOutText}
           </button>
         </form>
       </div>
