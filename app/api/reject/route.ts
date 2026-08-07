@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { isSecretaryRole } from "@/lib/roles";
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (session?.user?.role !== "secretary") {
+  if (!isSecretaryRole(session?.user?.role || null)) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
   }
 
