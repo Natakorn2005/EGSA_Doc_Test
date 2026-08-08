@@ -86,7 +86,9 @@
     "pleaseEnterReason": "Please enter a rejection reason",
     "pleaseAttachFile": "Please attach a PDF file",
     "genericError": "Something went wrong",
-    "advanceEmailWarning": "Sent successfully, but no president or vice president email was found. Please check the database (the \"เจ้าหน้าที่\" tab) and notify an approver directly"
+    "advanceEmailWarning": "Sent successfully, but no president or vice president email was found. Please check the database (the \"เจ้าหน้าที่\" tab) and notify an approver directly",
+    "rejectEmailWarning": "Rejected successfully, but no applicant email was found — please contact them directly",
+    "approveEmailWarning": "Approved and document number issued, but no applicant email was found — please contact them directly"
   },
   "submit": {
     "title": "Submit Document",

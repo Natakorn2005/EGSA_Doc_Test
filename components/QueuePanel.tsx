@@ -337,11 +337,15 @@ function ActionModal({
       const data = await res.json();
       if (!data.success) return fail(data.error || t("genericError"));
 
-      // *** ตรวจเฉพาะ action "advance" ว่าอีเมลแจ้งนายกฯ ส่งจริงหรือไม่ ***
-      // ถ้าไม่พบอีเมลนายกฯ ในชีต "เจ้าหน้าที่" การส่งเรื่องยังสำเร็จ (เปลี่ยนสถานะแล้ว)
-      // แต่ต้องแจ้งเตือนเลขาฯ ว่าไม่มีใครได้รับอีเมล ไม่ใช่แค่ขึ้น "สำเร็จ" เฉย ๆ
-      if (action === "advance" && data.data?.emailSent === false) {
-        onSuccess(t("advanceEmailWarning"));
+      // *** ตรวจว่าอีเมลแจ้งเตือนส่งจริงหรือไม่ — ครอบคลุมทั้งสามการกระทำ ***
+      // การกระทำหลัก (เปลี่ยนสถานะ/ออกเลข) ยังสำเร็จเสมอแม้อีเมลจะส่งไม่ได้
+      // แต่ต้องแจ้งเตือนผู้ใช้ว่าไม่มีใครได้รับอีเมล ไม่ใช่แค่ขึ้น "สำเร็จ" เฉย ๆ
+      if (data.data?.emailSent === false) {
+        const warningKey =
+          action === "advance" ? "advanceEmailWarning" :
+          action === "reject" ? "rejectEmailWarning" :
+          "approveEmailWarning";
+        onSuccess(t(warningKey));
         return;
       }
 
