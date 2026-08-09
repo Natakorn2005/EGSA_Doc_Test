@@ -16,19 +16,17 @@ export type QueueDoc = {
   fileUrl: string;
 };
 
-type SignerOption = { name: string; roleLabel: string };
 type ActionKind = "advance" | "reject" | "approve";
+export type ActingAs = { name: string; roleLabel: string } | null;
 
 export default function QueuePanel({
   docs,
   mode,
-  reviewerOptions,
-  signerOptions,
+  actingAs,
 }: {
   docs: QueueDoc[];
   mode: "secretary" | "president";
-  reviewerOptions?: SignerOption[];
-  signerOptions?: SignerOption[];
+  actingAs: ActingAs;
 }) {
   const t = useTranslations("queue");
   const router = useRouter();
@@ -66,13 +64,28 @@ export default function QueuePanel({
     });
   }, [docs, search, agencyFilter]);
 
-  const nameOptions: SignerOption[] =
-    mode === "secretary"
-      ? reviewerOptions || []
-      : signerOptions || [];
-
   return (
     <div>
+      {actingAs && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: colors.tint,
+            border: `1px solid ${colors.tintBorder}`,
+            borderRadius: 8,
+            padding: "8px 14px",
+            marginBottom: 16,
+            fontSize: 13,
+            color: colors.primaryDark,
+          }}
+        >
+          <i className="ti ti-user-check" style={{ fontSize: 16 }} aria-hidden="true" />
+          {t("actingAs")}: <strong>{actingAs.name}</strong> ({actingAs.roleLabel})
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
         <input
           type="text"
@@ -211,12 +224,7 @@ export default function QueuePanel({
                         {t("attachedFile")}
                       </button>
                       {expandedFiles.has(doc.trackingId) && (
-                        <a
-                          href={doc.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="egsa-link-btn"
-                        >
+                        <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="egsa-link-btn">
                           <i className="ti ti-file-text" style={{ fontSize: 16 }} aria-hidden="true" />
                           {t("openDocument")}
                         </a>
@@ -251,7 +259,7 @@ export default function QueuePanel({
         <ActionModal
           doc={modal.doc}
           action={modal.action}
-          nameOptions={nameOptions}
+          actingAs={actingAs}
           onClose={() => setModal(null)}
           onSuccess={(warning) => {
             const id = modal.doc.trackingId;
@@ -269,19 +277,18 @@ export default function QueuePanel({
 function ActionModal({
   doc,
   action,
-  nameOptions,
+  actingAs,
   onClose,
   onSuccess,
 }: {
   doc: QueueDoc;
   action: ActionKind;
-  nameOptions: SignerOption[];
+  actingAs: ActingAs;
   onClose: () => void;
   onSuccess: (warning?: string) => void;
 }) {
   const t = useTranslations("queue");
   const tc = useTranslations("common");
-  const [name, setName] = useState("");
   const [reason, setReason] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -289,12 +296,11 @@ function ActionModal({
   const fileRef = useRef<HTMLInputElement>(null);
 
   const showFilePicker = action === "reject" || action === "approve";
-  const requiresFile = action === "approve"; // ตีกลับ = ไฟล์ไม่บังคับ, อนุมัติ = ไฟล์บังคับ
+  const requiresFile = action === "approve";
   const needsReason = action === "reject";
 
   const title =
     action === "advance" ? t("modalAdvanceTitle") : action === "reject" ? t("modalRejectTitle") : t("modalApproveTitle");
-  const nameLabel = action === "approve" ? t("approverLabel") : t("reviewerLabel");
   const confirmText =
     action === "advance" ? t("confirmAdvance") : action === "reject" ? t("confirmReject") : t("confirmApprove");
   const noteText = action === "advance" ? t("noteAdvance") : action === "reject" ? t("noteReject") : t("noteApprove");
@@ -305,7 +311,6 @@ function ActionModal({
   }
 
   async function handleConfirm() {
-    if (!name.trim()) return fail(action === "approve" ? t("pleaseSelectApprover") : t("pleaseSelectReviewer"));
     if (needsReason && !reason.trim()) return fail(t("pleaseEnterReason"));
     if (requiresFile && !file) return fail(t("pleaseAttachFile"));
 
@@ -318,28 +323,23 @@ function ActionModal({
         res = await fetch("/api/advance", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ trackingId: doc.trackingId, reviewerName: name.trim() }),
+          body: JSON.stringify({ trackingId: doc.trackingId }),
         });
       } else if (action === "reject") {
         const fd = new FormData();
         fd.append("trackingId", doc.trackingId);
         fd.append("reason", reason.trim());
-        fd.append("reviewerName", name.trim());
         if (file) fd.append("file", file);
         res = await fetch("/api/reject", { method: "POST", body: fd });
       } else {
         const fd = new FormData();
         fd.append("trackingId", doc.trackingId);
-        fd.append("approverName", name.trim());
         fd.append("file", file!);
         res = await fetch("/api/approve", { method: "POST", body: fd });
       }
       const data = await res.json();
       if (!data.success) return fail(data.error || t("genericError"));
 
-      // *** ตรวจว่าอีเมลแจ้งเตือนส่งจริงหรือไม่ — ครอบคลุมทั้งสามการกระทำ ***
-      // การกระทำหลัก (เปลี่ยนสถานะ/ออกเลข) ยังสำเร็จเสมอแม้อีเมลจะส่งไม่ได้
-      // แต่ต้องแจ้งเตือนผู้ใช้ว่าไม่มีใครได้รับอีเมล ไม่ใช่แค่ขึ้น "สำเร็จ" เฉย ๆ
       if (data.data?.emailSent === false) {
         const warningKey =
           action === "advance" ? "advanceEmailWarning" :
@@ -385,7 +385,7 @@ function ActionModal({
         </div>
 
         <div style={{ padding: 20 }}>
-          <div style={{ background: colors.tint, borderRadius: 8, padding: "10px 12px", marginBottom: 16 }}>
+          <div style={{ background: colors.tint, borderRadius: 8, padding: "10px 12px", marginBottom: 14 }}>
             <div style={{ fontSize: 14, fontWeight: 500, color: colors.primaryDark }}>
               {doc.docName || doc.trackingId}
             </div>
@@ -394,32 +394,21 @@ function ActionModal({
             </div>
           </div>
 
-          <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>
-            {nameLabel} *
-          </label>
-          <select
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            disabled={status === "loading"}
-            style={{
-              width: "100%",
-              padding: "9px 10px",
-              border: `1px solid ${colors.cardBorder}`,
-              borderRadius: 8,
-              fontSize: 14,
-              fontFamily: "var(--font-body)",
-              marginBottom: 14,
-              background: "#fff",
-            }}
-          >
-            <option value="">{action === "approve" ? t("selectApprover") : t("selectReviewer")}</option>
-            {nameOptions.map((o) => (
-              <option key={o.name} value={o.name}>
-                {o.name}
-                {o.roleLabel ? ` (${o.roleLabel})` : ""}
-              </option>
-            ))}
-          </select>
+          {actingAs && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 12,
+                color: colors.textSecondary,
+                marginBottom: 16,
+              }}
+            >
+              <i className="ti ti-user-check" style={{ fontSize: 15 }} aria-hidden="true" />
+              {t("actingAs")}: <strong>{actingAs.name}</strong> ({actingAs.roleLabel})
+            </div>
+          )}
 
           {needsReason && (
             <>

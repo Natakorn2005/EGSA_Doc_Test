@@ -53,7 +53,7 @@ export default async function MyPage() {
         submittedAt: cell(data.headers, row, "ประทับเวลา"),
         reviewedAt: cell(data.headers, row, "เวลาที่ตรวจสอบ"),
         approvedAt: cell(data.headers, row, "เวลาที่อนุมัติ"),
-        reviewer: cell(data.headers, row, "ผู้ตรวจสอบ (เลขาฯ)"),
+        reviewer: cell(data.headers, row, "ผู้ตรวจสอบ"),
         approver: cell(data.headers, row, "ผู้เซ็นอนุมัติ"),
         docNumber: cell(data.headers, row, "เลขเอกสาร"),
         rejectReason: cell(data.headers, row, "เหตุผลตีกลับ"),

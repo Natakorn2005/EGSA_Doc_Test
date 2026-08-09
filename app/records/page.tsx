@@ -35,7 +35,7 @@ export default async function RecordsPage() {
       docNumber: cell(data.headers, row, "เลขเอกสาร"),
       reviewedAt: cell(data.headers, row, "เวลาที่ตรวจสอบ"),
       approvedAt: cell(data.headers, row, "เวลาที่อนุมัติ"),
-      reviewer: cell(data.headers, row, "ผู้ตรวจสอบ (เลขาฯ)"),
+      reviewer: cell(data.headers, row, "ผู้ตรวจสอบ"),
       approver: cell(data.headers, row, "ผู้เซ็นอนุมัติ"),
       rejectReason: cell(data.headers, row, "เหตุผลตีกลับ"),
       fileUrl: cell(data.headers, row, "เอกสารที่ต้องการยื่น"),

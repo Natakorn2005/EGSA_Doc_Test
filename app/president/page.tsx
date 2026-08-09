@@ -1,5 +1,6 @@
+import { auth } from "@/auth";
 import { getSecretarySheet } from "@/lib/googleSheets";
-import { getSignerOptions } from "@/lib/roles";
+import { getStaffDisplayName } from "@/lib/roles";
 import { getTranslations } from "next-intl/server";
 import QueuePanel, { QueueDoc } from "@/components/QueuePanel";
 import { colors } from "@/lib/theme";
@@ -14,6 +15,7 @@ function cell(headers: string[], row: string[], name: string): string {
 export default async function PresidentPage() {
   const t = await getTranslations("queue");
   const tc = await getTranslations("common");
+  const session = await auth();
   let docs: QueueDoc[] = [];
   let error: string | null = null;
 
@@ -32,14 +34,14 @@ export default async function PresidentPage() {
           cell(data.headers, row, "ชมรม") ||
           cell(data.headers, row, "ภาควิชา"),
         submittedAt: cell(data.headers, row, "ประทับเวลา"),
-        reviewer: cell(data.headers, row, "ผู้ตรวจสอบ (เลขาฯ)"),
+        reviewer: cell(data.headers, row, "ผู้ตรวจสอบ"),
         fileUrl: cell(data.headers, row, "เอกสารที่ต้องการยื่น"),
       }));
   } catch (e) {
     error = e instanceof Error ? e.message : "Unknown error";
   }
 
-  const signerOptions = await getSignerOptions();
+  const actingAs = session?.user?.email ? await getStaffDisplayName(session.user.email) : null;
 
   return (
     <div>
@@ -53,7 +55,7 @@ export default async function PresidentPage() {
           {tc("connectionError")}: {error}
         </div>
       ) : (
-        <QueuePanel docs={docs} mode="president" signerOptions={signerOptions} />
+        <QueuePanel docs={docs} mode="president" actingAs={actingAs} />
       )}
     </div>
   );

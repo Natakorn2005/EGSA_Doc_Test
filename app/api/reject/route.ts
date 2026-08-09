@@ -4,21 +4,19 @@ import { isSecretaryRole } from "@/lib/roles";
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!isSecretaryRole(session?.user?.role || null)) {
+  if (!isSecretaryRole(session?.user?.role || null) || !session?.user?.email) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
   }
 
   const formData = await req.formData();
   const trackingId = formData.get("trackingId") as string;
   const reason = formData.get("reason") as string;
-  const reviewerName = formData.get("reviewerName") as string;
   const file = formData.get("file") as File | null;
 
   if (!trackingId || !reason) {
     return NextResponse.json({ success: false, error: "กรอกข้อมูลไม่ครบ" }, { status: 400 });
   }
 
-  // ไฟล์ไม่บังคับสำหรับการตีกลับ — ถ้าแนบมาก็ตรวจสอบขนาด/ชนิดไฟล์ตามปกติ
   let base64: string | null = null;
   if (file) {
     const MAX_SIZE = 3 * 1024 * 1024;
@@ -47,7 +45,8 @@ export async function POST(req: Request) {
         secret,
         trackingId,
         reason,
-        reviewerName,
+        // *** เปลี่ยน: ส่งอีเมลที่ล็อกอินจริง แทนชื่อที่เลือกจาก dropdown ***
+        reviewerEmail: session.user.email,
         fileBase64: base64,
         fileName: file?.name || "",
         mimeType: file?.type || "",

@@ -13,9 +13,9 @@ const ROLE_MAP: Record<string, Exclude<StaffRole, null>> = {
 };
 
 const ROLE_DISPLAY: Record<string, string> = {
-  secretary: "เลขาธิการ",
-  vice_secretary: "รองเลขาธิการ",
-  president: "นายกสโมสรฯ",
+  secretary: "เลขานุการ",
+  vice_secretary: "รองเลขานุการ",
+  president: "นายกสโมสร",
   vp_internal: "อุปนายกฝ่ายกิจการภายใน",
   vp_external: "อุปนายกฝ่ายกิจการภายนอก",
 };
@@ -109,4 +109,24 @@ export function getRoleI18nKey(role: StaffRole): string {
   if (role === "vp_internal") return "vpInternal";
   if (role === "vp_external") return "vpExternal";
   return "student";
+}
+
+// *** หาชื่อ+ตำแหน่งของอีเมลเดียว (ใช้แสดงยืนยันตัวตนแทน dropdown เลือกชื่อ) ***
+// การตรวจสอบสิทธิ์จริงเกิดขึ้นฝั่ง Apps Script เสมอ (verifyStaffIdentity_) — ค่านี้ใช้เพื่อ UX เท่านั้น
+export async function getStaffDisplayName(email: string): Promise<{ name: string; roleLabel: string } | null> {
+  const { headers, rows } = await getSheetValues(STAFF_TAB_NAME);
+  const nameCol = headers.indexOf("ชื่อ");
+  const roleCol = headers.indexOf("บทบาท");
+  const emailCol = headers.indexOf("อีเมล");
+  if (nameCol === -1 || roleCol === -1 || emailCol === -1) return null;
+
+  const normalized = email.trim().toLowerCase();
+  const match = rows.find((r) => (r[emailCol] || "").trim().toLowerCase() === normalized);
+  if (!match) return null;
+
+  const roleCode = (match[roleCol] || "").trim();
+  return {
+    name: (match[nameCol] || "").trim(),
+    roleLabel: ROLE_DISPLAY[roleCode] || roleCode,
+  };
 }

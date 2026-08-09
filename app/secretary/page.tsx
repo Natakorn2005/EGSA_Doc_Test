@@ -1,5 +1,6 @@
+import { auth } from "@/auth";
 import { getSecretarySheet } from "@/lib/googleSheets";
-import { getReviewerOptions } from "@/lib/roles";
+import { getStaffDisplayName } from "@/lib/roles";
 import { getTranslations } from "next-intl/server";
 import QueuePanel, { QueueDoc } from "@/components/QueuePanel";
 import { colors } from "@/lib/theme";
@@ -14,6 +15,7 @@ function cell(headers: string[], row: string[], name: string): string {
 export default async function SecretaryPage() {
   const t = await getTranslations("queue");
   const tc = await getTranslations("common");
+  const session = await auth();
   let docs: QueueDoc[] = [];
   let error: string | null = null;
 
@@ -39,7 +41,9 @@ export default async function SecretaryPage() {
     error = e instanceof Error ? e.message : "Unknown error";
   }
 
-  const reviewerOptions = await getReviewerOptions();
+  // *** ไม่ดึงรายชื่อเลขาฯ ทั้งหมดอีกต่อไป — resolve แค่ตัวเองจากอีเมลที่ล็อกอิน ***
+  // การตรวจสอบสิทธิ์จริงเกิดขึ้นฝั่ง Apps Script เสมอ นี่ใช้แสดงผลเท่านั้น
+  const actingAs = session?.user?.email ? await getStaffDisplayName(session.user.email) : null;
 
   return (
     <div>
@@ -53,7 +57,7 @@ export default async function SecretaryPage() {
           {tc("connectionError")}: {error}
         </div>
       ) : (
-        <QueuePanel docs={docs} mode="secretary" reviewerOptions={reviewerOptions} />
+        <QueuePanel docs={docs} mode="secretary" actingAs={actingAs} />
       )}
     </div>
   );

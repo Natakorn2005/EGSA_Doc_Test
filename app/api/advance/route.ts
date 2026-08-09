@@ -4,18 +4,15 @@ import { isSecretaryRole } from "@/lib/roles";
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!isSecretaryRole(session?.user?.role || null)) {
+  if (!isSecretaryRole(session?.user?.role || null) || !session?.user?.email) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
   }
 
   const body = await req.json();
-  const { trackingId, reviewerName } = body;
+  const { trackingId } = body;
 
-  if (!trackingId || !reviewerName) {
-    return NextResponse.json(
-      { success: false, error: "Missing trackingId or reviewerName" },
-      { status: 400 }
-    );
+  if (!trackingId) {
+    return NextResponse.json({ success: false, error: "Missing trackingId" }, { status: 400 });
   }
 
   const url = process.env.APPS_SCRIPT_WEB_APP_URL;
@@ -35,7 +32,9 @@ export async function POST(req: Request) {
         action: "advanceToWaitingSign",
         secret,
         trackingId,
-        reviewerName,
+        // *** เปลี่ยน: ส่งอีเมลที่ล็อกอินจริง แทนชื่อที่เลือกจาก dropdown ***
+        // Apps Script จะ resolve ชื่อ+ตำแหน่งที่แท้จริงเองจากแท็บ "เจ้าหน้าที่"
+        reviewerEmail: session.user.email,
       }),
     });
 

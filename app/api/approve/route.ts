@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { isSignerRole } from "@/lib/roles";
 
 export async function POST(req: Request) {
   const session = await auth();
-const SIGNER_ROLES = ["president", "vp_internal", "vp_external"];
-if (!session?.user?.role || !SIGNER_ROLES.includes(session.user.role)) {
-  return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
-}
+  if (!isSignerRole(session?.user?.role || null) || !session?.user?.email) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
+  }
 
   const formData = await req.formData();
   const trackingId = formData.get("trackingId") as string;
-  const approverName = formData.get("approverName") as string;
   const file = formData.get("file") as File | null;
 
   if (!trackingId || !file) {
@@ -42,7 +41,8 @@ if (!session?.user?.role || !SIGNER_ROLES.includes(session.user.role)) {
         action: "approve",
         secret,
         trackingId,
-        approverName,
+        // *** เปลี่ยน: ส่งอีเมลที่ล็อกอินจริง แทนชื่อที่เลือกจาก dropdown ***
+        approverEmail: session.user.email,
         fileBase64: base64,
         fileName: file.name,
         mimeType: file.type,
