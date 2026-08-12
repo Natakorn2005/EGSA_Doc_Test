@@ -99,6 +99,19 @@ export default async function StatusPage({
         </button>
       </form>
 
+      {!query && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
+          {Object.values(STATUS_KEY_MAP).map((meta) => (
+            <span
+              key={meta.key}
+              style={{ background: meta.bg, color: meta.color, fontSize: 12, padding: "3px 10px", borderRadius: 20 }}
+            >
+              {t(meta.key)}
+            </span>
+          ))}
+        </div>
+      )}
+
       {error && (
         <div style={{ color: "#b00020", background: "#fff3f3", padding: 12, borderRadius: 6 }}>
           {tc("connectionError")}: {error}

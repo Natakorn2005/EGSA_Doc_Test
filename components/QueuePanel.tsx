@@ -443,9 +443,28 @@ function ActionModal({
                 ref={fileRef}
                 type="file"
                 accept="application/pdf"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                onChange={(e) => {
+                  const picked = e.target.files?.[0] || null;
+                  if (picked) {
+                    const MAX_SIZE = 3 * 1024 * 1024;
+                    if (picked.size > MAX_SIZE) {
+                      setFile(null);
+                      fail(t("fileTooLarge"));
+                      if (fileRef.current) fileRef.current.value = "";
+                      return;
+                    }
+                    if (picked.type !== "application/pdf") {
+                      setFile(null);
+                      fail(t("fileMustBePdf"));
+                      if (fileRef.current) fileRef.current.value = "";
+                      return;
+                    }
+                  }
+                  setFile(picked);
+                }}
                 style={{ display: "none" }}
               />
+              <p style={{ fontSize: 11, color: colors.textMuted, margin: "0 0 8px" }}>{t("fileHint")}</p>
               <div
                 onClick={() => status !== "loading" && fileRef.current?.click()}
                 style={{

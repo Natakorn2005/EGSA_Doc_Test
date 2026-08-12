@@ -8,7 +8,11 @@ export const authConfig = {
       const role = auth?.user?.role || null;
       if (nextUrl.pathname.startsWith("/secretary")) return isSecretaryRole(role);
       if (nextUrl.pathname.startsWith("/president")) return isSignerRole(role);
-      if (nextUrl.pathname.startsWith("/records") || nextUrl.pathname.startsWith("/registry")) {
+      if (
+        nextUrl.pathname.startsWith("/records") ||
+        nextUrl.pathname.startsWith("/registry") ||
+        nextUrl.pathname.startsWith("/help")
+      ) {
         return isSecretaryRole(role) || isSignerRole(role);
       }
       return true;

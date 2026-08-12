@@ -11,8 +11,11 @@ export default auth((req) => {
   const isPresidentPath = nextUrl.pathname.startsWith("/president");
   const isRecordsPath = nextUrl.pathname.startsWith("/records");
   const isRegistryPath = nextUrl.pathname.startsWith("/registry");
+  const isHelpPath = nextUrl.pathname.startsWith("/help");
 
-  if (!isSecretaryPath && !isPresidentPath && !isRecordsPath && !isRegistryPath) return NextResponse.next();
+  if (!isSecretaryPath && !isPresidentPath && !isRecordsPath && !isRegistryPath && !isHelpPath) {
+    return NextResponse.next();
+  }
 
   if (!isLoggedIn) {
     return NextResponse.redirect(new URL("/login", nextUrl));
@@ -21,7 +24,7 @@ export default auth((req) => {
   const denied =
     (isSecretaryPath && !isSecretaryRole(role || null)) ||
     (isPresidentPath && !isSignerRole(role || null)) ||
-    ((isRecordsPath || isRegistryPath) && !isSecretaryRole(role || null) && !isSignerRole(role || null));
+    ((isRecordsPath || isRegistryPath || isHelpPath) && !isSecretaryRole(role || null) && !isSignerRole(role || null));
 
   if (denied) {
     return NextResponse.redirect(new URL("/unauthorized", nextUrl));
@@ -31,5 +34,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/secretary/:path*", "/president/:path*", "/records/:path*", "/registry/:path*"],
+  matcher: ["/secretary/:path*", "/president/:path*", "/records/:path*", "/registry/:path*", "/help/:path*"],
 };

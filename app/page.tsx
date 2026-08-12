@@ -92,7 +92,7 @@ export default async function HomePage() {
               </form>
 
               <p style={{ color: colors.textMuted, fontSize: 11, margin: "0 0 10px" }}>{t("home.orUseWithoutLogin")}</p>
-              <div style={{ display: "flex", gap: 10, marginBottom: 36 }}>
+              <div style={{ display: "flex", gap: 10, marginBottom: 28 }}>
                 <a href="/submit" className="egsa-outline-btn" style={{ flex: 1, textAlign: "center" }}>
                   <i className="ti ti-file-plus" style={{ fontSize: 16 }} aria-hidden="true" />
                   {t("nav.submit")}
@@ -103,7 +103,7 @@ export default async function HomePage() {
                 </a>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 28 }}>
                 {steps.map((step, i) => (
                   <div key={i} style={{ textAlign: "center" }}>
                     <div
@@ -124,6 +124,28 @@ export default async function HomePage() {
                     <div style={{ fontSize: 11, fontWeight: 500 }}>{t(`home.${step.titleKey}`)}</div>
                   </div>
                 ))}
+              </div>
+
+              <div
+                style={{
+                  textAlign: "center",
+                  paddingTop: 20,
+                  borderTop: `1px solid ${colors.cardBorder}`,
+                }}
+              >
+                <a
+                  href="/faq"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    color: colors.textMuted,
+                    fontSize: 13,
+                  }}
+                >
+                  <i className="ti ti-message-circle-question" style={{ fontSize: 16 }} aria-hidden="true" />
+                  {t("faq.navLabel")}
+                </a>
               </div>
             </div>
           </div>

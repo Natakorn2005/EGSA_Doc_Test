@@ -252,6 +252,7 @@ export default function SubmitForm({
               {file ? file.name : t("chooseFilePlaceholder")}
             </span>
           </div>
+          <p style={{ fontSize: 11, color: colors.textMuted, margin: "6px 0 0" }}>{t("fileHint")}</p>
         </div>
 
         <label style={{ fontSize: 13, display: "flex", alignItems: "flex-start", gap: 6 }}>
@@ -273,6 +274,13 @@ export default function SubmitForm({
         >
           {status === "loading" ? t("sending") : t("submitButton")}
         </button>
+
+        <p style={{ textAlign: "center", fontSize: 12, color: colors.textMuted, margin: 0 }}>
+          {t("needHelp")}{" "}
+          <a href="/faq" style={{ color: colors.primary }}>
+            {t("needHelpLink")}
+          </a>
+        </p>
       </div>
     </div>
   );

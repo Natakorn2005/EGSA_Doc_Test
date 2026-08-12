@@ -89,7 +89,10 @@
     "advanceEmailWarning": "Sent successfully, but no president or vice president email was found. Please check the database (the \"เจ้าหน้าที่\" tab) and notify an approver directly",
     "rejectEmailWarning": "Rejected successfully, but no applicant email was found — please contact them directly",
     "approveEmailWarning": "Approved and document number issued, but no applicant email was found — please contact them directly",
-    "actingAs": "Acting as"
+    "actingAs": "Acting as",
+    "fileTooLarge": "File too large — please choose a PDF 3MB or smaller",
+    "fileMustBePdf": "PDF files only",
+    "fileHint": "PDF only, 3MB maximum"
   },
   "submit": {
     "title": "Submit Document",
@@ -124,7 +127,10 @@
     "errMissingAgency": "Please complete the agency selection",
     "errNotAcknowledged": "Please acknowledge the submission process",
     "errMissingFile": "Please attach the document (PDF)",
-    "chooseFilePlaceholder": "Choose PDF file"
+    "chooseFilePlaceholder": "Choose PDF file",
+    "fileHint": "PDF only, 3MB maximum",
+    "needHelp": "Have a question?",
+    "needHelpLink": "See the FAQ"
   },
   "status": {
     "title": "Check Document Status",
@@ -247,5 +253,65 @@
     "empty": "No document numbers have been issued yet",
     "openApprovedFile": "Open approved document",
     "noFileLink": "No file link found"
+  },
+  "support": {
+    "contactMessage": "Found a problem?",
+    "contactEmail": "PLACEHOLDER_ใส่อีเมลติดต่อจริงตรงนี้@example.com"
+  },
+  "help": {
+    "navLabel": "Help",
+    "title": "Help",
+    "subtitle": "Usage guide for staff",
+    "statusRefTitle": "Document status — quick reference",
+    "statusRefStatus": "Status",
+    "statusRefMeaning": "Meaning",
+    "statusRefNextAction": "Next step",
+    "statusPendingMeaning": "Just submitted, not yet reviewed",
+    "statusPendingNext": "Secretary/Vice Secretary reviews and passes or rejects it",
+    "statusWaitingSignMeaning": "Reviewed and passed, awaiting signature",
+    "statusWaitingSignNext": "President/VP approves and issues the document number",
+    "statusApprovedMeaning": "Approved and document number issued",
+    "statusApprovedNext": "Process complete — applicant already received the file by email",
+    "statusRejectedMeaning": "Rejected, needs revision",
+    "statusRejectedNext": "Applicant revises and resubmits via the link in their email",
+    "workflowSecretaryTitle": "For Secretary / Vice Secretary",
+    "workflowSecretaryStep1": "Open \"Pending Review\" from the left menu",
+    "workflowSecretaryStep2": "Open the document file and check it for accuracy",
+    "workflowSecretaryStep3": "If correct, click \"Send to President\" — if not, click \"Reject\" with a reason",
+    "workflowSecretaryStep4": "The system verifies your identity and records your name automatically — no need to type it",
+    "workflowPresidentTitle": "For President / VP",
+    "workflowPresidentStep1": "Open \"Pending Signature\" from the left menu",
+    "workflowPresidentStep2": "Open the file, sign it outside the system (pen or digital signature), save as PDF",
+    "workflowPresidentStep3": "Click \"Approve & Issue Document Number\" and attach the signed file — the system issues the number and notifies the applicant automatically",
+    "faqTitle": "Frequently asked questions",
+    "faqQ1": "I don’t see documents in my queue — what do I check?",
+    "faqA1": "Confirm your email is listed in the \"เจ้าหน้าที่\" sheet tab with the correct role (secretary, vice_secretary, president, vp_internal, vp_external)",
+    "faqQ2": "I approved/advanced a document but the applicant says they got no email — what now?",
+    "faqA2": "Check that the \"อีเมล\" column for that row in the sheet is filled in correctly. If the button showed an amber warning, it already means no recipient email was found — notify them directly",
+    "faqQ3": "What does an \"unauthorized attempt\" email or LINE message mean?",
+    "faqA3": "It means someone tried to review or approve a document, but their email or claimed position didn’t match the staff database. The system takes no action on that document automatically — worth checking who attempted it and why",
+    "faqQ4": "A document was rejected and the applicant wants to resubmit — what do they do?",
+    "faqA4": "They can click \"Resubmit document\" directly in the rejection email — the system auto-fills their previous details, no need to re-enter everything",
+    "statusPending": "Pending Review",
+    "statusWaitingSign": "Pending Signature",
+    "statusApproved": "Approved",
+    "statusRejected": "Rejected"
+  },
+  "faq": {
+    "navLabel": "FAQ",
+    "title": "Frequently Asked Questions",
+    "subtitle": "For applicants",
+    "q1": "I submitted a document — how long until it’s processed?",
+    "a1": "There’s no fixed timeframe — it depends on how quickly the secretary reviews it and the president signs it. You’ll get an email every time the status changes",
+    "q2": "I forgot my Tracking ID — what do I do?",
+    "a2": "Search by the email you used to submit instead, on the \"Check Status\" page. If you’ve signed in with Google before, you can also see everything on \"My Documents\"",
+    "q3": "My document was rejected — what does that mean and what do I do?",
+    "a3": "It means something needs fixing before it can move forward. The rejection email states the reason and includes a \"Resubmit document\" link — clicking it auto-fills your previous details, no need to re-enter everything",
+    "q4": "What file format do I need to attach?",
+    "a4": "A PDF file, 3MB or smaller",
+    "q5": "Once approved, how do I get the final document?",
+    "a5": "You’ll get an email immediately with a link to the signed, numbered document. You can also view it anytime on \"Check Status\" or \"My Documents\"",
+    "q6": "I made a typo after submitting — can I fix it?",
+    "a6": "You can’t edit it yourself once submitted — please contact the secretary directly for help"
   }
 }
