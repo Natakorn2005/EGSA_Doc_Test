@@ -136,7 +136,7 @@
     "title": "Check Document Status",
     "subtitle": "Enter a tracking ID or the email used to submit",
     "sessionDefaultBanner": "Showing documents submitted with {email} — search below to look up something else",
-    "searchPlaceholder": "e.g. TRK-20260805-002 or your email",
+    "searchPlaceholder": "Tracking ID",
     "searchButton": "Search",
     "notFound": "No document matches \"{query}\" — please check the ID or email",
     "submittedAt": "Submitted",
@@ -150,7 +150,10 @@
     "statusWaitingSign": "Pending Signature",
     "statusApproved": "Approved",
     "statusRejected": "Rejected",
-    "statusUnknown": "Unknown status"
+    "statusUnknown": "Unknown status",
+    "verifyPlaceholder": "Email or phone used to submit",
+    "verifyHint": "Enter the email or phone number you used when submitting, to verify this is your document",
+    "notFoundOrUnverified": "No document found — please check that the tracking ID and verification details match"
   },
   "my": {
     "title": "My Documents",

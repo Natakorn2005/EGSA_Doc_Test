@@ -13,35 +13,69 @@ const STATUS_KEY_MAP: Record<string, { key: string; color: string; bg: string }>
   "ตีกลับ": { key: "statusRejected", color: colors.primaryDark, bg: colors.tint },
 };
 
-function findMatches(headers: string[], rows: string[][], query: string) {
-  const trimmed = query.trim().toLowerCase();
-  const trackingCol = headers.indexOf("Tracking ID");
-  const emailCol = headers.indexOf("อีเมล");
-
-  return rows.filter((row) => {
-    const tracking = (row[trackingCol] || "").trim().toLowerCase();
-    const email = (row[emailCol] || "").trim().toLowerCase();
-    return tracking === trimmed || email === trimmed;
-  });
-}
-
 function getCell(headers: string[], row: string[], name: string): string {
   const idx = headers.indexOf(name);
   return idx === -1 ? "" : row[idx] || "";
 }
 
+/**
+ * *** ค้นหาแบบต้องยืนยันตัวตนสองชั้น ***
+ * เดิม: รู้ Tracking ID อย่างเดียวก็ดูได้ — ซึ่ง Tracking ID เดารูปแบบได้ (TRK-YYYYMMDD-XXX)
+ * ตอนนี้: ต้องใส่ Tracking ID *และ* ข้อมูลยืนยันที่ตรงกับแถวนั้นจริง (อีเมล หรือ เบอร์โทร)
+ * คนที่ไล่เดา Tracking ID เฉย ๆ จะไม่เห็นอะไรเลย เพราะไม่รู้อีเมล/เบอร์ของเจ้าของเอกสาร
+ *
+ * ผู้ใช้ที่ล็อกอินอยู่แล้วและอีเมลตรงกับแถวนั้น ไม่ต้องใส่ข้อมูลยืนยันซ้ำ (สะดวกขึ้น ไม่ลดความปลอดภัย
+ * เพราะ Google ยืนยันตัวตนให้แล้ว) และเจ้าหน้าที่ดูได้ทุกแถวตามปกติ
+ */
+function findMatches(
+  headers: string[],
+  rows: string[][],
+  trackingQuery: string,
+  verifyQuery: string,
+  viewerEmail: string | null,
+  isStaffViewer: boolean
+) {
+  const tracking = trackingQuery.trim().toLowerCase();
+  const verify = verifyQuery.trim().toLowerCase();
+  const trackingCol = headers.indexOf("Tracking ID");
+  const emailCol = headers.indexOf("อีเมล");
+  const phoneCol = headers.indexOf("เบอร์โทรสำหรับติดต่อ");
+
+  return rows.filter((row) => {
+    const rowTracking = (row[trackingCol] || "").trim().toLowerCase();
+    if (rowTracking !== tracking) return false;
+
+    // เจ้าหน้าที่ดูได้ทุกแถว
+    if (isStaffViewer) return true;
+
+    const rowEmail = (row[emailCol] || "").trim().toLowerCase();
+    const rowPhone = (row[phoneCol] || "").trim().toLowerCase();
+
+    // เจ้าของเอกสารที่ล็อกอินอยู่แล้ว ไม่ต้องใส่ข้อมูลยืนยันซ้ำ
+    if (viewerEmail && viewerEmail === rowEmail) return true;
+
+    // นอกนั้นต้องใส่ข้อมูลยืนยันที่ตรงกับแถวนี้จริง
+    if (!verify) return false;
+    return verify === rowEmail || verify === rowPhone;
+  });
+}
+
 export default async function StatusPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; v?: string }>;
 }) {
   const t = await getTranslations("status");
   const tc = await getTranslations("common");
-  const { q } = await searchParams;
+  const { q, v } = await searchParams;
   const session = await auth();
 
-  // *** ไม่เติมอีเมลอัตโนมัติ — ต้องพิมพ์ค้นหาเองเสมอ (แยกจากเรื่องสิทธิ์ดูไฟล์ด้านล่าง) ***
   const query = q?.trim() || "";
+  const verify = v?.trim() || "";
+
+  const viewerEmail = session?.user?.email?.trim().toLowerCase() || null;
+  const viewerRole = viewerEmail ? await getStaffRole(viewerEmail) : null;
+  const isStaffViewer = !!viewerRole;
 
   let matches: string[][] = [];
   let headers: string[] = [];
@@ -51,38 +85,50 @@ export default async function StatusPage({
     try {
       const data = await getSecretarySheet();
       headers = data.headers;
-      matches = findMatches(data.headers, data.rows, query);
+      matches = findMatches(data.headers, data.rows, query, verify, viewerEmail, isStaffViewer);
       matches = matches.slice().reverse();
     } catch (e) {
       error = e instanceof Error ? e.message : "Unknown error";
     }
   }
 
-  // *** สิทธิ์ดูไฟล์: เจ้าของเอกสารเอง หรือเจ้าหน้าที่ (เลขาฯ/นายกฯ/รองประธาน) เท่านั้น ***
-  // ป้องกันคนอื่นที่รู้ Tracking ID ของคนอื่นแล้วมาเปิดไฟล์เอกสารที่ไม่ใช่ของตัวเอง
-  const viewerEmail = session?.user?.email?.trim().toLowerCase() || null;
-  const viewerRole = viewerEmail ? await getStaffRole(viewerEmail) : null;
-  const isStaffViewer = !!viewerRole;
-
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "24px 20px" }}>
       <h1 style={{ fontSize: 20, marginBottom: 4 }}>{t("title")}</h1>
       <p style={{ color: colors.textSecondary, marginBottom: 20 }}>{t("subtitle")}</p>
 
-      <form method="get" style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+      <form method="get" style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
         <input
           type="text"
           name="q"
           defaultValue={query}
           placeholder={t("searchPlaceholder")}
           style={{
-            flex: 1,
             padding: "8px 12px",
             border: `1px solid ${colors.cardBorder}`,
             borderRadius: 6,
             fontSize: 14,
+            fontFamily: "var(--font-body)",
           }}
         />
+        {!isStaffViewer && (
+          <>
+            <input
+              type="text"
+              name="v"
+              defaultValue={verify}
+              placeholder={t("verifyPlaceholder")}
+              style={{
+                padding: "8px 12px",
+                border: `1px solid ${colors.cardBorder}`,
+                borderRadius: 6,
+                fontSize: 14,
+                fontFamily: "var(--font-body)",
+              }}
+            />
+            <p style={{ fontSize: 11, color: colors.textMuted, margin: 0 }}>{t("verifyHint")}</p>
+          </>
+        )}
         <button
           type="submit"
           style={{
@@ -118,7 +164,9 @@ export default async function StatusPage({
         </div>
       )}
 
-      {query && !error && matches.length === 0 && <p>{t("notFound", { query })}</p>}
+      {/* *** ข้อความเดียวกันไม่ว่าจะหาไม่เจอเพราะ ID ผิด หรือข้อมูลยืนยันไม่ตรง ***
+          กันการใช้ข้อความ error ต่างกันเพื่อไล่เดาว่า Tracking ID ไหนมีอยู่จริง */}
+      {query && !error && matches.length === 0 && <p>{t("notFoundOrUnverified")}</p>}
 
       {matches.map((row, i) => {
         const status = getCell(headers, row, "สถานะ");

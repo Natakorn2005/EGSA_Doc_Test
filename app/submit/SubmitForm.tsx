@@ -41,6 +41,7 @@ export default function SubmitForm({
   const [agencyValue, setAgencyValue] = useState(initialValues?.agencyValue || "");
   const [previousTrackingId, setPreviousTrackingId] = useState(initialValues?.previousTrackingId || "");
   const [acknowledged, setAcknowledged] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -87,6 +88,8 @@ export default function SubmitForm({
     formData.append("previousTrackingId", previousTrackingId.trim());
     formData.append("acknowledged", "true");
     formData.append("file", file);
+    // *** Honeypot — ส่งค่าว่างเสมอสำหรับผู้ใช้จริง (ช่องนี้ซ่อนอยู่ คนมองไม่เห็น) ***
+    formData.append("website", honeypot);
 
     try {
       const res = await fetch("/api/submit", { method: "POST", body: formData });
@@ -162,6 +165,29 @@ export default function SubmitForm({
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {/* *** Honeypot — ซ่อนจากสายตาและจาก screen reader คนจริงไม่มีทางกรอก ***
+            บอทที่กรอกทุกช่องอัตโนมัติจะติดกับ แล้วถูกปฏิเสธเงียบ ๆ ฝั่ง API */}
+        <input
+          type="text"
+          name="website"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: "hidden",
+            clip: "rect(0,0,0,0)",
+            whiteSpace: "nowrap",
+            border: 0,
+          }}
+        />
+
         <input placeholder={t("nameLabel")} value={name} onChange={(e) => setName(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
         <input placeholder={t("studentIdLabel")} value={studentId} onChange={(e) => setStudentId(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
         <input placeholder={t("emailLabel")} type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
