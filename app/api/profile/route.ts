@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     try {
       data = JSON.parse(raw);
     } catch {
-      data = { success: false, error: "Unexpected response from Apps Script: " + raw.slice(0, 200) };
+      data = { success: false, error: "Unexpected response from Apps Script: " + raw.slice(0,200)};
     }
     return NextResponse.json(data);
   } catch (e) {
