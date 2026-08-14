@@ -131,7 +131,9 @@
     "fileHint": "PDF only, 3MB maximum",
     "needHelp": "Have a question?",
     "needHelpLink": "See the FAQ",
-    "docNameHint": "Example: BudgetRequest / ตัวอย่าง: ขอเบิกงบประมาณ"
+    "docNameHint": "Example: BudgetRequest / ตัวอย่าง: ขอเบิกงบประมาณ",
+    "docNameHintInstruction": "Please state the purpose and activity name clearly",
+    "docNameHintExample": "Example: BudgetRequest_FreshmanOrientation.pdf"
   },
   "status": {
     "title": "Check Document Status",

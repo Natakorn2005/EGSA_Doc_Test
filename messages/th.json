@@ -131,7 +131,9 @@
     "fileHint": "รองรับเฉพาะไฟล์ PDF ขนาดไม่เกิน 3MB",
     "needHelp": "มีคำถาม?",
     "needHelpLink": "ดูคำถามที่พบบ่อย",
-    "docNameHint": "ตัวอย่าง: ขอเบิกงบประมาณ / Example: BudgetRequest"
+    "docNameHint": "ตัวอย่าง: ขอเบิกงบประมาณ / Example: BudgetRequest",
+    "docNameHintInstruction": "กรุณาตั้งชื่อเอกสารให้ระบุวัตถุประสงค์และชื่อกิจกรรมชัดเจน",
+    "docNameHintExample": "ตัวอย่าง: ขอเบิกงบประมาณจัดกิจกรรมรับน้องใหม่.pdf"
   },
   "status": {
     "title": "ตรวจสอบสถานะเอกสาร",

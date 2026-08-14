@@ -201,19 +201,22 @@ export default function SubmitForm({
           />
           <div
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 5,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
               marginTop: 6,
-              padding: "3px 10px",
+              padding: "6px 10px",
               background: colors.tint,
-              borderRadius: 20,
+              borderRadius: 8,
               fontSize: 11,
               color: colors.primaryDark,
             }}
           >
-            <i className="ti ti-bulb" style={{ fontSize: 13 }} aria-hidden="true" />
-            {t("docNameHint")}
+            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <i className="ti ti-bulb" style={{ fontSize: 13 }} aria-hidden="true" />
+              {t("docNameHintInstruction")}
+            </div>
+            <div style={{ color: colors.textSecondary, paddingLeft: 18 }}>{t("docNameHintExample")}</div>
           </div>
         </div>
 
