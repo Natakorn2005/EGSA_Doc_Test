@@ -192,9 +192,29 @@ export default function SubmitForm({
         <input placeholder={t("studentIdLabel")} value={studentId} onChange={(e) => setStudentId(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
         <input placeholder={t("emailLabel")} type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
         <input placeholder={t("phoneLabel")} value={phone} onChange={(e) => setPhone(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
-        <div>
-          <input placeholder={t("docNameLabel")} value={docName} onChange={(e) => setDocName(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
-          <p style={{ fontSize: 11, color: colors.textMuted, margin: "6px 0 0" }}>{t("docNameHint")}</p>
+        <div style={{ width: "100%" }}>
+          <input
+            placeholder={t("docNameLabel")}
+            value={docName}
+            onChange={(e) => setDocName(e.target.value)}
+            style={{ ...inputStyle, boxSizing: "border-box", width: "100%" }}
+          />
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              marginTop: 6,
+              padding: "3px 10px",
+              background: colors.tint,
+              borderRadius: 20,
+              fontSize: 11,
+              color: colors.primaryDark,
+            }}
+          >
+            <i className="ti ti-bulb" style={{ fontSize: 13 }} aria-hidden="true" />
+            {t("docNameHint")}
+          </div>
         </div>
 
         <div>
