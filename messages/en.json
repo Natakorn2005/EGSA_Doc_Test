@@ -130,7 +130,8 @@
     "chooseFilePlaceholder": "Choose PDF file",
     "fileHint": "PDF only, 3MB maximum",
     "needHelp": "Have a question?",
-    "needHelpLink": "See the FAQ"
+    "needHelpLink": "See the FAQ",
+    "docNameHint": "Example: BudgetRequest / ตัวอย่าง: ขอเบิกงบประมาณ"
   },
   "status": {
     "title": "Check Document Status",

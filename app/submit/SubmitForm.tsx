@@ -192,7 +192,10 @@ export default function SubmitForm({
         <input placeholder={t("studentIdLabel")} value={studentId} onChange={(e) => setStudentId(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
         <input placeholder={t("emailLabel")} type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
         <input placeholder={t("phoneLabel")} value={phone} onChange={(e) => setPhone(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
-        <input placeholder={t("docNameLabel")} value={docName} onChange={(e) => setDocName(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
+        <div>
+          <input placeholder={t("docNameLabel")} value={docName} onChange={(e) => setDocName(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
+          <p style={{ fontSize: 11, color: colors.textMuted, margin: "6px 0 0" }}>{t("docNameHint")}</p>
+        </div>
 
         <div>
           <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>

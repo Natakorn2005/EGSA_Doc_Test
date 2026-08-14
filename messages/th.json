@@ -130,7 +130,8 @@
     "chooseFilePlaceholder": "เลือกไฟล์ PDF",
     "fileHint": "รองรับเฉพาะไฟล์ PDF ขนาดไม่เกิน 3MB",
     "needHelp": "มีคำถาม?",
-    "needHelpLink": "ดูคำถามที่พบบ่อย"
+    "needHelpLink": "ดูคำถามที่พบบ่อย",
+    "docNameHint": "ตัวอย่าง: ขอเบิกงบประมาณ / Example: BudgetRequest"
   },
   "status": {
     "title": "ตรวจสอบสถานะเอกสาร",
