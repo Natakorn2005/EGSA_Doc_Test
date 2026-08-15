@@ -13,7 +13,7 @@
   },
   "home": {
     "orgName": "Student Union Document System",
-    "faculty": "Faculty of Engineering",
+    "faculty": "EGSA Doc",
     "loggedOutSubtitle": "Sign in with Google to submit documents, check status, or manage the queue",
     "orUseWithoutLogin": "Or use without signing in:",
     "welcome": "Welcome,",
