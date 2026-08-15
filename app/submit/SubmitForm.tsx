@@ -190,7 +190,37 @@ export default function SubmitForm({
 
         <input placeholder={t("nameLabel")} value={name} onChange={(e) => setName(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
         <input placeholder={t("studentIdLabel")} value={studentId} onChange={(e) => setStudentId(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
-        <input placeholder={t("emailLabel")} type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
+        <div style={{ width: "100%" }}>
+          <input
+            placeholder={t("emailLabel")}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ ...inputStyle, boxSizing: "border-box", width: "100%" }}
+          />
+          {isLoggedIn &&
+            initialValues?.email &&
+            email.trim() !== "" &&
+            email.trim().toLowerCase() !== initialValues.email.trim().toLowerCase() && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 6,
+                  marginTop: 6,
+                  padding: "6px 10px",
+                  background: "#fff8e1",
+                  border: "1px solid #ffe082",
+                  borderRadius: 8,
+                  fontSize: 11,
+                  color: "#8a6d00",
+                }}
+              >
+                <i className="ti ti-alert-triangle" style={{ fontSize: 13, marginTop: 1 }} aria-hidden="true" />
+                {t("emailMismatchWarning")}
+              </div>
+            )}
+        </div>
         <input placeholder={t("phoneLabel")} value={phone} onChange={(e) => setPhone(e.target.value)} style={{ ...inputStyle, boxSizing: "border-box" }} />
         <div style={{ width: "100%" }}>
           <input
