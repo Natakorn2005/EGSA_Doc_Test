@@ -134,7 +134,9 @@
     "docNameHint": "Example: BudgetRequest / ตัวอย่าง: ขอเบิกงบประมาณ",
     "docNameHintInstruction": "Please state the purpose and activity name clearly",
     "docNameHintExample": "Example: BudgetRequest_FreshmanOrientation.pdf",
-    "emailMismatchWarning": "This email doesn’t match your logged-in account — this document will only show up under the email entered here, not your current login"
+    "emailMismatchWarning": "This email doesn’t match your logged-in account — this document will only show up under the email entered here, not your current login",
+    "emailGoogleHint": "Please use an email that’s a Google account (e.g. Gmail) so you can open your document and any links — if your university email isn’t a Google account, please use a personal Gmail instead",
+    "emailDomainHint": "Please use a Gmail or university (.edu) email only (.ac.th not supported)"
   },
   "status": {
     "title": "Check Document Status",
@@ -263,7 +265,7 @@
   },
   "support": {
     "contactMessage": "Found a problem?",
-    "contactEmail": "muegsamo@gmail.com"
+    "contactEmail": "PLACEHOLDER_ใส่อีเมลติดต่อจริงตรงนี้@example.com"
   },
   "help": {
     "navLabel": "Help",
@@ -319,6 +321,8 @@
     "q5": "Once approved, how do I get the final document?",
     "a5": "You’ll get an email immediately with a link to the signed, numbered document. You can also view it anytime on \"Check Status\" or \"My Documents\"",
     "q6": "I made a typo after submitting — can I fix it?",
-    "a6": "You can’t edit it yourself once submitted — please contact the secretary directly for help"
+    "a6": "You can’t edit it yourself once submitted — please contact the secretary directly for help",
+    "q7": "Why do I need Gmail? Can I use my university email (.ac.th)?",
+    "a7": "Documents are shared through Google Drive, which only opens for a Google account. If your university email runs on Microsoft/Outlook (not Google), the file link won’t open. Please use a personal Gmail address when submitting instead — no need to link it to your university email at all"
   }
 }

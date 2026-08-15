@@ -198,6 +198,23 @@ export default function SubmitForm({
             onChange={(e) => setEmail(e.target.value)}
             style={{ ...inputStyle, boxSizing: "border-box", width: "100%" }}
           />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              marginTop: 6,
+              padding: "3px 10px",
+              background: colors.tint,
+              borderRadius: 20,
+              fontSize: 11,
+              color: colors.primaryDark,
+              width: "fit-content",
+            }}
+          >
+            <i className="ti ti-mail" style={{ fontSize: 13 }} aria-hidden="true" />
+            {t("emailDomainHint")}
+          </div>
           {isLoggedIn &&
             initialValues?.email &&
             email.trim() !== "" &&
