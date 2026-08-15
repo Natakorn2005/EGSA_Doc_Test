@@ -133,7 +133,8 @@
     "needHelpLink": "See the FAQ",
     "docNameHint": "Example: BudgetRequest / ตัวอย่าง: ขอเบิกงบประมาณ",
     "docNameHintInstruction": "Please state the purpose and activity name clearly",
-    "docNameHintExample": "Example: BudgetRequest_FreshmanOrientation.pdf"
+    "docNameHintExample": "Example: BudgetRequest_FreshmanOrientation.pdf",
+    "emailMismatchWarning": "This email doesn’t match your logged-in account — this document will only show up under the email entered here, not your current login"
   },
   "status": {
     "title": "Check Document Status",
@@ -262,7 +263,7 @@
   },
   "support": {
     "contactMessage": "Found a problem?",
-    "contactEmail": "PLACEHOLDER_ใส่อีเมลติดต่อจริงตรงนี้@example.com"
+    "contactEmail": "muegsamo@gmail.com"
   },
   "help": {
     "navLabel": "Help",
