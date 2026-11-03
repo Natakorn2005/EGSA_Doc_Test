@@ -45,6 +45,7 @@ export default async function AppShell({ children }: { children: React.ReactNode
   links.push({ href: "/my", icon: "ti-folder", label: t("nav.myDocs") });
   links.push({ href: "/profile", icon: "ti-user", label: t("nav.profile") });
   links.push({ href: "/faq", icon: "ti-message-circle-question", label: t("faq.navLabel") });
+  links.push({ href: "/guide", icon: "ti-book", label: t("nav.guide") });
   if (isStaff) {
     links.push({ href: "/help", icon: "ti-help-circle", label: t("help.navLabel") });
   }

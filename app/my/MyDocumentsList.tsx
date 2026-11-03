@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { colors } from "@/lib/theme";
 import DocumentDetailModal, { STATUS_META, DetailDoc } from "@/components/DocumentDetailModal";
+import AutoRefresh from "@/components/AutoRefresh";
 
 export type MyDoc = DetailDoc;
 
@@ -11,9 +12,12 @@ export default function MyDocumentsList({ docs }: { docs: MyDoc[] }) {
   const t = useTranslations("my");
   const ts = useTranslations("status");
   const [selected, setSelected] = useState<MyDoc | null>(null);
+  // ใช้ข้อมูลล่าสุดหลังรีเฟรชเสมอ (เช่น ไฟล์เพิ่งแชร์เสร็จ ลิงก์ในหน้าต่างรายละเอียดจะโผล่ขึ้นเอง)
+  const selectedDoc = selected ? docs.find((d) => d.trackingId === selected.trackingId) || selected : null;
 
   return (
     <>
+      {docs.some((d) => d.sharePending) && <AutoRefresh />}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {docs.map((doc) => {
           const meta = STATUS_META[doc.status] || { key: "", color: "#444", bg: "#f5f5f5" };
@@ -64,7 +68,7 @@ export default function MyDocumentsList({ docs }: { docs: MyDoc[] }) {
         })}
       </div>
 
-      {selected && <DocumentDetailModal doc={selected} onClose={() => setSelected(null)} />}
+      {selectedDoc && <DocumentDetailModal doc={selectedDoc} onClose={() => setSelected(null)} finalFileIsSigned />}
     </>
   );
 }

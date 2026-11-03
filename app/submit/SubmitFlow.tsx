@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { colors, heroStyle, cardStyle, iconBoxStyle } from "@/lib/theme";
 import type { AgencyOptions } from "@/lib/agencies";
 import SubmitForm from "./SubmitForm";
+import Link from "next/link";
 
 type InitialValues = {
   name: string;
@@ -80,10 +81,10 @@ export default function SubmitFlow({
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <a href="/" style={{ color: colors.textSecondary, fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}>
+        <Link href="/" style={{ color: colors.textSecondary, fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}>
           <i className="ti ti-arrow-left" style={{ fontSize: 15 }} aria-hidden="true" />
           {t("backHome")}
-        </a>
+        </Link>
         <button
           onClick={() => setStage("form")}
           style={{

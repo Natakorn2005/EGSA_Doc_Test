@@ -17,6 +17,8 @@ export type DetailDoc = {
   fileUrl: string;
   finalFileUrl: string;
   resubmitLink: string;
+  /** คิวเบื้องหลังยังแชร์ไฟล์ไม่เสร็จ (คอลัมน์ "รอแชร์ไฟล์" ไม่ว่าง) — ซ่อนลิงก์ไฟล์ไว้ก่อน */
+  sharePending?: boolean;
 };
 
 export const STATUS_META: Record<string, { key: string; color: string; bg: string }> = {
@@ -26,9 +28,19 @@ export const STATUS_META: Record<string, { key: string; color: string; bg: strin
   "ตีกลับ": { key: "statusRejected", color: colors.primaryDark, bg: colors.tint },
 };
 
-export default function DocumentDetailModal({ doc, onClose }: { doc: DetailDoc; onClose: () => void }) {
+export default function DocumentDetailModal({
+  doc,
+  onClose,
+  finalFileIsSigned = false,
+}: {
+  doc: DetailDoc;
+  onClose: () => void;
+  /** true = ลิงก์ไฟล์สุดท้ายคือ "ฉบับเซ็นแล้ว" (หน้าเอกสารของฉัน), false = ฉบับประทับเลข (ฐานข้อมูลเอกสารของเจ้าหน้าที่) */
+  finalFileIsSigned?: boolean;
+}) {
   const t = useTranslations("my");
   const ts = useTranslations("status");
+  const tcommon = useTranslations("common");
   const meta = STATUS_META[doc.status] || { key: "", color: "#444", bg: "#f5f5f5" };
   const isRejected = doc.status === "ตีกลับ";
   const isApproved = doc.status === "อนุมัติ";
@@ -151,16 +163,22 @@ export default function DocumentDetailModal({ doc, onClose }: { doc: DetailDoc; 
           )}
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16 }}>
-            {doc.fileUrl && (
+            {doc.sharePending && (doc.fileUrl || doc.finalFileUrl) && (
+              <div className="egsa-file-preparing" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: colors.textSecondary, padding: "6px 0" }}>
+                <i className="ti ti-hourglass" style={{ fontSize: 15 }} aria-hidden="true" />
+                {tcommon("filePreparing")}
+              </div>
+            )}
+            {doc.fileUrl && !doc.sharePending && (
               <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="egsa-link-btn">
                 <i className="ti ti-file-text" style={{ fontSize: 16 }} aria-hidden="true" />
                 {t("viewFile")}
               </a>
             )}
-            {isApproved && doc.finalFileUrl && (
+            {isApproved && doc.finalFileUrl && !doc.sharePending && (
               <a href={doc.finalFileUrl} target="_blank" rel="noopener noreferrer" className="egsa-link-btn">
                 <i className="ti ti-file-check" style={{ fontSize: 16 }} aria-hidden="true" />
-                {t("viewFinalFile")}
+                {finalFileIsSigned ? t("viewSignedFile") : t("viewFinalFile")}
               </a>
             )}
             {isRejected && doc.resubmitLink && (

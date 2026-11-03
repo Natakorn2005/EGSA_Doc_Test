@@ -1,0 +1,1318 @@
+{
+  "meta": {
+    "navLabel": "User Guide",
+    "title": "Document System User Guide",
+    "subtitle": "How to submit, review and approve documents, by role — pick your tab below",
+    "onThisPage": "On this page",
+    "sampleNote": "Screenshots use sample data — all names and documents are made up",
+    "openFull": "Open full-size image",
+    "staffOnlyNote": "The Secretary and President chapters appear when you sign in with a staff email",
+    "backHome": "Back to home",
+    "yourTab": "yours",
+    "scrollHint": "Scroll sideways to see the whole chart"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "tour": "Page tour",
+    "applicant": "Applicants",
+    "secretary": "Secretary",
+    "president": "President"
+  },
+  "diagrams": {
+    "overall": {
+      "title": "Three stages: a failed review loops back, a pass ends with a number",
+      "lane-app": "Applicant",
+      "lane-sec": "Secretary",
+      "lane-pres": "President",
+      "submit-1": "Submit",
+      "submit-2": "PDF up to 3 MB",
+      "resubmit-1": "Fix and resubmit",
+      "resubmit-2": "Gets a new reference ID",
+      "done-1": "Approval email",
+      "done-2": "Number + signed file",
+      "review-1": "Review",
+      "review-2": "Status: Pending review",
+      "pass-1": "OK?",
+      "sign-1": "Sign and upload",
+      "sign-2": "Status: Awaiting signature",
+      "number-1": "Number issued",
+      "number-2": "Status: Approved",
+      "e-reject": "No · reject",
+      "e-again": "Resubmit",
+      "e-advance": "Yes · to president",
+      "e-notify": "Notify",
+      "e-in": "Queued"
+    },
+    "applicant": {
+      "title": "Applicant: submit once, then follow it to the signed file",
+      "prep-1": "Prepare",
+      "prep-2": "PDF + clear title",
+      "submit-1": "Submit online",
+      "submit-2": "Fill, attach, send",
+      "tracking-1": "Get reference ID",
+      "tracking-2": "+ confirmation email",
+      "follow-1": "Track status",
+      "follow-2": "On the site or by email",
+      "result-1": "Result?",
+      "use-1": "Use signed file",
+      "use-2": "with doc number",
+      "fix-1": "Fix, resubmit",
+      "fix-2": "from the email link",
+      "gform-1": "Use Google Form",
+      "gform-2": "accepts up to 10 MB",
+      "e-approved": "Approved",
+      "e-rejected": "Rejected",
+      "e-again": "Resubmit (new ID)",
+      "e-large": "File over 3 MB"
+    },
+    "secretary": {
+      "title": "Secretary: every document is sent on, or rejected with a reason",
+      "lane-routine": "Routine",
+      "alert-1": "Alert arrives",
+      "alert-2": "Email + LINE",
+      "open-1": "Open the queue",
+      "open-2": "Read the file",
+      "ok-1": "OK?",
+      "advance-1": "To president",
+      "advance-2": "Confirm",
+      "notifypres-1": "President told",
+      "notifypres-2": "Awaiting signature",
+      "reason-1": "Reason + file",
+      "reason-2": "File is optional",
+      "confirm-1": "Confirm reject",
+      "confirm-2": "Can't be undone",
+      "notifyapp-1": "Applicant told",
+      "notifyapp-2": "Status: Rejected",
+      "staff-1": "Keep staff tab current",
+      "staff-2": "Add, change, remove",
+      "watch-1": "Watch system alerts",
+      "watch-2": "Report anything odd",
+      "e-pass": "Yes",
+      "e-fail": "No"
+    },
+    "president": {
+      "title": "President: sign offline, upload, and the number is issued for you",
+      "mail-1": "Email arrives",
+      "mail-2": "or open the queue",
+      "signdoc-1": "Download and sign",
+      "signdoc-2": "digital or print–scan",
+      "size-1": "Over 3 MB?",
+      "web-1": "Approve online",
+      "web-2": "attach, confirm",
+      "gform-1": "Use Google Form",
+      "gform-2": "tick record-email",
+      "issue-1": "Number issued",
+      "issue-2": "applicant notified",
+      "e-no": "No",
+      "e-yes": "Yes"
+    }
+  },
+  "sections": {
+    "overview": [
+      {
+        "type": "p",
+        "text": "The document system brings submitting, reviewing, signing and numbering into one place. Everyone sees the same status and gets notified as soon as a document moves to the next stage."
+      },
+      {
+        "type": "table",
+        "head": [
+          "If you are",
+          "Read"
+        ],
+        "rows": [
+          [
+            "A student submitting a document",
+            "The **Applicants** tab"
+          ],
+          [
+            "Secretary / Vice Secretary",
+            "The **Secretary** tab"
+          ],
+          [
+            "President / Vice Presidents",
+            "The **President** tab"
+          ],
+          [
+            "System maintainer",
+            "The maintainer guide (a separate document shared only with maintainers)"
+          ]
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "What problems this solves",
+        "id": "problems"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Before",
+          "Now"
+        ],
+        "rows": [
+          [
+            "Applicants couldn't tell where their document was and had to come and ask",
+            "Every document gets a reference ID, status can be checked online anytime, and an email arrives at every change"
+          ],
+          [
+            "The secretary had to keep opening the sheet to spot new documents",
+            "An email and a LINE card arrive the moment a document comes in"
+          ],
+          [
+            "Files were scattered across Drive and hard to find later",
+            "Files are filed by organization and renamed automatically"
+          ],
+          [
+            "Document numbers were issued by hand and could repeat or skip",
+            "The system issues the number on approval, with no duplicates even if two people approve at once"
+          ],
+          [
+            "A rejected document meant filling in everything again",
+            "The rejection email has a link with your details pre-filled — just attach the new file"
+          ],
+          [
+            "Anyone with a file link could open it",
+            "Files open only for the applicant and staff (some documents contain ID card copies)"
+          ]
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "What the system is made of",
+        "id": "parts"
+      },
+      {
+        "type": "p",
+        "text": "Most people only ever use the website; everything else runs in the background. A rough idea is enough."
+      },
+      {
+        "type": "table",
+        "head": [
+          "Part",
+          "Think of it as",
+          "What it does"
+        ],
+        "rows": [
+          [
+            "This website (egsa-doc.vercel.app)",
+            "The front desk",
+            "Submitting, checking status, and the staff work queues"
+          ],
+          [
+            "Three Google Forms",
+            "The back door",
+            "Submit, send a review result, upload a signed file — for files over 3 MB or when the website is down"
+          ],
+          [
+            "Google Sheet",
+            "The central register",
+            "Holds every document, the staff list, and the document number register"
+          ],
+          [
+            "Google Apps Script",
+            "An assistant working 24/7",
+            "Creates reference IDs, files documents, sets access, issues numbers, sends email and LINE"
+          ],
+          [
+            "Google Drive",
+            "The filing cabinet",
+            "Stores every PDF, in folders by organization"
+          ],
+          [
+            "Secretary LINE group",
+            "The doorbell",
+            "Announces new documents and anything unusual"
+          ]
+        ]
+      },
+      {
+        "type": "p",
+        "text": "Every channel writes to the same register, so submitting through the website or the form gives the same result."
+      },
+      {
+        "type": "img",
+        "src": "p-home-out",
+        "alt": "The home page before signing in",
+        "caption": "Home — sign in with Google, or use “Submit Document” / “Check Status” without signing in"
+      },
+      {
+        "type": "h2",
+        "text": "How a document travels",
+        "id": "journey"
+      },
+      {
+        "type": "p",
+        "text": "Every document passes three stages — applicant → secretary → president — and ends as “Approved” (with a document number) or “Rejected” (fix it and submit again). The example below follows the Music Club's “ขออนุมัติจัดกิจกรรมรับน้องใหม่” (freshmen welcome activity request)."
+      },
+      {
+        "type": "diagram",
+        "id": "overall",
+        "caption": "Read from the top left: the document goes down to the secretary. If it fails it goes back up to the applicant; if it passes it goes down to the president, then the system issues a number and tells the applicant."
+      },
+      {
+        "type": "h3",
+        "text": "Stage 1 — The applicant submits (status: Pending review)"
+      },
+      {
+        "type": "p",
+        "text": "Fill in the form, attach the PDF and send. The screen shows a reference ID such as `TRK-20261011-001`. The system then:"
+      },
+      {
+        "type": "ul",
+        "items": [
+          "Files the PDF in the organization's folder as `ชมรมดนตรี_ขออนุมัติจัดกิจกรรมรับน้องใหม่.pdf` (organization_document name)",
+          "Makes the file open only for the applicant and staff",
+          "Emails a confirmation to the applicant and alerts the secretary by email and LINE"
+        ]
+      },
+      {
+        "type": "note",
+        "tone": "info",
+        "text": "These happen in the background, so they may follow a few minutes after the success screen. Until then the file link shows “Preparing file”."
+      },
+      {
+        "type": "img",
+        "src": "p-submit-success",
+        "alt": "Submission success screen with the reference ID"
+      },
+      {
+        "type": "img",
+        "src": "m-confirm",
+        "alt": "The confirmation email the applicant receives",
+        "shared": true,
+        "caption": "System emails are sent in Thai"
+      },
+      {
+        "type": "h3",
+        "text": "Stage 2 — The secretary reviews (status: Awaiting signature or Rejected)"
+      },
+      {
+        "type": "p",
+        "text": "The secretary opens **Pending Review**, reads the file, and picks one of two paths:"
+      },
+      {
+        "type": "ul",
+        "items": [
+          "**Send to President** → status becomes “Awaiting signature”, the file is renamed `…_ส่งเซ็น.pdf` (sent for signing), and the president is emailed",
+          "**Reject** → type a reason (a marked-up file can be attached); the applicant gets an email with a pre-filled resubmission link"
+        ]
+      },
+      {
+        "type": "img",
+        "src": "p-sec-queue",
+        "alt": "The secretary's Pending Review queue"
+      },
+      {
+        "type": "h3",
+        "text": "Stage 3 — The president signs (status: Approved)"
+      },
+      {
+        "type": "p",
+        "text": "The president opens the file from the email, signs it outside the system, then uploads the signed file on **Pending Signature**. The system:"
+      },
+      {
+        "type": "ul",
+        "items": [
+          "Checks that the uploader may sign and that the document is “Awaiting signature”",
+          "Issues a document number such as `EGSA 012/2569` and records it in the register",
+          "Keeps the signed file and makes a number-stamped copy for the register",
+          "Emails the applicant the document number and a link to the signed file"
+        ]
+      },
+      {
+        "type": "img",
+        "src": "m-approve",
+        "alt": "Approval email to the applicant with the document number",
+        "shared": true,
+        "caption": "System emails are sent in Thai"
+      },
+      {
+        "type": "note",
+        "tone": "warn",
+        "text": "Documents move only in order and can't skip a stage. An approved document can't be rejected afterwards, and a rejected one must be submitted again (it gets a new reference ID, but the system remembers which one it came from)."
+      },
+      {
+        "type": "h2",
+        "text": "The four statuses",
+        "id": "statuses"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Status",
+          "Meaning",
+          "Who acts next"
+        ],
+        "rows": [
+          [
+            "Pending review",
+            "The document is in the system",
+            "The secretary reviews; the applicant waits"
+          ],
+          [
+            "Awaiting signature",
+            "It passed review",
+            "The president signs; the applicant waits"
+          ],
+          [
+            "Rejected",
+            "It needs changes (this submission is closed)",
+            "The applicant fixes it and resubmits from the email link"
+          ],
+          [
+            "Approved",
+            "Done, with a document number",
+            "The applicant can use the signed file"
+          ]
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Who gets notified, and when",
+        "id": "notifications"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Event",
+          "Applicant",
+          "Secretary",
+          "President"
+        ],
+        "rows": [
+          [
+            "New document submitted",
+            "Confirmation email + reference ID",
+            "Email + LINE card",
+            "—"
+          ],
+          [
+            "Secretary sends to president",
+            "—",
+            "—",
+            "Email with file and queue links (goes to a vice president if no president email is listed)"
+          ],
+          [
+            "Secretary rejects",
+            "Email + reason + resubmission link",
+            "—",
+            "—"
+          ],
+          [
+            "President approves",
+            "Email + document number + signed file",
+            "—",
+            "—"
+          ],
+          [
+            "File couldn't be shared with the applicant",
+            "—",
+            "Email",
+            "—"
+          ],
+          [
+            "Someone tried an action they're not allowed",
+            "—",
+            "Email + LINE",
+            "—"
+          ],
+          [
+            "The staff tab was edited",
+            "—",
+            "Email + LINE",
+            "—"
+          ],
+          [
+            "Background job or backup problem",
+            "—",
+            "Email (+ LINE in some cases)",
+            "—"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "tone": "info",
+        "text": "Emails go out from a background queue and normally arrive within a few minutes. If you can't find one, check Spam first."
+      },
+      {
+        "type": "h2",
+        "text": "Document numbers and file versions",
+        "id": "numbers"
+      },
+      {
+        "type": "p",
+        "text": "Document numbers look like `EGSA 012/2569`: the EGSA prefix, a 3-digit running number, and the Buddhist Era year."
+      },
+      {
+        "type": "ul",
+        "items": [
+          "Numbers are issued **only on approval**, so they follow the order of approval, not of submission",
+          "Numbering restarts at 001 every calendar year",
+          "Simultaneous approvals never share a number, and a document can't be approved twice"
+        ]
+      },
+      {
+        "type": "p",
+        "text": "One document can have several files in the same Drive folder; the end of the file name tells you the stage."
+      },
+      {
+        "type": "table",
+        "head": [
+          "File name (example)",
+          "What it is",
+          "Who sees it on the website"
+        ],
+        "rows": [
+          [
+            "`ชมรมดนตรี_ขออนุมัติ….pdf`",
+            "The original submission",
+            "Applicant and staff"
+          ],
+          [
+            "`…_ตีกลับ.pdf`",
+            "The secretary's marked-up file (if attached)",
+            "Applicant, via the rejection email"
+          ],
+          [
+            "`…_ส่งเซ็น.pdf`",
+            "The reviewed original, waiting for the president",
+            "President"
+          ],
+          [
+            "`EGSA 012-2569_…_เซ็นแล้ว.pdf`",
+            "The signed copy — **the one to use**",
+            "Applicant (approval email, Check Status, My Documents)"
+          ],
+          [
+            "`EGSA 012-2569_…_ประทับแล้ว.pdf`",
+            "A trial copy with the number stamped on — not yet the official version",
+            "Staff (Document Records, Document Registry)"
+          ]
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Contact",
+        "id": "contact"
+      },
+      {
+        "type": "p",
+        "text": "Common questions are answered on the [FAQ](/faq) page. For a problem, email [muegsamo@gmail.com](mailto:muegsamo@gmail.com) with the document's reference ID."
+      }
+    ],
+    "tour": [
+      {
+        "type": "p",
+        "text": "The menu depends on the email you sign in with. Staff see every applicant menu plus extra menus for their role."
+      },
+      {
+        "type": "table",
+        "head": [
+          "Menu",
+          "Signed out",
+          "Applicant",
+          "Secretary",
+          "President / VPs"
+        ],
+        "rows": [
+          [
+            "Home",
+            "✓",
+            "✓",
+            "✓",
+            "✓"
+          ],
+          [
+            "Submit Document",
+            "✓",
+            "✓",
+            "✓",
+            "✓"
+          ],
+          [
+            "Check Status",
+            "✓",
+            "✓",
+            "✓ (any document)",
+            "✓ (any document)"
+          ],
+          [
+            "User Guide",
+            "✓",
+            "✓",
+            "✓",
+            "✓"
+          ],
+          [
+            "My Documents / Profile / FAQ",
+            "—",
+            "✓",
+            "✓",
+            "✓"
+          ],
+          [
+            "Pending Review",
+            "—",
+            "—",
+            "✓",
+            "—"
+          ],
+          [
+            "Pending Signature",
+            "—",
+            "—",
+            "—",
+            "✓"
+          ],
+          [
+            "Document Records / Document Registry / Help",
+            "—",
+            "—",
+            "✓",
+            "✓"
+          ]
+        ]
+      },
+      {
+        "type": "p",
+        "text": "Every page has a **ไทย / EN** language switch. On a phone, the left menu hides behind the ☰ button at the top left."
+      },
+      {
+        "type": "h2",
+        "text": "Signed out",
+        "id": "signed-out"
+      },
+      {
+        "type": "h3",
+        "text": "Home"
+      },
+      {
+        "type": "p",
+        "text": "A Sign in with Google button plus shortcuts to submit or check status without signing in. Below are the three stages of the process (pictured in the Overview tab)."
+      },
+      {
+        "type": "h3",
+        "text": "Check Status"
+      },
+      {
+        "type": "p",
+        "text": "Enter the reference ID plus the email or phone number used to submit, to see one document's status (pictured in the Applicants tab)."
+      },
+      {
+        "type": "h3",
+        "text": "Privacy Policy"
+      },
+      {
+        "type": "p",
+        "text": "Explains what is collected, why, and who can see it. Linked at the bottom of every page."
+      },
+      {
+        "type": "img",
+        "src": "p-privacy",
+        "alt": "The Privacy Policy page"
+      },
+      {
+        "type": "h2",
+        "text": "Applicant (signed in)",
+        "id": "applicant-pages"
+      },
+      {
+        "type": "h3",
+        "text": "Home"
+      },
+      {
+        "type": "p",
+        "text": "Counts your documents by status (pending review / awaiting signature / approved) and lists anything to follow up, such as rejections."
+      },
+      {
+        "type": "img",
+        "src": "p-home-app",
+        "alt": "The applicant home page"
+      },
+      {
+        "type": "h3",
+        "text": "Submit Document"
+      },
+      {
+        "type": "p",
+        "text": "Starts with a steps page, then the form (how to fill it in is in the Applicants tab)."
+      },
+      {
+        "type": "img",
+        "src": "p-submit-steps",
+        "alt": "The steps page shown before the form"
+      },
+      {
+        "type": "h3",
+        "text": "Check Status"
+      },
+      {
+        "type": "p",
+        "text": "Once signed in you only need the reference ID — no need to confirm your email again."
+      },
+      {
+        "type": "img",
+        "src": "p-status-app",
+        "alt": "Check Status while signed in"
+      },
+      {
+        "type": "h3",
+        "text": "My Documents"
+      },
+      {
+        "type": "p",
+        "text": "Every document submitted with this email. Click one to see its timeline, reviewer, signer, document number, and the signed file."
+      },
+      {
+        "type": "img",
+        "src": "p-my",
+        "alt": "The My Documents page"
+      },
+      {
+        "type": "h3",
+        "text": "Profile"
+      },
+      {
+        "type": "p",
+        "text": "Save your name, student ID and phone so the submit form fills them in next time. The email can't be changed — it comes from the Google account you signed in with."
+      },
+      {
+        "type": "img",
+        "src": "p-profile",
+        "alt": "The Profile page"
+      },
+      {
+        "type": "h3",
+        "text": "FAQ"
+      },
+      {
+        "type": "p",
+        "text": "Answers to common applicant questions such as timing, files that won't open, and resubmitting."
+      },
+      {
+        "type": "img",
+        "src": "p-faq",
+        "alt": "The FAQ page"
+      },
+      {
+        "staffOnly": true,
+        "type": "h2",
+        "text": "Secretary / Vice Secretary",
+        "id": "secretary-pages"
+      },
+      {
+        "staffOnly": true,
+        "type": "h3",
+        "text": "Home"
+      },
+      {
+        "staffOnly": true,
+        "type": "p",
+        "text": "Counts every document in the system by status and lists what's waiting for you. Click “View all in queue” to carry on."
+      },
+      {
+        "staffOnly": true,
+        "type": "img",
+        "src": "p-sec-home",
+        "alt": "The secretary home page"
+      },
+      {
+        "staffOnly": true,
+        "type": "h3",
+        "text": "Pending Review"
+      },
+      {
+        "staffOnly": true,
+        "type": "p",
+        "text": "The main workspace: every document “Pending review”, searchable and filterable by organization. Each card has “Send to President” and “Reject” (pictured in the Overview tab)."
+      },
+      {
+        "staffOnly": true,
+        "type": "h3",
+        "text": "Document Records"
+      },
+      {
+        "staffOnly": true,
+        "type": "p",
+        "text": "Documents in every status, with a monthly summary, search, and filters by status or month (pictured in the Secretary tab)."
+      },
+      {
+        "staffOnly": true,
+        "type": "h3",
+        "text": "Document Registry"
+      },
+      {
+        "staffOnly": true,
+        "type": "p",
+        "text": "Every document number issued, with the date, title, sender and approver."
+      },
+      {
+        "staffOnly": true,
+        "type": "img",
+        "src": "p-sec-registry",
+        "alt": "The Document Registry page"
+      },
+      {
+        "staffOnly": true,
+        "type": "h3",
+        "text": "Help"
+      },
+      {
+        "staffOnly": true,
+        "type": "p",
+        "text": "A quick reference: status meanings, short steps for each role, and staff FAQs."
+      },
+      {
+        "staffOnly": true,
+        "type": "img",
+        "src": "p-sec-help",
+        "alt": "The staff Help page"
+      },
+      {
+        "staffOnly": true,
+        "type": "h2",
+        "text": "President / Vice Presidents",
+        "id": "president-pages"
+      },
+      {
+        "staffOnly": true,
+        "type": "h3",
+        "text": "Home"
+      },
+      {
+        "staffOnly": true,
+        "type": "p",
+        "text": "Like the secretary's, but the waiting list shows documents awaiting signature."
+      },
+      {
+        "staffOnly": true,
+        "type": "img",
+        "src": "p-pres-home",
+        "alt": "The president home page"
+      },
+      {
+        "staffOnly": true,
+        "type": "h3",
+        "text": "Pending Signature"
+      },
+      {
+        "staffOnly": true,
+        "type": "p",
+        "text": "Every document “Awaiting signature”, with the reviewer's name. Each card has “Approve & Issue Document Number” (pictured in the President tab). The president also sees Document Records, Document Registry and Help, like the secretary."
+      }
+    ],
+    "applicant": [
+      {
+        "type": "h2",
+        "text": "Your part as an applicant",
+        "id": "duties"
+      },
+      {
+        "type": "ul",
+        "items": [
+          "Prepare the document as a PDF up to 3 MB, with a title that states the purpose and the activity",
+          "Fill in your details correctly — especially your email, since every result goes there",
+          "Keep the reference ID and follow the status until the document is approved",
+          "If it's rejected, fix it as asked and resubmit from the email link"
+        ]
+      },
+      {
+        "type": "diagram",
+        "id": "applicant",
+        "caption": "The dashed line is the fallback for files over 3 MB — the result is exactly the same as submitting on the website."
+      },
+      {
+        "type": "h2",
+        "text": "Before you start: which email to use",
+        "id": "email"
+      },
+      {
+        "type": "p",
+        "text": "Files open only for the Google account matching the email you enter. Use Gmail, or an @student.mahidol.ac.th address that is [registered with the university's Google Workspace](https://muit.mahidol.ac.th/docs/users-guide/google-workspace/edu_workspace_reg_2026/). Any other email can still submit, but you won't be able to open the files yourself."
+      },
+      {
+        "type": "h2",
+        "text": "Submit on the website",
+        "id": "submit"
+      },
+      {
+        "type": "steps",
+        "items": [
+          {
+            "text": "Click **Submit Document** on the home page or in the left menu (signing in with Google first lets the form fill itself next time)."
+          },
+          {
+            "text": "Read the steps, then click **I understand, continue to submit**.",
+            "img": "p-submit-steps",
+            "alt": "The steps page shown before the form"
+          },
+          {
+            "text": "Fill in your name, student ID, email, phone, and the document title.",
+            "img": "p-submit-form",
+            "alt": "The submit form"
+          },
+          {
+            "text": "Choose the organization type (Student Union / Club / Department / Other), then the specific unit. For “Other”, type the name yourself."
+          },
+          {
+            "text": "If you're resubmitting after a rejection, enter the previous reference ID (optional)."
+          },
+          {
+            "text": "Attach the PDF, tick both boxes, and click **Submit**.",
+            "img": "p-submit-filled-bottom",
+            "alt": "The file field and checkboxes, filled in"
+          },
+          {
+            "text": "Wait about half a minute while it says “Submitting…”. **You can visit other pages on the site, but don't close or refresh the tab** until it finishes.",
+            "img": "p-submit-sending",
+            "alt": "The “Submitting” screen"
+          },
+          {
+            "text": "When it's done you'll see the reference ID. If you were on another page, a notice pops up at the bottom right instead.",
+            "img": "p-submit-done-home",
+            "alt": "Finished while on another page: the notice at the bottom right"
+          }
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Files over 3 MB",
+        "id": "large"
+      },
+      {
+        "type": "p",
+        "text": "A yellow box appears as soon as you pick the file. Either compress the PDF and choose it again, or click **Submit via Google Form** — it accepts up to 10 MB and is pre-filled with what you typed (you still attach the file and tick consent yourself)."
+      },
+      {
+        "type": "img",
+        "src": "p-submit-toolarge",
+        "alt": "The file-too-large box with the Google Form button"
+      },
+      {
+        "type": "h2",
+        "text": "Track your document",
+        "id": "track"
+      },
+      {
+        "type": "ul",
+        "items": [
+          "**Signed out:** on **Check Status**, enter the reference ID plus the email or phone you used (so nobody can guess an ID and see your document).",
+          "**Signed in:** **My Documents** lists everything submitted with your email. Click one to see its timeline and open the file."
+        ]
+      },
+      {
+        "type": "note",
+        "tone": "info",
+        "text": "If you see “Preparing file” instead of a link, access to the file is still being set up. The page updates by itself within a few minutes."
+      },
+      {
+        "type": "img",
+        "src": "p-status-out",
+        "alt": "Check Status while signed out"
+      },
+      {
+        "type": "img",
+        "src": "p-my-modal",
+        "alt": "My Documents with one document's details open"
+      },
+      {
+        "type": "h2",
+        "text": "If your document is rejected",
+        "id": "rejected"
+      },
+      {
+        "type": "p",
+        "text": "The rejection email gives the reason, attaches a marked-up file (if any), and includes a resubmission link."
+      },
+      {
+        "type": "steps",
+        "items": [
+          {
+            "text": "Fix the document as the email asks."
+          },
+          {
+            "text": "Click the resubmission link in the email — your details and the old reference ID are already filled in.",
+            "img": "m-reject",
+            "alt": "The rejection email with the reason and resubmission link",
+            "shared": true
+          },
+          {
+            "text": "Attach the corrected file and send — you'll get a new reference ID."
+          }
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Common problems",
+        "id": "problems"
+      },
+      {
+        "type": "table",
+        "head": [
+          "What you see",
+          "What to do"
+        ],
+        "rows": [
+          [
+            "The file won't open and asks you to request access",
+            "Sign out of other Google accounts and sign in with the email you submitted with. For a student email, register it with Google Workspace first"
+          ],
+          [
+            "No confirmation email",
+            "Wait a few minutes, check Spam, then check the status with your reference ID. Don't submit again yet"
+          ],
+          [
+            "“Sending failed”",
+            "Your entries are kept — send again, or click “Try again” in the notice"
+          ],
+          [
+            "“Your last send may not have finished”",
+            "The tab was closed while sending. Check your confirmation email or My Documents before submitting again"
+          ],
+          [
+            "“Too many submissions”",
+            "There's a limit per time period to stop spam. Wait a little and try again"
+          ]
+        ]
+      },
+      {
+        "type": "img",
+        "src": "p-submit-failed-home",
+        "alt": "The “Sending failed” notice with its Try again button"
+      }
+    ],
+    "secretary": [
+      {
+        "type": "h2",
+        "text": "Your duties as secretary",
+        "id": "duties"
+      },
+      {
+        "type": "ul",
+        "items": [
+          "**Review every document before it reaches the president**, then send it on or reject it — within the 3-working-day turnaround promised to applicants (including the president's step).",
+          "**Write clear rejection reasons**, attaching a marked-up file when you can.",
+          "**Keep the staff list** in the “เจ้าหน้าที่” (staff) tab in line with the current committee.",
+          "**Watch system alerts** in email and the LINE group, and tell the maintainer about anything unusual.",
+          "**Help applicants who can't open their files** — when that alert arrives, send them the file another way."
+        ]
+      },
+      {
+        "type": "diagram",
+        "id": "secretary",
+        "caption": "Every queue item ends one of two ways; the routine tasks at the bottom carry on throughout your term."
+      },
+      {
+        "type": "h2",
+        "text": "Getting started",
+        "id": "start"
+      },
+      {
+        "type": "steps",
+        "items": [
+          {
+            "text": "Ask the maintainer or the previous secretary to add your email and role to the staff tab (see “Add, change or remove staff”)."
+          },
+          {
+            "text": "Open the website and click **Sign in with Google** using that exact email."
+          },
+          {
+            "text": "The left menu now shows **Pending Review**, **Document Records**, **Document Registry** and **Help**. If not, your email isn't in the staff tab yet.",
+            "img": "p-sec-home",
+            "alt": "The secretary home page"
+          }
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Review and send to the president",
+        "id": "advance"
+      },
+      {
+        "type": "steps",
+        "items": [
+          {
+            "text": "Open **Pending Review** and click **Attached file → Open document** to read it.",
+            "img": "p-sec-queue",
+            "alt": "The Pending Review queue"
+          },
+          {
+            "text": "If it's fine, click **Send to President**, then **Confirm send to president** (the reviewer is always recorded as whoever is signed in).",
+            "img": "p-sec-advance",
+            "alt": "The send-to-president confirmation"
+          },
+          {
+            "text": "The card shows “In progress…” with a status box at the bottom right. You can visit other pages, but don't close the tab.",
+            "img": "p-sec-advance-sending",
+            "alt": "Sending: the card says “In progress…” and the status box appears"
+          },
+          {
+            "text": "When done, the document leaves the queue and a “Sent to president” notice appears. A red “Sending failed” box means it's still in the queue — click “Try again”.",
+            "img": "p-sec-advance-done",
+            "alt": "Done: the document leaves the queue and a notice appears"
+          }
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Reject a document",
+        "id": "reject"
+      },
+      {
+        "type": "steps",
+        "items": [
+          {
+            "text": "Click **Reject** on the document's card."
+          },
+          {
+            "text": "Type the reason (required), saying which page and what to change."
+          },
+          {
+            "text": "Attach a marked-up file (optional, up to 3 MB; if larger, a **Reject via Google Form** button appears, pre-filled).",
+            "img": "p-sec-reject-toolarge",
+            "alt": "Attachment over 3 MB: the Reject via Google Form button"
+          },
+          {
+            "text": "Click **Confirm rejection** — the applicant is emailed straight away and it **can't be undone**, so read it over first.",
+            "img": "p-sec-reject-filled",
+            "alt": "The reject window with a reason and file"
+          }
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Document Records and Document Registry",
+        "id": "records"
+      },
+      {
+        "type": "ul",
+        "items": [
+          "**Document Records** — every document in every status, with search, filters by status or month, and a monthly summary on top. Click a row for its timeline and files.",
+          "**Document Registry** — every document number issued, in order."
+        ]
+      },
+      {
+        "type": "note",
+        "tone": "info",
+        "text": "These two pages open the number-stamped trial copy, while applicants get the signed copy (see document numbers in the Overview tab)."
+      },
+      {
+        "type": "img",
+        "src": "p-sec-records",
+        "alt": "The Document Records page"
+      },
+      {
+        "type": "h2",
+        "text": "Add, change or remove staff",
+        "id": "staff"
+      },
+      {
+        "type": "p",
+        "text": "The staff list lives in the Google Sheet tab **เจ้าหน้าที่** (columns: name / email / role). Valid roles are `secretary` `vice_secretary` `president` `vp_internal` `vp_external`."
+      },
+      {
+        "type": "steps",
+        "items": [
+          {
+            "text": "Type a new email into an empty cell, or type over an existing email to replace someone."
+          },
+          {
+            "text": "A pop-up asks whether to grant/revoke file access right away — click **Yes**.",
+            "img": "pop-staff-add",
+            "alt": "The add-staff confirmation pop-up in Google Sheet",
+            "shared": true
+          },
+          {
+            "text": "Every secretary gets an email and LINE alert that the tab changed — if it wasn't someone on the team, look into it right away."
+          }
+        ]
+      },
+      {
+        "type": "note",
+        "tone": "info",
+        "text": "Editing several cells at once, or changing a name/role, makes the system ask the maintainer to run the access sync (covered in the maintainer guide)."
+      },
+      {
+        "type": "h2",
+        "text": "Working from Google Sheet when the website is down",
+        "id": "sheet"
+      },
+      {
+        "type": "ul",
+        "items": [
+          "**Send to president:** in the `ระบบส่งเอกสาร` tab, change that row's `สถานะ` (status) to `รอเซ็น`. The sheet asks you to confirm before emailing the president.",
+          "**Reject:** click the link in the `ลิงก์ส่งผลการตรวจสอบ` (review link) column. It opens the form with the reference ID filled in. Be signed in to Google with your staff email and tick “record my email” in the form.",
+          "Never edit the form-response tabs or rename column headers. Moving columns is fine."
+        ]
+      },
+      {
+        "type": "img",
+        "src": "pop-advance",
+        "alt": "The confirmation pop-up when changing the status in the sheet",
+        "shared": true
+      },
+      {
+        "type": "h2",
+        "text": "Alerts you'll receive",
+        "id": "alerts"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Alert",
+          "What to do"
+        ],
+        "rows": [
+          [
+            "New document to review (email + LINE)",
+            "Open the queue and review it"
+          ],
+          [
+            "Applicant can't open their file",
+            "Send them the file another way, or suggest a Google account"
+          ],
+          [
+            "Unauthorized attempt (email + LINE)",
+            "Check who it was; if you don't know them, tell the maintainer"
+          ],
+          [
+            "Staff tab edited (email + LINE)",
+            "Make sure it was someone on the team"
+          ],
+          [
+            "Background job failed / queue problem / backup failed",
+            "Forward it to the maintainer"
+          ]
+        ]
+      },
+      {
+        "type": "img",
+        "src": "l-newsub",
+        "alt": "The new-document LINE card in the secretary group",
+        "shared": true,
+        "caption": "System LINE messages are in Thai"
+      },
+      {
+        "type": "note",
+        "tone": "warn",
+        "text": "Approved documents can't be rejected, and a rejection can't be undone. If you reject the wrong one, ask the applicant to resubmit and tell the maintainer."
+      }
+    ],
+    "president": [
+      {
+        "type": "h2",
+        "text": "Your duties as signer",
+        "id": "duties"
+      },
+      {
+        "type": "ul",
+        "items": [
+          "**Consider and sign documents the secretary has reviewed** — approval is when the official document number is issued.",
+          "**Upload the right signed file** — it's the copy the applicant receives and uses.",
+          "**The VPs for internal and external affairs can sign** when the president is away, on the same page. The system records who actually signed."
+        ]
+      },
+      {
+        "type": "diagram",
+        "id": "president",
+        "caption": "Both paths end in the same place: the system issues the document number and tells the applicant automatically."
+      },
+      {
+        "type": "note",
+        "tone": "info",
+        "text": "The “document awaiting signature” email goes to the president, or to the vice presidents if no president email is listed."
+      },
+      {
+        "type": "h2",
+        "text": "Approve on the website",
+        "id": "approve"
+      },
+      {
+        "type": "steps",
+        "items": [
+          {
+            "text": "Open the “awaiting signature” email and use the document link to download it for signing (digitally, or print–sign–scan).",
+            "img": "m-waitsign",
+            "alt": "The awaiting-signature email to the president",
+            "shared": true
+          },
+          {
+            "text": "Click the link to the signature queue and sign in with your staff email."
+          },
+          {
+            "text": "On the document's card, click **Approve & Issue Document Number**.",
+            "img": "p-pres-queue",
+            "alt": "The Pending Signature queue"
+          },
+          {
+            "text": "Attach the signed PDF and click **Confirm approve & issue document number** — this can't be undone.",
+            "img": "p-pres-approve-filled",
+            "alt": "The approve window with the signed file attached"
+          },
+          {
+            "text": "After about half a minute the document leaves the queue with a “Document approved” notice, and the applicant is emailed the number.",
+            "img": "p-pres-approve-done",
+            "alt": "Approved: the document leaves the queue and a notice appears"
+          }
+        ]
+      },
+      {
+        "type": "h2",
+        "text": "Files over 3 MB, or the website is down",
+        "id": "large"
+      },
+      {
+        "type": "p",
+        "text": "Use the Google Form button that appears in the approve window, or the backup form link in the email. The reference ID and your position are already filled in."
+      },
+      {
+        "type": "ul",
+        "items": [
+          "Sign in to Google with your staff email before opening the form",
+          "Tick **record my email** in the form — you can't send without it",
+          "The system checks that your email matches your position; if not, nothing is approved and the secretary is alerted"
+        ]
+      },
+      {
+        "type": "img",
+        "src": "p-pres-approve-toolarge",
+        "alt": "The file-too-large box with the Google Form button"
+      },
+      {
+        "type": "h2",
+        "text": "Problems you might see",
+        "id": "problems"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Message",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "The document's status is … not “Awaiting signature”",
+            "The secretary hasn't sent it yet, or someone already approved it. Check Document Records"
+          ],
+          [
+            "A document number already exists",
+            "It's already approved; duplicates are blocked on purpose"
+          ],
+          [
+            "No permission / details don't match",
+            "You're signed in with another email. Sign out and use your staff email"
+          ],
+          [
+            "Sending failed (red box, bottom right)",
+            "It's still in the queue — click “Try again” or use the Google Form"
+          ],
+          [
+            "The records file is stamped but the applicant's isn't",
+            "That's expected — the stamped copy is a staff trial; applicants get the signed copy"
+          ]
+        ]
+      }
+    ]
+  }
+}

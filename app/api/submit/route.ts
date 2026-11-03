@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkSubmitRateLimit } from "@/lib/rateLimit";
+import { parseAppsScriptResponse } from "@/lib/appsScript";
 
 export async function POST(req: Request) {
   const formData = await req.formData();
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
   const agencyValue = formData.get("agencyValue") as string;
   const previousTrackingId = formData.get("previousTrackingId") as string;
   const acknowledged = formData.get("acknowledged") === "true";
+  const pdpaConsent = formData.get("pdpaConsent") === "true";
   const file = formData.get("file") as File | null;
 
   // *** Rate limit — กันการยิงรัว ๆ จาก IP เดียวหรืออีเมลเดียว ***
@@ -37,7 +39,7 @@ export async function POST(req: Request) {
         success: false,
         error:
           rate.reason === "email"
-            ? "ยื่นเอกสารบ่อยเกินกำหนดสำหรับอีเมลนี้ กรุณาลองใหม่ในวันถัดไป หรือติดต่อเลขาธิการ"
+            ? "ยื่นเอกสารบ่อยเกินกำหนดสำหรับอีเมลนี้ กรุณาลองใหม่ในวันถัดไป หรือติดต่อเลขานุการ"
             : "ยื่นเอกสารบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่อีกครั้ง",
       },
       { status: 429 }
@@ -49,6 +51,9 @@ export async function POST(req: Request) {
   }
   if (!acknowledged) {
     return NextResponse.json({ success: false, error: "กรุณายืนยันว่าท่านรับทราบกระบวนการ" }, { status: 400 });
+  }
+  if (!pdpaConsent) {
+    return NextResponse.json({ success: false, error: "กรุณายินยอมให้เก็บข้อมูลส่วนบุคคลก่อนยื่นเอกสาร" }, { status: 400 });
   }
   const MAX_SIZE = 3 * 1024 * 1024;
   if (file.size > MAX_SIZE) {
@@ -82,18 +87,14 @@ export async function POST(req: Request) {
         agencyValue,
         previousTrackingId,
         acknowledged,
+        pdpaConsent,
         fileBase64: base64,
         fileName: file.name,
         mimeType: file.type,
       }),
     });
     const raw = await res.text();
-    let data;
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      data = { success: false, error: "Unexpected response from Apps Script: " + raw };
-    }
+    const data = parseAppsScriptResponse(raw);
     return NextResponse.json(data);
   } catch (e) {
     return NextResponse.json(

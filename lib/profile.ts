@@ -6,6 +6,7 @@ export type UserProfile = {
   name: string;
   studentId: string;
   phone: string;
+  pdpaConsentDate: string;
 };
 
 export async function getUserProfile(email: string): Promise<UserProfile | null> {
@@ -14,6 +15,7 @@ export async function getUserProfile(email: string): Promise<UserProfile | null>
   const nameCol = headers.indexOf("ชื่อ - นามสกุล");
   const studentIdCol = headers.indexOf("รหัสนักศึกษา");
   const phoneCol = headers.indexOf("เบอร์โทรสำหรับติดต่อ");
+  const pdpaCol = headers.indexOf("วันที่ยินยอม PDPA");
 
   if (emailCol === -1) return null;
 
@@ -25,5 +27,6 @@ export async function getUserProfile(email: string): Promise<UserProfile | null>
     name: nameCol === -1 ? "" : match[nameCol] || "",
     studentId: studentIdCol === -1 ? "" : match[studentIdCol] || "",
     phone: phoneCol === -1 ? "" : match[phoneCol] || "",
+    pdpaConsentDate: pdpaCol === -1 ? "" : match[pdpaCol] || "",
   };
 }

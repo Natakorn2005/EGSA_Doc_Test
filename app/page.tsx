@@ -5,6 +5,7 @@ import { getSecretarySheet } from "@/lib/googleSheets";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { colors, heroStyle, cardStyle } from "@/lib/theme";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -91,16 +92,16 @@ export default async function HomePage() {
                 </button>
               </form>
 
-              <p style={{ color: colors.textMuted, fontSize: 11, margin: "0 0 10px" }}>{t("home.orUseWithoutLogin")}</p>
-              <div style={{ display: "flex", gap: 10, marginBottom: 28 }}>
-                <a href="/submit" className="egsa-outline-btn" style={{ flex: 1, textAlign: "center" }}>
-                  <i className="ti ti-file-plus" style={{ fontSize: 16 }} aria-hidden="true" />
+              <p style={{ color: colors.textMuted, fontSize: 11, margin: "0 0 8px" }}>{t("home.orUseWithoutLogin")}</p>
+              <div style={{ display: "flex", gap: 8, marginBottom: 28 }}>
+                <Link href="/submit" className="egsa-outline-btn" style={{ flex: 1, textAlign: "center" }}>
+                  <i className="ti ti-file-plus" style={{ fontSize: 14 }} aria-hidden="true" />
                   {t("nav.submit")}
-                </a>
-                <a href="/status" className="egsa-outline-btn" style={{ flex: 1, textAlign: "center" }}>
-                  <i className="ti ti-search" style={{ fontSize: 16 }} aria-hidden="true" />
+                </Link>
+                <Link href="/status" className="egsa-outline-btn" style={{ flex: 1, textAlign: "center" }}>
+                  <i className="ti ti-search" style={{ fontSize: 14 }} aria-hidden="true" />
                   {t("nav.status")}
-                </a>
+                </Link>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 28 }}>
@@ -133,7 +134,7 @@ export default async function HomePage() {
                   borderTop: `1px solid ${colors.cardBorder}`,
                 }}
               >
-                <a
+                <Link
                   href="/faq"
                   style={{
                     display: "inline-flex",
@@ -145,7 +146,7 @@ export default async function HomePage() {
                 >
                   <i className="ti ti-message-circle-question" style={{ fontSize: 16 }} aria-hidden="true" />
                   {t("faq.navLabel")}
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -169,12 +170,12 @@ export default async function HomePage() {
 
         <style>{`
           .egsa-outline-btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            border: 1.5px solid ${colors.primary}; color: ${colors.primary};
-            border-radius: 8px; padding: 10px 14px; font-size: 13px; font-family: var(--font-body);
-            text-decoration: none; transition: background 0.15s, color 0.15s;
+            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            border: 1px solid ${colors.cardBorder}; color: ${colors.textSecondary};
+            border-radius: 7px; padding: 7px 10px; font-size: 12px; font-family: var(--font-body);
+            text-decoration: none; transition: border-color 0.15s, color 0.15s;
           }
-          .egsa-outline-btn:hover { background: ${colors.primary}; color: #fff; }
+          .egsa-outline-btn:hover { border-color: ${colors.primary}; color: ${colors.primary}; }
           @media (max-width: 768px) {
             .egsa-home-panels { flex-direction: column; }
             .egsa-home-illustration { min-height: 220px; }
@@ -256,7 +257,19 @@ export default async function HomePage() {
         c: mine.filter((r) => r[statusCol] === "อนุมัติ").length,
       };
       // นักศึกษา: เอกสารตีกลับก่อน (ต้องดำเนินการ) ตามด้วยที่กำลังดำเนินอยู่ — สูงสุด 5 รายการ
-      const rejected = mine.filter((r) => r[statusCol] === "ตีกลับ");
+      // *** ไม่แสดงเอกสารตีกลับที่ผู้ยื่นได้ยื่นแก้ไขไปแล้ว — เช็คจากคอลัมน์ "Reference ID"
+      // ของแถวอื่น ๆ ในชีต ว่ามีแถวไหนอ้างอิงกลับมาที่ Tracking ID ของเอกสารตีกลับนี้บ้างไหม ***
+      const referenceCol = data.headers.indexOf("Reference ID");
+      const alreadyResubmittedIds = new Set(
+        referenceCol !== -1
+          ? data.rows.map((r) => (r[referenceCol] || "").trim()).filter(Boolean)
+          : []
+      );
+      const rejected = mine.filter(
+        (r) =>
+          r[statusCol] === "ตีกลับ" &&
+          !alreadyResubmittedIds.has(cell(data.headers, r, "Tracking ID").trim())
+      );
       const inProgress = mine.filter((r) => r[statusCol] === "รอตรวจสอบ" || r[statusCol] === "รอเซ็น");
       notifications = [...rejected, ...inProgress].slice(0, 5).map((r) => ({
         trackingId: cell(data.headers, r, "Tracking ID"),
@@ -311,9 +324,9 @@ export default async function HomePage() {
                 {isStaffView ? t("home.notificationsTitleStaff") : t("home.notificationsTitleStudent")}
               </h2>
               {isStaffView && notifications.length > 0 && (
-                <a href={notifQueueLink} style={{ color: colors.primary, fontSize: 13 }}>
+                <Link href={notifQueueLink} style={{ color: colors.primary, fontSize: 13 }}>
                   {t("home.viewAllInQueue")}
-                </a>
+                </Link>
               )}
             </div>
 
@@ -335,7 +348,7 @@ export default async function HomePage() {
               {notifications.map((n) => {
                 const meta = STATUS_META[n.status];
                 return (
-                  <a
+                  <Link
                     key={n.trackingId}
                     href={isStaffView ? notifQueueLink : `/status?q=${encodeURIComponent(n.trackingId)}`}
                     style={{
@@ -372,7 +385,7 @@ export default async function HomePage() {
                         {t(`status.${meta.key}`)}
                       </span>
                     )}
-                  </a>
+                  </Link>
                 );
               })}
             </div>

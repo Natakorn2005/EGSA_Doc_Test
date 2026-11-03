@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { colors } from "@/lib/theme";
 import { getMonthKey } from "@/lib/dateFormat";
 import DocumentDetailModal from "@/components/DocumentDetailModal";
+import AutoRefresh from "@/components/AutoRefresh";
 
 export type RecordRow = {
   trackingId: string;
@@ -22,6 +23,7 @@ export type RecordRow = {
   fileUrl: string;
   finalFileUrl: string;
   resubmitLink: string;
+  sharePending?: boolean;
 };
 
 const STATUS_META: Record<string, { key: string; color: string; bg: string }> = {
@@ -60,9 +62,11 @@ export default function RecordsTable({
   }, [records, search, statusFilter, monthFilter]);
 
   const statuses = Array.from(new Set(records.map((r) => r.status).filter(Boolean)));
+  const selectedDoc = selected ? records.find((r) => r.trackingId === selected.trackingId) || selected : null;
 
   return (
     <div>
+      {records.some((r) => r.sharePending) && <AutoRefresh />}
       <div style={{ display: "flex", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
         <input
           type="text"
@@ -207,7 +211,7 @@ export default function RecordsTable({
         </table>
       </div>
 
-      {selected && <DocumentDetailModal doc={selected} onClose={() => setSelected(null)} />}
+      {selectedDoc && <DocumentDetailModal doc={selectedDoc} onClose={() => setSelected(null)} />}
     </div>
   );
 }

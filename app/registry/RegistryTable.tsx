@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { colors, cardStyle } from "@/lib/theme";
+import Link from "next/link";
 
 export type RegistryRow = {
   docNumber: string;
@@ -135,9 +136,9 @@ export default function RegistryTable({ rows }: { rows: RegistryRow[] }) {
               </div>
               <div style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>
                 {t("colIssuedAt")}: {r.issuedAt || "-"} ·{" "}
-                <a href={`/status?q=${encodeURIComponent(r.trackingId)}`} style={{ color: colors.textMuted }}>
+                <Link href={`/status?q=${encodeURIComponent(r.trackingId)}`} style={{ color: colors.textMuted }}>
                   {r.trackingId}
-                </a>
+                </Link>
               </div>
             </div>
 

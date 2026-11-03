@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Apps Script (.gs) — local copy only. The GitHub repo is public and these files
+# hold staff emails, form IDs and sheet structure, so never push them.
+apps-script/

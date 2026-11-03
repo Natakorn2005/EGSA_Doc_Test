@@ -3,6 +3,7 @@ import { getSecretarySheet } from "@/lib/googleSheets";
 import { getTranslations } from "next-intl/server";
 import { colors, cardStyle, buttonPrimaryStyle } from "@/lib/theme";
 import MyDocumentsList, { MyDoc } from "./MyDocumentsList";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -58,8 +59,10 @@ export default async function MyPage() {
         docNumber: cell(data.headers, row, "เลขเอกสาร"),
         rejectReason: cell(data.headers, row, "เหตุผลตีกลับ"),
         fileUrl: cell(data.headers, row, "เอกสารที่ต้องการยื่น"),
-        finalFileUrl: cell(data.headers, row, "ลิงก์ไฟล์สุดท้าย (ประทับเลขแล้ว)"),
+        // ผู้ยื่นได้ "ฉบับเซ็นแล้ว" — ฉบับประทับเลขเป็นฉบับทดลอง ใช้งานจริงไม่ได้ (เจ้าหน้าที่ยังเห็นในฐานข้อมูลเอกสาร)
+        finalFileUrl: cell(data.headers, row, "เอกสารเซ็นอนุมัติแล้ว"),
         resubmitLink: cell(data.headers, row, "ลิงก์ฟอร์มส่งเอกสารแก้"),
+        sharePending: !!cell(data.headers, row, "รอแชร์ไฟล์").trim(),
       }));
   } catch (e) {
     error = e instanceof Error ? e.message : "Unknown error";
@@ -81,9 +84,9 @@ export default async function MyPage() {
       {!error && docs.length === 0 && (
         <p style={{ color: colors.textSecondary, fontSize: 14 }}>
           {t("empty")}{" "}
-          <a href="/submit" style={{ color: colors.primary }}>
+          <Link href="/submit" style={{ color: colors.primary }}>
             {t("submitNew")}
-          </a>
+          </Link>
         </p>
       )}
 

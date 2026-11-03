@@ -3,6 +3,7 @@ import { getSecretarySheet } from "@/lib/googleSheets";
 import { getStaffRole } from "@/lib/roles";
 import { getTranslations } from "next-intl/server";
 import { colors } from "@/lib/theme";
+import AutoRefresh from "@/components/AutoRefresh";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +67,7 @@ export default async function StatusPage({
   searchParams: Promise<{ q?: string; v?: string }>;
 }) {
   const t = await getTranslations("status");
+  const tcommon = await getTranslations("common");
   const tc = await getTranslations("common");
   const { q, v } = await searchParams;
   const session = await auth();
@@ -111,7 +113,7 @@ export default async function StatusPage({
             fontFamily: "var(--font-body)",
           }}
         />
-        {!isStaffViewer && (
+        {!viewerEmail && (
           <>
             <input
               type="text"
@@ -168,6 +170,8 @@ export default async function StatusPage({
           กันการใช้ข้อความ error ต่างกันเพื่อไล่เดาว่า Tracking ID ไหนมีอยู่จริง */}
       {query && !error && matches.length === 0 && <p>{t("notFoundOrUnverified")}</p>}
 
+      {matches.some((row) => !!getCell(headers, row, "รอแชร์ไฟล์").trim()) && <AutoRefresh />}
+
       {matches.map((row, i) => {
         const status = getCell(headers, row, "สถานะ");
         const meta = STATUS_KEY_MAP[status];
@@ -180,10 +184,14 @@ export default async function StatusPage({
         const rejectReason = getCell(headers, row, "เหตุผลตีกลับ");
         const resubmitLink = getCell(headers, row, "ลิงก์ฟอร์มส่งเอกสารแก้");
         const docNumber = getCell(headers, row, "เลขเอกสาร");
-        const finalLink = getCell(headers, row, "ลิงก์ไฟล์สุดท้าย (ประทับเลขแล้ว)");
+        // *** ผู้ยื่นได้ "ฉบับเซ็นแล้ว" (ฉบับเดียวกับในอีเมลแจ้งอนุมัติ) ***
+        // ฉบับประทับเลขเป็นฉบับทดลองระบบประทับ ใช้งานจริงไม่ได้ จึงไม่แสดงในหน้านี้
+        const finalLink = getCell(headers, row, "เอกสารเซ็นอนุมัติแล้ว");
         const approvedAt = getCell(headers, row, "เวลาที่อนุมัติ");
         const rowEmail = getCell(headers, row, "อีเมล").trim().toLowerCase();
         const canViewFile = isStaffViewer || (viewerEmail && viewerEmail === rowEmail);
+        // *** คิวเบื้องหลังยังแชร์ไฟล์ไม่เสร็จ — ซ่อนลิงก์ไฟล์ไว้ก่อน (เปิดไปตอนนี้จะขึ้นว่าไม่มีสิทธิ์) ***
+        const sharePending = !!getCell(headers, row, "รอแชร์ไฟล์").trim();
 
         return (
           <div key={i} style={{ border: `1px solid ${colors.cardBorder}`, borderRadius: 8, padding: 16, marginBottom: 12, background: bg }}>
@@ -213,11 +221,17 @@ export default async function StatusPage({
                   {t("docNumberLabel")}: <strong>{docNumber}</strong>
                 </p>
                 <p style={{ color: colors.textSecondary, marginBottom: 8 }}>{t("approvedAt")}: {approvedAt || "-"}</p>
-                {finalLink && canViewFile && (
+                {finalLink && canViewFile && !sharePending && (
                   <a href={finalLink} className="egsa-link-btn">
                     <i className="ti ti-file-check" style={{ fontSize: 16 }} aria-hidden="true" />
                     {t("openFile")}
                   </a>
+                )}
+                {finalLink && canViewFile && sharePending && (
+                  <div className="egsa-file-preparing" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: colors.textSecondary, padding: "6px 0" }}>
+                  <i className="ti ti-hourglass" style={{ fontSize: 15 }} aria-hidden="true" />
+                  {tcommon("filePreparing")}
+                </div>
                 )}
               </div>
             )}

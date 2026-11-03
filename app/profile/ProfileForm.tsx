@@ -11,24 +11,34 @@ export default function ProfileForm({
   initialStudentId,
   initialPhone,
   hasSavedProfile,
+  pdpaConsentDate,
 }: {
   email: string;
   initialName: string;
   initialStudentId: string;
   initialPhone: string;
   hasSavedProfile: boolean;
+  pdpaConsentDate: string;
 }) {
   const t = useTranslations("profile");
   const [name, setName] = useState(initialName);
   const [studentId, setStudentId] = useState(initialStudentId);
   const [phone, setPhone] = useState(initialPhone);
+  const [pdpaConsent, setPdpaConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
 
+  const alreadyConsented = !!pdpaConsentDate;
+
   async function handleSave() {
     if (!name.trim()) {
       setErrorMsg(t("errMissingName"));
+      setStatus("error");
+      return;
+    }
+    if (!alreadyConsented && !pdpaConsent) {
+      setErrorMsg(t("errNoPdpaConsent"));
       setStatus("error");
       return;
     }
@@ -40,7 +50,12 @@ export default function ProfileForm({
       const res = await fetch("/api/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), studentId: studentId.trim(), phone: phone.trim() }),
+        body: JSON.stringify({
+          name: name.trim(),
+          studentId: studentId.trim(),
+          phone: phone.trim(),
+          pdpaConsent: !alreadyConsented,
+        }),
       });
       const data = await res.json();
       if (!data.success) {
@@ -112,6 +127,27 @@ export default function ProfileForm({
             disabled={status === "loading"}
             style={{ ...inputStyle, width: "100%", marginBottom: 18, boxSizing: "border-box" }}
           />
+
+          {alreadyConsented ? (
+            <p style={{ fontSize: 11, color: colors.textMuted, margin: "0 0 18px" }}>
+              {t("pdpaAlreadyConsented", { date: pdpaConsentDate })}
+            </p>
+          ) : (
+            <label style={{ fontSize: 13, display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 18 }}>
+              <input
+                type="checkbox"
+                checked={pdpaConsent}
+                onChange={(e) => setPdpaConsent(e.target.checked)}
+                style={{ marginTop: 2 }}
+              />
+              <span>
+                {t("pdpaConsentLabel")}{" "}
+                <a href="/privacy" target="_blank" style={{ color: colors.primary }}>
+                  {t("pdpaConsentLink")}
+                </a>
+              </span>
+            </label>
+          )}
 
           {status === "error" && <p style={{ color: "#b00020", fontSize: 13, margin: "0 0 14px" }}>{errorMsg}</p>}
 

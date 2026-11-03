@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { colors, statusColors } from "@/lib/theme";
+import AutoRefresh from "@/components/AutoRefresh";
+import { fallbackFormUrl } from "@/lib/formLinks";
+import { useSendQueue, type SendRequest } from "@/components/SendQueue";
 
 export type QueueDoc = {
   trackingId: string;
@@ -14,6 +16,10 @@ export type QueueDoc = {
   submittedAt: string;
   reviewer: string;
   fileUrl: string;
+  approveFormUrl?: string;
+  /** คิวเบื้องหลังยังแชร์ไฟล์ไม่เสร็จ — ซ่อนลิงก์เปิดไฟล์ไว้ก่อน */
+  sharePending?: boolean;
+  rejectFormUrl?: string;
 };
 
 type ActionKind = "advance" | "reject" | "approve";
@@ -29,11 +35,25 @@ export default function QueuePanel({
   actingAs: ActingAs;
 }) {
   const t = useTranslations("queue");
-  const router = useRouter();
+  const tsq = useTranslations("sendQueue");
+  const tcommon = useTranslations("common");
+  const { jobs, enqueue } = useSendQueue();
+  // เอกสารที่กำลังส่งคำสั่งอยู่เบื้องหลัง — ซ่อนปุ่มไว้กันกดซ้ำ
+  const busyIds = useMemo(
+    () => new Set(jobs.filter((j) => j.status === "sending" && j.trackingId).map((j) => j.trackingId as string)),
+    [jobs]
+  );
+  // คำสั่งที่ส่งสำเร็จแล้ว แต่หน้ายังโหลดรายการใหม่ไม่เสร็จ — แสดงว่าสำเร็จแทนปุ่ม
+  // (ถ้าไม่ทำ ปุ่มเดิมจะเด้งกลับมาให้เห็นแวบหนึ่งก่อนเอกสารหายจากคิว)
+  const doneKinds = useMemo(() => {
+    const m = new Map<string, ActionKind>();
+    for (const j of jobs) {
+      if (j.status === "done" && j.trackingId && j.kind !== "submit") m.set(j.trackingId, j.kind as ActionKind);
+    }
+    return m;
+  }, [jobs]);
   const [search, setSearch] = useState("");
   const [agencyFilter, setAgencyFilter] = useState("");
-  const [flashId, setFlashId] = useState<string | null>(null);
-  const [flashWarning, setFlashWarning] = useState<string | null>(null);
   const [modal, setModal] = useState<{ doc: QueueDoc; action: ActionKind } | null>(null);
   const [expandedFiles, setExpandedFiles] = useState<Set<string>>(new Set());
 
@@ -66,6 +86,8 @@ export default function QueuePanel({
 
   return (
     <div>
+      {docs.some((d) => d.sharePending) && <AutoRefresh />}
+
       {actingAs && (
         <div
           style={{
@@ -151,32 +173,21 @@ export default function QueuePanel({
         {filtered.map((doc) => {
           const pendingKey = mode === "secretary" ? "รอตรวจสอบ" : "รอเซ็น";
           const pending = statusColors[pendingKey];
-          const flashing = flashId === doc.trackingId;
+          const busy = busyIds.has(doc.trackingId);
+          const doneKind = doneKinds.get(doc.trackingId);
           return (
             <div
               key={doc.trackingId}
               style={{
-                background: flashing ? (flashWarning ? "#fff8e1" : "#f1f8f1") : "#fff",
-                border: `1px solid ${flashing ? (flashWarning ? "#ffe082" : "#cde5cf") : colors.cardBorder}`,
+                background: "#fff",
+                border: `1px solid ${colors.cardBorder}`,
                 borderLeft: `4px solid ${colors.primary}`,
                 borderRadius: "0 12px 12px 0",
                 padding: 16,
                 transition: "background 0.3s",
               }}
             >
-              {flashing ? (
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 0" }}>
-                  <i
-                    className={`ti ${flashWarning ? "ti-alert-triangle" : "ti-circle-check"}`}
-                    style={{ fontSize: 20, color: flashWarning ? "#8a4b00" : "#1b5e20", flexShrink: 0, marginTop: 1 }}
-                    aria-hidden="true"
-                  />
-                  <span style={{ fontSize: 14, color: flashWarning ? "#8a4b00" : "#1b5e20" }}>
-                    {flashWarning || t("actionSuccess")}
-                  </span>
-                </div>
-              ) : (
-                <>
+              <>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
                     <strong style={{ fontSize: 15 }}>{doc.docName || doc.trackingId}</strong>
                     <span
@@ -223,7 +234,13 @@ export default function QueuePanel({
                         />
                         {t("attachedFile")}
                       </button>
-                      {expandedFiles.has(doc.trackingId) && (
+                      {expandedFiles.has(doc.trackingId) && doc.sharePending && (
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: colors.textSecondary }}>
+                          <i className="ti ti-hourglass" style={{ fontSize: 15 }} aria-hidden="true" />
+                          {tcommon("filePreparing")}
+                        </span>
+                      )}
+                      {expandedFiles.has(doc.trackingId) && !doc.sharePending && (
                         <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="egsa-link-btn">
                           <i className="ti ti-file-text" style={{ fontSize: 16 }} aria-hidden="true" />
                           {t("openDocument")}
@@ -232,6 +249,39 @@ export default function QueuePanel({
                     </div>
                   )}
 
+                  {doneKind ? (
+                    <div
+                      role="status"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        marginTop: 12,
+                        padding: "8px 12px",
+                        borderRadius: 8,
+                        background: "#f1f8f1",
+                        color: "#1b5e20",
+                        fontSize: 13,
+                      }}
+                    >
+                      <i className="ti ti-circle-check" style={{ fontSize: 17 }} aria-hidden="true" />
+                      {tsq(`done.${doneKind}`)}
+                    </div>
+                  ) : busy ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        marginTop: 12,
+                        fontSize: 13,
+                        color: colors.textSecondary,
+                      }}
+                    >
+                      <span className="egsa-spinner egsa-spinner-dark" aria-hidden="true" />
+                      {tsq("inProgress")}
+                    </div>
+                  ) : (
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
                     {mode === "secretary" ? (
                       <>
@@ -248,8 +298,8 @@ export default function QueuePanel({
                       </button>
                     )}
                   </div>
+                  )}
                 </>
-              )}
             </div>
           );
         })}
@@ -261,12 +311,14 @@ export default function QueuePanel({
           action={modal.action}
           actingAs={actingAs}
           onClose={() => setModal(null)}
-          onSuccess={(warning) => {
-            const id = modal.doc.trackingId;
+          onSubmit={(request) => {
+            enqueue({
+              kind: modal.action,
+              label: modal.doc.docName || modal.doc.trackingId,
+              trackingId: modal.doc.trackingId,
+              request,
+            });
             setModal(null);
-            setFlashId(id);
-            setFlashWarning(warning || null);
-            setTimeout(() => router.refresh(), warning ? 2200 : 700);
           }}
         />
       )}
@@ -279,13 +331,14 @@ function ActionModal({
   action,
   actingAs,
   onClose,
-  onSuccess,
+  onSubmit,
 }: {
   doc: QueueDoc;
   action: ActionKind;
   actingAs: ActingAs;
   onClose: () => void;
-  onSuccess: (warning?: string) => void;
+  /** ส่งคำสั่งเข้าคิวเบื้องหลัง (components/SendQueue.tsx) แล้วปิดหน้าต่างทันที ไม่ต้องรอผล */
+  onSubmit: (request: SendRequest) => void;
 }) {
   const t = useTranslations("queue");
   const tc = useTranslations("common");
@@ -293,6 +346,7 @@ function ActionModal({
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [tooLarge, setTooLarge] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const showFilePicker = action === "reject" || action === "approve";
@@ -310,48 +364,23 @@ function ActionModal({
     setStatus("error");
   }
 
-  async function handleConfirm() {
+  function handleConfirm() {
     if (needsReason && !reason.trim()) return fail(t("pleaseEnterReason"));
     if (requiresFile && !file) return fail(t("pleaseAttachFile"));
 
-    setStatus("loading");
-    setErrorMsg("");
-
-    try {
-      let res: Response;
-      if (action === "advance") {
-        res = await fetch("/api/advance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ trackingId: doc.trackingId }),
-        });
-      } else if (action === "reject") {
-        const fd = new FormData();
-        fd.append("trackingId", doc.trackingId);
-        fd.append("reason", reason.trim());
-        if (file) fd.append("file", file);
-        res = await fetch("/api/reject", { method: "POST", body: fd });
-      } else {
-        const fd = new FormData();
-        fd.append("trackingId", doc.trackingId);
-        fd.append("file", file!);
-        res = await fetch("/api/approve", { method: "POST", body: fd });
-      }
-      const data = await res.json();
-      if (!data.success) return fail(data.error || t("genericError"));
-
-      if (data.data?.emailSent === false) {
-        const warningKey =
-          action === "advance" ? "advanceEmailWarning" :
-          action === "reject" ? "rejectEmailWarning" :
-          "approveEmailWarning";
-        onSuccess(t(warningKey));
-        return;
-      }
-
-      onSuccess();
-    } catch (e) {
-      fail(e instanceof Error ? e.message : t("genericError"));
+    if (action === "advance") {
+      onSubmit({ endpoint: "/api/advance", body: { trackingId: doc.trackingId } });
+    } else if (action === "reject") {
+      const fd = new FormData();
+      fd.append("trackingId", doc.trackingId);
+      fd.append("reason", reason.trim());
+      if (file) fd.append("file", file);
+      onSubmit({ endpoint: "/api/reject", body: fd });
+    } else {
+      const fd = new FormData();
+      fd.append("trackingId", doc.trackingId);
+      fd.append("file", file!);
+      onSubmit({ endpoint: "/api/approve", body: fd });
     }
   }
 
@@ -445,11 +474,14 @@ function ActionModal({
                 accept="application/pdf"
                 onChange={(e) => {
                   const picked = e.target.files?.[0] || null;
+                  setTooLarge(false);
                   if (picked) {
                     const MAX_SIZE = 3 * 1024 * 1024;
                     if (picked.size > MAX_SIZE) {
                       setFile(null);
-                      fail(t("fileTooLarge"));
+                      setTooLarge(true);
+                      setStatus("idle");
+                      setErrorMsg("");
                       if (fileRef.current) fileRef.current.value = "";
                       return;
                     }
@@ -494,6 +526,59 @@ function ActionModal({
               </div>
             </>
           )}
+
+
+          {tooLarge && (action === "approve" || action === "reject") && (() => {
+            const formUrl = fallbackFormUrl(
+              action,
+              {
+                trackingId: doc.trackingId,
+                reason: action === "reject" ? reason : undefined,
+                person: actingAs?.roleLabel,
+              },
+              action === "approve" ? doc.approveFormUrl : doc.rejectFormUrl
+            );
+            return (
+              <div
+                style={{
+                  background: "#fff8e1",
+                  border: "1px solid #f0d58c",
+                  borderRadius: 8,
+                  padding: "10px 12px",
+                  margin: "0 0 14px",
+                  fontSize: 13,
+                  color: "#6b5200",
+                }}
+              >
+                <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <i className="ti ti-alert-triangle" style={{ fontSize: 16, marginTop: 1 }} aria-hidden="true" />
+                  <span>{formUrl ? t("tooLargeUseForm") : t("tooLargeNoForm")}</span>
+                </div>
+                {formUrl && (
+                  <a
+                    href={formUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      marginTop: 10,
+                      padding: "8px 14px",
+                      background: colors.primary,
+                      color: "#fff",
+                      borderRadius: 8,
+                      textDecoration: "none",
+                      fontSize: 13,
+                    }}
+                  >
+                    <i className="ti ti-external-link" aria-hidden="true" />
+                    {action === "approve" ? t("tooLargeApproveButton") : t("tooLargeRejectButton")}
+                  </a>
+                )}
+              </div>
+            );
+          })()}
 
           <p style={{ fontSize: 12, color: colors.textMuted, margin: "0 0 16px" }}>{noteText}</p>
 

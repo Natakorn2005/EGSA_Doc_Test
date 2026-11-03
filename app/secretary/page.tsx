@@ -32,10 +32,14 @@ export default async function SecretaryPage() {
         agencyValue:
           cell(data.headers, row, "ฝ่ายภายในสโมสร") ||
           cell(data.headers, row, "ชมรม") ||
-          cell(data.headers, row, "ภาควิชา"),
+          cell(data.headers, row, "ภาควิชา") ||
+          cell(data.headers, row, "หน่วยงานอื่น ๆ"),
         submittedAt: cell(data.headers, row, "ประทับเวลา"),
         reviewer: "",
         fileUrl: cell(data.headers, row, "เอกสารที่ต้องการยื่น"),
+        sharePending: !!cell(data.headers, row, "รอแชร์ไฟล์").trim(),
+        approveFormUrl: cell(data.headers, row, "ลิงก์อนุมัติ"),
+        rejectFormUrl: cell(data.headers, row, "ลิงก์ส่งผลการตรวจสอบ"),
       }));
   } catch (e) {
     error = e instanceof Error ? e.message : "Unknown error";

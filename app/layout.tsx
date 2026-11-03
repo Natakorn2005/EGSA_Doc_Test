@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
+import { SendQueueProvider } from "@/components/SendQueue";
 
 const kanit = Kanit({
   subsets: ["thai", "latin"],
@@ -42,7 +43,9 @@ export default async function RootLayout({
       </head>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <AppShell>{children}</AppShell>
+          <SendQueueProvider>
+            <AppShell>{children}</AppShell>
+          </SendQueueProvider>
         </NextIntlClientProvider>
       </body>
     </html>

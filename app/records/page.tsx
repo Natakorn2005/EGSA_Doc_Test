@@ -29,7 +29,8 @@ export default async function RecordsPage() {
       agency:
         cell(data.headers, row, "ฝ่ายภายในสโมสร") ||
         cell(data.headers, row, "ชมรม") ||
-        cell(data.headers, row, "ภาควิชา"),
+        cell(data.headers, row, "ภาควิชา") ||
+        cell(data.headers, row, "หน่วยงานอื่น ๆ"),
       status: cell(data.headers, row, "สถานะ"),
       submittedAt: cell(data.headers, row, "ประทับเวลา"),
       docNumber: cell(data.headers, row, "เลขเอกสาร"),
@@ -41,6 +42,7 @@ export default async function RecordsPage() {
       fileUrl: cell(data.headers, row, "เอกสารที่ต้องการยื่น"),
       finalFileUrl: cell(data.headers, row, "ลิงก์ไฟล์สุดท้าย (ประทับเลขแล้ว)"),
       resubmitLink: cell(data.headers, row, "ลิงก์ฟอร์มส่งเอกสารแก้"),
+      sharePending: !!cell(data.headers, row, "รอแชร์ไฟล์").trim(),
     }));
 
     // *** สรุปรายเดือน — จัดกลุ่มตามเดือนที่ยื่น แล้วนับสถานะปัจจุบันของแต่ละกลุ่ม ***

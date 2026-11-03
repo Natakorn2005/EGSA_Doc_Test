@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { isSecretaryRole } from "@/lib/roles";
+import { parseAppsScriptResponse } from "@/lib/appsScript";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -39,12 +40,7 @@ export async function POST(req: Request) {
     });
 
     const raw = await res.text();
-    let data;
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      data = { success: false, error: "Unexpected response from Apps Script: " + raw.slice(0, 200) };
-    }
+    const data = parseAppsScriptResponse(raw);
 
     return NextResponse.json(data);
   } catch (e) {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { colors, layout } from "@/lib/theme";
 import LanguageSwitcher from "./LanguageSwitcher";
+import Link from "next/link";
 
 type NavLink = { href: string; icon: string; label: string };
 
@@ -57,7 +58,7 @@ export default function Sidebar({
         {links.map((link) => {
           const active = pathname === link.href;
           return (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
@@ -75,7 +76,7 @@ export default function Sidebar({
             >
               <i className={`ti ${link.icon}`} style={{ fontSize: 18 }} aria-hidden="true" />
               {link.label}
-            </a>
+            </Link>
           );
         })}
       </nav>

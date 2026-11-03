@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 import { colors, cardStyle } from "@/lib/theme";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +26,28 @@ export default async function HelpPage() {
   return (
     <div>
       <h1 style={{ fontSize: 22, margin: "0 0 4px" }}>{t("title")}</h1>
-      <p style={{ color: colors.textSecondary, fontSize: 14, margin: "0 0 28px" }}>{t("subtitle")}</p>
+      <p style={{ color: colors.textSecondary, fontSize: 14, margin: "0 0 16px" }}>{t("subtitle")}</p>
+
+      <Link
+        href="/guide"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          background: colors.tint,
+          border: `1px solid ${colors.tintBorder}`,
+          borderRadius: 12,
+          padding: "12px 16px",
+          marginBottom: 28,
+          color: colors.primaryDark,
+          textDecoration: "none",
+          fontSize: 14,
+        }}
+      >
+        <i className="ti ti-book" style={{ fontSize: 20 }} aria-hidden="true" />
+        <span style={{ flex: 1 }}>{t("guideBannerText")}</span>
+        <span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{t("guideBannerLink")} →</span>
+      </Link>
 
       {/* สรุปสถานะ */}
       <h2 style={{ fontSize: 16, margin: "0 0 12px" }}>{t("statusRefTitle")}</h2>
