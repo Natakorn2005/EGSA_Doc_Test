@@ -1,7 +1,7 @@
 import { auth, signIn } from "@/auth";
 import { getSecretarySheet } from "@/lib/googleSheets";
 import { getTranslations } from "next-intl/server";
-import { colors, cardStyle, buttonPrimaryStyle } from "@/lib/theme";
+import { colors, buttonPrimaryStyle } from "@/lib/theme";
 import MyDocumentsList, { MyDoc } from "./MyDocumentsList";
 import Link from "next/link";
 
@@ -44,6 +44,12 @@ export default async function MyPage() {
     const data = await getSecretarySheet();
     const emailCol = data.headers.indexOf("อีเมล");
     const normalized = session.user.email.trim().toLowerCase();
+    // รอบที่ถูกตีกลับแล้วยื่นแก้ไปแล้ว — ไม่ต้องเตือนให้ทำต่อ (ดูจาก Reference ID ของแถวอื่น)
+    const resubmittedAs = new Map<string, string>();
+    for (const r of data.rows) {
+      const ref = cell(data.headers, r, "Reference ID").trim();
+      if (ref) resubmittedAs.set(ref, cell(data.headers, r, "Tracking ID").trim());
+    }
     docs = data.rows
       .filter((row) => (row[emailCol] || "").trim().toLowerCase() === normalized)
       .reverse()
@@ -67,6 +73,7 @@ export default async function MyPage() {
         eduWordUrl: cell(data.headers, row, "ไฟล์ Word จากการศึกษา"),
         eduPdfUrl: cell(data.headers, row, "ไฟล์ PDF จากการศึกษา"),
         signedUrl: cell(data.headers, row, "ไฟล์ที่ประธาน/อาจารย์เซ็นแล้ว"),
+        resubmittedAs: resubmittedAs.get(cell(data.headers, row, "Tracking ID").trim()) || "",
       }));
   } catch (e) {
     error = e instanceof Error ? e.message : "Unknown error";
@@ -96,26 +103,6 @@ export default async function MyPage() {
 
       {!error && docs.length > 0 && (
         <>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(96px, 1fr))", gap: 10, marginBottom: 20 }}>
-            {(
-              [
-                { key: "รอการศึกษาตรวจ", labelKey: "summaryEduReview" },
-                { key: "รอเซ็นประธาน/อาจารย์", labelKey: "summaryWaitingUpload" },
-                { key: "รอตรวจสอบ", labelKey: "summaryPending" },
-                { key: "รอเซ็น", labelKey: "summaryWaitingSign" },
-                { key: "อนุมัติ", labelKey: "summaryApproved" },
-                { key: "ตีกลับ", labelKey: "summaryRejected" },
-              ] as const
-            ).map((s) => {
-              const count = docs.filter((d) => d.status === s.key).length;
-              return (
-                <div key={s.key} style={{ ...cardStyle, padding: "12px 10px", textAlign: "center" }}>
-                  <div style={{ fontSize: 22, fontWeight: 500, color: colors.primary }}>{count}</div>
-                  <div style={{ fontSize: 11, color: colors.textSecondary, marginTop: 2 }}>{t(s.labelKey)}</div>
-                </div>
-              );
-            })}
-          </div>
           <MyDocumentsList docs={docs} />
         </>
       )}

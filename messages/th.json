@@ -245,7 +245,20 @@
     "uploadSigned": "อัปโหลดฉบับที่เซ็นแล้ว",
     "uploadSignedChip": "รอคุณอัปโหลดฉบับเซ็น",
     "summaryEduReview": "รอการศึกษา",
-    "summaryWaitingUpload": "รอคุณอัปโหลด"
+    "summaryWaitingUpload": "รอคุณอัปโหลด",
+    "sectionTodo": "ต้องทำต่อ",
+    "sectionWaiting": "กำลังดำเนินการ",
+    "sectionDone": "เสร็จแล้ว",
+    "todoEmpty": "ไม่มีเอกสารที่ต้องทำต่อ",
+    "waitingEmpty": "ไม่มีเอกสารที่กำลังดำเนินการ",
+    "todoUploadHint": "ให้ประธานโครงการและอาจารย์ที่ปรึกษาเซ็น แล้วอัปโหลดฉบับที่เซ็นแล้ว",
+    "todoRejectedHint": "ถูกตีกลับ: {reason}",
+    "todoRejectedHintNoReason": "ถูกตีกลับ — แก้ไขแล้วยื่นใหม่",
+    "whoEducation": "รอเจ้าหน้าที่การศึกษาตรวจและใส่เลข สวศ.",
+    "whoSecretary": "รอเลขานุการตรวจสอบ",
+    "whoPresident": "รอนายกสโมสรเซ็นอนุมัติ",
+    "whoDean": "รอรองคณบดีลงนาม",
+    "resubmittedAs": "ยื่นแก้แล้วเป็น {id}"
   },
   "profile": {
     "title": "ข้อมูลส่วนตัว",

@@ -245,7 +245,20 @@
     "uploadSigned": "Upload signed copy",
     "uploadSignedChip": "Waiting for your signed copy",
     "summaryEduReview": "At education office",
-    "summaryWaitingUpload": "Waiting for you"
+    "summaryWaitingUpload": "Waiting for you",
+    "sectionTodo": "Needs your action",
+    "sectionWaiting": "In progress",
+    "sectionDone": "Finished",
+    "todoEmpty": "Nothing needs your action",
+    "waitingEmpty": "No documents in progress",
+    "todoUploadHint": "Have the project chair and advisor sign, then upload the signed copy",
+    "todoRejectedHint": "Rejected: {reason}",
+    "todoRejectedHintNoReason": "Rejected — revise and resubmit",
+    "whoEducation": "Waiting for the education office to review and add the SWS number",
+    "whoSecretary": "Waiting for the secretary's review",
+    "whoPresident": "Waiting for the president's signature",
+    "whoDean": "Waiting for the vice dean's signature",
+    "resubmittedAs": "Resubmitted as {id}"
   },
   "profile": {
     "title": "Profile",
