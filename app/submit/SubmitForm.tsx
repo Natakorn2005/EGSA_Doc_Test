@@ -220,7 +220,7 @@ export default function SubmitForm({
       setStatus("error");
       return;
     }
-    if (!shortcut && !isWordName(file.name)) {
+    if (!isWordName(file.name)) {
       setErrorMsg(t("errMustBeWord"));
       setStatus("error");
       return;
@@ -697,7 +697,7 @@ export default function SubmitForm({
           <input
             ref={fileRef}
             type="file"
-            accept={shortcut ? `${WORD_ACCEPT},.pdf,application/pdf` : WORD_ACCEPT}
+            accept={WORD_ACCEPT}
             onChange={(e) => {
               const picked = e.target.files?.[0] || null;
               // *** เช็คขนาดทันทีที่เลือกไฟล์ ไม่ต้องรออัปโหลดจนสุดแล้วค่อยโดนปฏิเสธ ***
@@ -709,14 +709,18 @@ export default function SubmitForm({
                 return;
               }
               setFileTooLarge(false);
-              // Word เท่านั้น (ทางลัดรับ PDF ที่ลงเลขแล้วได้ด้วย)
-              if (picked && !isWordName(picked.name) && !(shortcut && isPdfName(picked.name))) {
+              // Word เท่านั้น ทั้งยื่นปกติและทางลัด (ฉบับเซ็นแนบแยกเป็น PDF)
+              if (picked && !isWordName(picked.name)) {
                 setFile(null);
-                setFileTypeError(shortcut ? t("errShortcutFileType") : t("errMustBeWord"));
+                setFileTypeError(t("errMustBeWord"));
                 if (fileRef.current) fileRef.current.value = "";
                 return;
               }
               setFileTypeError("");
+              if (status === "error") {
+                setStatus("idle");
+                setErrorMsg("");
+              }
               setFile(picked);
             }}
             style={{ display: "none" }}

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkSubmitRateLimit } from "@/lib/rateLimit";
 import { parseAppsScriptResponse } from "@/lib/appsScript";
-import { isPdfFile, isWordFile } from "@/lib/appsScriptCall";
+import { isWordFile } from "@/lib/appsScriptCall";
 
 export async function POST(req: Request) {
   const formData = await req.formData();
@@ -67,10 +67,8 @@ export async function POST(req: Request) {
     if (!eduNumber) {
       return NextResponse.json({ success: false, error: "กรุณากรอกเลข สวศ." }, { status: 400 });
     }
-    if (!isWordFile(file) && !isPdfFile(file)) {
-      return NextResponse.json({ success: false, error: "ไฟล์ที่ลงเลขแล้วต้องเป็น Word (.docx/.doc) หรือ PDF" }, { status: 400 });
-    }
-  } else if (!isWordFile(file)) {
+  }
+  if (!isWordFile(file)) {
     return NextResponse.json({ success: false, error: "รองรับเฉพาะไฟล์ Word (.docx หรือ .doc)" }, { status: 400 });
   }
 
