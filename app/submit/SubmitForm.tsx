@@ -10,7 +10,6 @@ import { normalizeEduNumber } from "@/lib/eduNumber";
 
 const WORD_ACCEPT = ".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const isWordName = (n: string) => /\.docx?$/i.test(n);
-const isPdfName = (n: string) => /\.pdf$/i.test(n);
 
 // sheetKey = null หมายถึงหมวด "อื่น ๆ" ที่ให้พิมพ์ชื่อหน่วยงานเอง ไม่มีรายการให้เลือก
 const AGENCY_TYPES = [
@@ -109,9 +108,6 @@ export default function SubmitForm({
   // *** ทางลัด: เคยติดต่อการศึกษาและได้เลข สวศ. แล้ว ***
   const [shortcut, setShortcut] = useState(false);
   const [eduNumber, setEduNumber] = useState("");
-  const [signedFile, setSignedFile] = useState<File | null>(null);
-  const [signedError, setSignedError] = useState("");
-  const signedRef = useRef<HTMLInputElement>(null);
   const eduNumberNormalized = normalizeEduNumber(eduNumber);
 
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -254,25 +250,6 @@ export default function SubmitForm({
         request: {
           endpoint: "/api/submit",
           body: formData,
-          // ทางลัดที่แนบฉบับเซ็นมาด้วย: ยื่นเสร็จแล้วอัปโหลดฉบับเซ็นต่อในเอกสารเดิมทันที (ต้องเข้าสู่ระบบ)
-          // ขั้นนี้ล้มก็ไม่ยื่นซ้ำ — บอกผู้ยื่นให้อัปโหลดเองจากหน้าเอกสารของฉัน
-          next:
-            shortcut && signedFile && isLoggedIn
-              ? [
-                  {
-                    endpoint: "/api/upload-signed",
-                    optional: true,
-                    optionalFailMessage: t("signedUploadFailed"),
-                    body: (prev) => {
-                      if (!prev.trackingId) return null;
-                      const fd = new FormData();
-                      fd.append("trackingId", String(prev.trackingId));
-                      fd.append("file", signedFile);
-                      return fd;
-                    },
-                  },
-                ]
-              : undefined,
         },
       })
     );
@@ -361,13 +338,7 @@ export default function SubmitForm({
               lineHeight: 1.6,
             }}
           >
-            {result.status === "รอเซ็นประธาน/อาจารย์" && job?.warning
-              ? job.warning
-              : result.status === "รอเซ็นประธาน/อาจารย์"
-                ? t("nextStepShortcut")
-                : shortcut
-                  ? t("nextStepShortcutSigned")
-                  : t("nextStepEducation")}
+            {result.status === "รอเซ็นประธาน/อาจารย์" ? t("nextStepShortcut") : t("nextStepEducation")}
             {result.status === "รอเซ็นประธาน/อาจารย์" && isLoggedIn && (
               <>
                 {" "}
@@ -598,7 +569,6 @@ export default function SubmitForm({
                 setShortcut(e.target.checked);
                 setFile(null);
                 setFileTypeError("");
-                setSignedFile(null);
                 if (fileRef.current) fileRef.current.value = "";
               }}
               style={{ marginTop: 2 }}
@@ -637,55 +607,6 @@ export default function SubmitForm({
               )}
               <p style={{ fontSize: 11, color: colors.textMuted, margin: 0 }}>{t("shortcutHint")}</p>
 
-              <label style={{ fontSize: 13, color: colors.textSecondary, marginTop: 4 }}>{t("signedFileLabel")}</label>
-              {isLoggedIn ? (
-                <>
-                  <input
-                    ref={signedRef}
-                    type="file"
-                    accept=".pdf,application/pdf"
-                    onChange={(e) => {
-                      const picked = e.target.files?.[0] || null;
-                      setSignedError("");
-                      if (picked && picked.size > 3 * 1024 * 1024) {
-                        setSignedFile(null);
-                        setSignedError(t("signedTooLarge"));
-                      } else if (picked && !isPdfName(picked.name)) {
-                        setSignedFile(null);
-                        setSignedError(t("signedMustBePdf"));
-                      } else {
-                        setSignedFile(picked);
-                      }
-                      if (signedRef.current) signedRef.current.value = "";
-                    }}
-                    style={{ display: "none" }}
-                  />
-                  <div
-                    onClick={() => signedRef.current?.click()}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      padding: "10px 12px",
-                      border: `1px dashed ${colors.tintBorder}`,
-                      borderRadius: 8,
-                      cursor: "pointer",
-                      background: colors.tint,
-                      fontSize: 13,
-                      color: signedFile ? colors.primaryDark : colors.primary,
-                    }}
-                  >
-                    <i className="ti ti-signature" style={{ fontSize: 18, color: colors.primary }} aria-hidden="true" />
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {signedFile ? signedFile.name : t("signedFilePlaceholder")}
-                    </span>
-                  </div>
-                  {signedError && <p style={{ fontSize: 12, color: "#b00020", margin: 0 }}>{signedError}</p>}
-                  <p style={{ fontSize: 11, color: colors.textMuted, margin: 0 }}>{t("signedFileHint")}</p>
-                </>
-              ) : (
-                <p style={{ fontSize: 12, color: colors.textSecondary, margin: 0 }}>{t("signedNeedsLogin")}</p>
-              )}
             </div>
           )}
         </div>

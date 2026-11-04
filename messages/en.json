@@ -179,22 +179,14 @@
     "confirmEmailNote": "A confirmation email will arrive within a few minutes — no need to submit again. You can check the status right away with the reference ID above.",
     "errEduNumber": "SWS number format: 3 digits / 4-digit Buddhist year, e.g. 123/2569 or ว123/2569",
     "errMustBeWord": "Word files only (.docx or .doc)",
-    "signedUploadFailed": "Submitted, but the signed copy could not be sent — please upload it again from My documents",
     "nextStepEducation": "Next, the education office reviews the document, adds the SWS number and emails the files back. Then have the project chair and advisor sign, and upload the signed copy.",
     "nextStepShortcut": "Next, have the project chair and advisor sign, then upload the signed copy on this document.",
-    "nextStepShortcutSigned": "Signed copy received — the document is in the secretary's queue.",
     "uploadSignedLink": "Upload signed copy",
     "fileLabelShortcut": "Word file with the SWS number *",
     "fileHintShortcut": ".docx or .doc, 3MB maximum",
     "shortcutLabel": "I already contacted the education office and have an SWS number",
     "eduNumberPlaceholder": "e.g. 123/2569 or ว123/2569",
-    "shortcutHint": "The education office is notified that a document using this number has entered the system. If the number is wrong, the document will be rejected.",
-    "signedFileLabel": "Copy signed by the project chair and advisor (PDF, optional)",
-    "signedTooLarge": "The file is over 3 MB",
-    "signedMustBePdf": "The signed copy must be a PDF",
-    "signedFilePlaceholder": "Choose the signed PDF",
-    "signedFileHint": "If attached, the document goes straight to the secretary's queue. If not signed yet, you can upload it later.",
-    "signedNeedsLogin": "If it is already signed, sign in first to attach the signed copy too — or submit now and upload it later from the link in the email."
+    "shortcutHint": "The education office is notified that a document using this number has entered the system; a wrong number gets the document rejected. Attach the numbered Word file below. Once the project chair and advisor have signed, upload the signed copy from the email link or My documents."
   },
   "status": {
     "title": "Check Document Status",
