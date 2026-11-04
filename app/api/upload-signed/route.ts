@@ -11,12 +11,22 @@ export async function POST(req: Request) {
 
   const formData = await req.formData();
   const trackingId = String(formData.get("trackingId") || "").trim();
+  // ตีกลับแบบเล็ก: ส่งฉบับเซ็นใหม่เป็นรอบใหม่ของเอกสารที่ถูกตีกลับ
+  const resubmitOf = String(formData.get("resubmitOf") || "").trim();
   const file = formData.get("file") as File | null;
 
-  if (!trackingId) return jsonError("Missing trackingId");
+  if (!trackingId && !resubmitOf) return jsonError("Missing trackingId");
   if (!file) return jsonError("กรุณาแนบไฟล์ PDF ที่เซ็นแล้ว");
   if (file.size > MAX_UPLOAD_BYTES) return jsonError("ไฟล์ใหญ่เกินไป (จำกัด 3MB)");
   if (!isPdfFile(file)) return jsonError("ฉบับที่เซ็นแล้วต้องเป็นไฟล์ PDF");
+
+  if (resubmitOf) {
+    return callAppsScript("resubmitSigned", {
+      previousTrackingId: resubmitOf,
+      userEmail: session.user.email,
+      ...(await fileToPayload(file)),
+    });
+  }
 
   return callAppsScript("uploadSigned", {
     trackingId,

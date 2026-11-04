@@ -103,7 +103,18 @@
     "tooLargeNoForm": "This file is over 3 MB, which exceeds what the system accepts. Please compress it and choose it again.",
     "tooLargeApproveButton": "Send signed file via Google Form",
     "tooLargeRejectButton": "Reject via Google Form",
-    "eduReturnEmailWarning": "Returned, but no applicant email was found — please contact them directly"
+    "eduReturnEmailWarning": "Returned, but no applicant email was found — please contact them directly",
+    "rejectTypeLabel": "Rejection type",
+    "rejectSmall": "Minor — resend a signed copy to the secretary",
+    "rejectBig": "Major — start again at the education office",
+    "rejectSmallExamples": "e.g. missing signature, wrong file, typos, broken formatting",
+    "rejectBigExamples": "e.g. important details are wrong, or something the education office should review",
+    "rejectSmallNeedsNumber": "This document has no SWS number (submitted before the new system), so only a major rejection is possible",
+    "rejectOutcomeTitle": "What happens next",
+    "rejectOutcomeSmall": "The applicant gets an email with an \"Upload new signed copy\" button, keeps number {number}, and comes straight back to the secretary's queue. The education office is not notified.",
+    "rejectOutcomeBig": "The applicant gets an email with a \"Send revised Word to education\" button. The education office is emailed the reason and sees a \"Re-review — rejected by {by}\" badge. The project chair and advisor must sign again.",
+    "rejectBySecretary": "Secretary",
+    "rejectByPresident": "President"
   },
   "submit": {
     "title": "Submit Document",
@@ -258,7 +269,9 @@
     "whoSecretary": "Waiting for the secretary's review",
     "whoPresident": "Waiting for the president's signature",
     "whoDean": "Waiting for the vice dean's signature",
-    "resubmittedAs": "Resubmitted as {id}"
+    "resubmittedAs": "Resubmitted as {id}",
+    "resubmitSmall": "Upload new signed copy",
+    "resubmitBig": "Send revised Word"
   },
   "profile": {
     "title": "Profile",
@@ -443,7 +456,9 @@
       "advance": "Send to President",
       "eduReturn": "Return to applicant",
       "eduReject": "Education rejection",
-      "uploadSigned": "Signed copy"
+      "uploadSigned": "Signed copy",
+      "rejectSmall": "Minor rejection",
+      "rejectBig": "Major rejection"
     },
     "done": {
       "submit": "Document submitted",
@@ -452,7 +467,9 @@
       "advance": "Sent to the President",
       "eduReturn": "Files returned to the applicant",
       "eduReject": "Document rejected (no SWS number issued)",
-      "uploadSigned": "Signed copy sent — the document is now in the secretary's queue"
+      "uploadSigned": "Signed copy sent — the document is now in the secretary's queue",
+      "rejectSmall": "Minor rejection sent — the applicant will resend a signed copy to the secretary",
+      "rejectBig": "Major rejection sent — applicant and education office notified"
     },
     "failedTitle": "Sending failed",
     "interruptedTitle": "Your last send may not have finished",
@@ -533,6 +550,14 @@
     "chooseFile": "Choose the signed PDF",
     "fileHint": "PDF, 3 MB maximum",
     "sending": "Sending…",
-    "submitButton": "Send signed copy"
+    "submitButton": "Send signed copy",
+    "titleResubmit": "Send new signed copy",
+    "subtitleResubmit": "This document had a minor rejection. Fix it, then send the newly signed copy — same SWS number, no education review.",
+    "notSmallReject": "This document did not have a minor rejection — see the next step in My documents",
+    "alreadyResubmitted": "This document was already resubmitted (ID {id})",
+    "rejectedBy": "Rejected by {by}",
+    "rejectFile": "📄 View marked-up file",
+    "resubmitNote": "If you changed the Word file, the project chair and advisor must sign again. This submission gets a new Tracking ID.",
+    "newTrackingId": "New Tracking ID"
   }
 }

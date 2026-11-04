@@ -73,6 +73,7 @@ export default async function MyPage() {
         eduWordUrl: cell(data.headers, row, "ไฟล์ Word จากการศึกษา"),
         eduPdfUrl: cell(data.headers, row, "ไฟล์ PDF จากการศึกษา"),
         signedUrl: cell(data.headers, row, "ไฟล์ที่ประธาน/อาจารย์เซ็นแล้ว"),
+        rejectType: cell(data.headers, row, "แบบการตีกลับ"),
         resubmittedAs: resubmittedAs.get(cell(data.headers, row, "Tracking ID").trim()) || "",
       }));
   } catch (e) {

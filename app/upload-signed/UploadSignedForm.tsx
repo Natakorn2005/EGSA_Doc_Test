@@ -14,6 +14,11 @@ type Doc = {
   eduPdfUrl: string;
   eduPdfHash: string;
   sharePending: boolean;
+  /** มีค่า = ส่งฉบับเซ็นใหม่หลังถูกตีกลับแบบเล็ก (ได้รหัสรอบใหม่) */
+  resubmitOf: string;
+  rejectReason: string;
+  rejectBy: string;
+  rejectFileUrl: string;
 };
 
 const MAX_SIZE = 3 * 1024 * 1024;
@@ -61,7 +66,8 @@ export default function UploadSignedForm({ doc }: { doc: Doc }) {
     if (!file) return setError(t("pleaseChoose"));
     if (jobId) dismiss(jobId);
     const fd = new FormData();
-    fd.append("trackingId", doc.trackingId);
+    if (doc.resubmitOf) fd.append("resubmitOf", doc.resubmitOf);
+    else fd.append("trackingId", doc.trackingId);
     fd.append("file", file);
     setJobId(
       enqueue({
@@ -78,6 +84,13 @@ export default function UploadSignedForm({ doc }: { doc: Doc }) {
       <div style={{ background: colors.tint, border: `1px solid ${colors.tintBorder}`, borderRadius: 12, padding: 20 }}>
         <h2 style={{ fontSize: 18, color: colors.primaryDark, margin: "0 0 8px" }}>{t("successTitle")}</h2>
         <p style={{ margin: "0 0 12px", fontSize: 14 }}>{t("successBody")}</p>
+        {doc.resubmitOf && job.result?.trackingId && (
+          <p style={{ background: "#fff", padding: 12, borderRadius: 6, fontSize: 14, margin: "0 0 12px" }}>
+            {t("newTrackingId")}
+            <br />
+            <strong style={{ fontSize: 18 }}>{job.result.trackingId}</strong>
+          </p>
+        )}
         <Link href="/my" style={{ color: colors.primary, fontSize: 13 }}>
           {t("goMyDocs")}
         </Link>
@@ -118,6 +131,23 @@ export default function UploadSignedForm({ doc }: { doc: Doc }) {
           </div>
         )}
       </div>
+
+      {doc.resubmitOf && (
+        <div style={{ background: colors.tint, borderRadius: 8, padding: "10px 12px", fontSize: 13, color: colors.primaryDark, marginBottom: 14, lineHeight: 1.6 }}>
+          <strong style={{ display: "block", marginBottom: 2 }}>
+            {t("rejectedBy", { by: doc.rejectBy || "-" })}
+          </strong>
+          {doc.rejectReason}
+          {doc.rejectFileUrl && (
+            <div style={{ marginTop: 6 }}>
+              <a href={doc.rejectFileUrl} target="_blank" rel="noopener noreferrer" style={{ color: colors.primary }}>
+                {t("rejectFile")}
+              </a>
+            </div>
+          )}
+          <div style={{ marginTop: 6, fontSize: 12, color: colors.textSecondary }}>{t("resubmitNote")}</div>
+        </div>
+      )}
 
       <div style={{ background: "#f2edf9", borderRadius: 8, padding: "10px 12px", fontSize: 13, color: "#5b3c8c", marginBottom: 14, lineHeight: 1.6 }}>
         <i className="ti ti-signature" style={{ marginRight: 6 }} aria-hidden="true" />

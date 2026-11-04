@@ -10,6 +10,8 @@ import AutoRefresh from "@/components/AutoRefresh";
 export type MyDoc = DetailDoc & {
   /** รหัสรอบใหม่ที่ยื่นแก้จากรอบนี้แล้ว (ว่าง = ยังไม่ได้ยื่นแก้) */
   resubmittedAs?: string;
+  /** แบบการตีกลับ: การศึกษา / เล็ก / ใหญ่ */
+  rejectType?: string;
 };
 
 type Group = "todo" | "waiting" | "done";
@@ -31,8 +33,11 @@ function groupOf(doc: MyDoc): Group {
 
 /** ลิงก์ยื่นแก้ในชีตเป็น URL เต็มของเว็บนี้ — ตัดเหลือ path เพื่อใช้ <Link> (ไม่โหลดหน้าใหม่ทั้งหน้า) */
 function toInternalPath(url: string): string | null {
-  const i = url.indexOf("/submit?");
-  return i === -1 ? null : url.slice(i);
+  for (const p of ["/submit?", "/upload-signed?"]) {
+    const i = url.indexOf(p);
+    if (i !== -1) return url.slice(i);
+  }
+  return null;
 }
 
 export default function MyDocumentsList({ docs }: { docs: MyDoc[] }) {
@@ -229,7 +234,7 @@ function DocCard({ doc, group, onOpen }: { doc: MyDoc; group: Group; onOpen: () 
           {isTodo && resubmitPath && (
             <Link href={resubmitPath} style={actionBtn}>
               <i className="ti ti-edit" style={{ fontSize: 15 }} aria-hidden="true" />
-              {t("resubmit")}
+              {doc.rejectType === "เล็ก" ? t("resubmitSmall") : doc.rejectType === "ใหญ่" ? t("resubmitBig") : t("resubmit")}
             </Link>
           )}
         </div>

@@ -22,7 +22,16 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { colors } from "@/lib/theme";
 
-export type SendKind = "submit" | "approve" | "reject" | "advance" | "eduReturn" | "eduReject" | "uploadSigned";
+export type SendKind =
+  | "submit"
+  | "approve"
+  | "reject"
+  | "rejectSmall"
+  | "rejectBig"
+  | "advance"
+  | "eduReturn"
+  | "eduReject"
+  | "uploadSigned";
 export type SendStatus = "sending" | "done" | "error" | "interrupted";
 
 export type SendJob = {
@@ -132,6 +141,8 @@ const EMAIL_WARNING_KEY: Record<SendKind, string | null> = {
   submit: null,
   advance: "advanceEmailWarning",
   reject: "rejectEmailWarning",
+  rejectSmall: "rejectEmailWarning",
+  rejectBig: "rejectEmailWarning",
   approve: "approveEmailWarning",
   eduReturn: "eduReturnEmailWarning",
   eduReject: "rejectEmailWarning",

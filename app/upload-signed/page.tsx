@@ -19,12 +19,15 @@ function cell(headers: string[], row: string[], name: string): string {
 export default async function UploadSignedPage({
   searchParams,
 }: {
-  searchParams: Promise<{ id?: string }>;
+  searchParams: Promise<{ id?: string; resubmit?: string }>;
 }) {
   const t = await getTranslations("uploadSigned");
   const tc = await getTranslations("common");
   const session = await auth();
-  const trackingId = ((await searchParams).id || "").trim();
+  const params = await searchParams;
+  // ?resubmit=<รหัสที่ถูกตีกลับแบบเล็ก> = ส่งฉบับเซ็นใหม่เป็นรอบใหม่ / ?id=<รหัส> = ส่งฉบับเซ็นครั้งแรก (ขั้น 5)
+  const resubmitOf = (params.resubmit || "").trim();
+  const trackingId = (resubmitOf || params.id || "").trim();
   const email = (session?.user?.email || "").trim().toLowerCase();
 
   let message: string | null = null;
@@ -36,6 +39,10 @@ export default async function UploadSignedPage({
     eduPdfUrl: string;
     eduPdfHash: string;
     sharePending: boolean;
+    resubmitOf: string;
+    rejectReason: string;
+    rejectBy: string;
+    rejectFileUrl: string;
   } | null = null;
 
   if (!trackingId) {
@@ -49,7 +56,12 @@ export default async function UploadSignedPage({
         message = t("notYours");
       } else {
         const status = cell(headers, row, "สถานะ");
-        if (status !== "รอเซ็นประธาน/อาจารย์") {
+        const resubmittedAs = rows.find((r) => cell(headers, r, "Reference ID").trim() === trackingId);
+        if (resubmitOf && (status !== "ตีกลับ" || cell(headers, row, "แบบการตีกลับ") !== "เล็ก")) {
+          message = t("notSmallReject");
+        } else if (resubmitOf && resubmittedAs) {
+          message = t("alreadyResubmitted", { id: cell(headers, resubmittedAs, "Tracking ID") });
+        } else if (!resubmitOf && status !== "รอเซ็นประธาน/อาจารย์") {
           message = t("notWaiting", { status });
         } else {
           doc = {
@@ -60,6 +72,10 @@ export default async function UploadSignedPage({
             eduPdfUrl: cell(headers, row, "ไฟล์ PDF จากการศึกษา"),
             eduPdfHash: cell(headers, row, "แฮช PDF จากการศึกษา").trim(),
             sharePending: !!cell(headers, row, "รอแชร์ไฟล์").trim(),
+            resubmitOf,
+            rejectReason: resubmitOf ? cell(headers, row, "เหตุผลตีกลับ") : "",
+            rejectBy: resubmitOf ? cell(headers, row, "ตีกลับโดย") : "",
+            rejectFileUrl: resubmitOf ? cell(headers, row, "ลิงก์ไฟล์วงแดง") : "",
           };
         }
       }
@@ -70,8 +86,10 @@ export default async function UploadSignedPage({
 
   return (
     <div style={{ maxWidth: 480, margin: "0 auto", padding: "8px 0" }}>
-      <h1 style={{ fontSize: 20, marginBottom: 4 }}>{t("title")}</h1>
-      <p style={{ color: colors.textSecondary, marginBottom: 16, fontSize: 13 }}>{t("subtitle")}</p>
+      <h1 style={{ fontSize: 20, marginBottom: 4 }}>{resubmitOf ? t("titleResubmit") : t("title")}</h1>
+      <p style={{ color: colors.textSecondary, marginBottom: 16, fontSize: 13 }}>
+        {resubmitOf ? t("subtitleResubmit") : t("subtitle")}
+      </p>
 
       {message || !doc ? (
         <div style={{ background: "#f5f5f5", border: "1px solid #ddd", borderRadius: 8, padding: 14, fontSize: 13 }}>

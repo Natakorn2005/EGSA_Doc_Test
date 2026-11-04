@@ -296,9 +296,14 @@ export default function QueuePanel({
                         </button>
                       </>
                     ) : (
-                      <button onClick={() => setModal({ doc, action: "approve" })} style={btnPrimary}>
-                        {t("approveButton")}
-                      </button>
+                      <>
+                        <button onClick={() => setModal({ doc, action: "approve" })} style={btnPrimary}>
+                          {t("approveButton")}
+                        </button>
+                        <button onClick={() => setModal({ doc, action: "reject" })} style={btnOutline}>
+                          {t("rejectButton")}
+                        </button>
+                      </>
                     )}
                   </div>
                   )}
@@ -312,11 +317,12 @@ export default function QueuePanel({
         <ActionModal
           doc={modal.doc}
           action={modal.action}
+          mode={mode}
           actingAs={actingAs}
           onClose={() => setModal(null)}
-          onSubmit={(request) => {
+          onSubmit={(request, rejectType) => {
             enqueue({
-              kind: modal.action,
+              kind: modal.action === "reject" && rejectType ? (rejectType === "small" ? "rejectSmall" : "rejectBig") : modal.action,
               label: modal.doc.docName || modal.doc.trackingId,
               trackingId: modal.doc.trackingId,
               request,
@@ -332,16 +338,18 @@ export default function QueuePanel({
 function ActionModal({
   doc,
   action,
+  mode,
   actingAs,
   onClose,
   onSubmit,
 }: {
   doc: QueueDoc;
   action: ActionKind;
+  mode: "secretary" | "president";
   actingAs: ActingAs;
   onClose: () => void;
   /** ส่งคำสั่งเข้าคิวเบื้องหลัง (components/SendQueue.tsx) แล้วปิดหน้าต่างทันที ไม่ต้องรอผล */
-  onSubmit: (request: SendRequest) => void;
+  onSubmit: (request: SendRequest, rejectType?: "small" | "big") => void;
 }) {
   const t = useTranslations("queue");
   const tc = useTranslations("common");
@@ -351,6 +359,10 @@ function ActionModal({
   const [errorMsg, setErrorMsg] = useState("");
   const [tooLarge, setTooLarge] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  // *** ตีกลับ 2 แบบ ค่าเริ่มต้นแบบเล็ก — เอกสารเก่าที่ไม่มีเลข สวศ. ตีกลับได้แบบใหญ่อย่างเดียว ***
+  const smallAllowed = !!doc.eduNumber;
+  const [rejectType, setRejectType] = useState<"small" | "big">(smallAllowed ? "small" : "big");
+  const byLabel = mode === "president" ? t("rejectByPresident") : t("rejectBySecretary");
 
   const showFilePicker = action === "reject" || action === "approve";
   const requiresFile = action === "approve";
@@ -377,8 +389,9 @@ function ActionModal({
       const fd = new FormData();
       fd.append("trackingId", doc.trackingId);
       fd.append("reason", reason.trim());
+      fd.append("rejectType", rejectType);
       if (file) fd.append("file", file);
-      onSubmit({ endpoint: "/api/reject", body: fd });
+      onSubmit({ endpoint: "/api/club-reject", body: fd }, rejectType);
     } else {
       const fd = new FormData();
       fd.append("trackingId", doc.trackingId);
@@ -423,6 +436,7 @@ function ActionModal({
             </div>
             <div style={{ fontSize: 12, color: colors.primary, marginTop: 2 }}>
               {t("applicant")}: {doc.applicant || "-"} · {doc.trackingId}
+              {doc.eduNumber ? ` · ${doc.eduNumber}` : ""}
             </div>
           </div>
 
@@ -439,6 +453,66 @@ function ActionModal({
             >
               <i className="ti ti-user-check" style={{ fontSize: 15 }} aria-hidden="true" />
               {t("actingAs")}: <strong>{actingAs.name}</strong> ({actingAs.roleLabel})
+            </div>
+          )}
+
+          {action === "reject" && (
+            <div role="radiogroup" aria-label={t("rejectTypeLabel")} style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+              {(["small", "big"] as const).map((type) => {
+                const disabled = type === "small" && !smallAllowed;
+                const selected = rejectType === type;
+                return (
+                  <label
+                    key={type}
+                    style={{
+                      display: "flex",
+                      gap: 8,
+                      alignItems: "flex-start",
+                      padding: "10px 12px",
+                      border: `1px solid ${selected ? colors.primary : colors.cardBorder}`,
+                      background: selected ? colors.tint : "#fff",
+                      borderRadius: 8,
+                      cursor: disabled ? "not-allowed" : "pointer",
+                      opacity: disabled ? 0.5 : 1,
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="rejectType"
+                      checked={selected}
+                      disabled={disabled}
+                      onChange={() => setRejectType(type)}
+                      style={{ marginTop: 3 }}
+                    />
+                    <span>
+                      <span style={{ display: "block", fontSize: 14, fontWeight: 500, color: colors.text }}>
+                        {type === "small" ? t("rejectSmall") : t("rejectBig")}
+                      </span>
+                      <span style={{ display: "block", fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
+                        {type === "small" ? t("rejectSmallExamples") : t("rejectBigExamples")}
+                      </span>
+                      {disabled && (
+                        <span style={{ display: "block", fontSize: 11, color: colors.textMuted, marginTop: 2 }}>{t("rejectSmallNeedsNumber")}</span>
+                      )}
+                    </span>
+                  </label>
+                );
+              })}
+              <div
+                style={{
+                  background: "#f7f7f7",
+                  borderRadius: 8,
+                  padding: "10px 12px",
+                  fontSize: 12,
+                  color: colors.text,
+                  lineHeight: 1.6,
+                }}
+              >
+                <strong style={{ display: "block", marginBottom: 2 }}>{t("rejectOutcomeTitle")}</strong>
+                {rejectType === "small"
+                  ? t("rejectOutcomeSmall", { number: doc.eduNumber || "-" })
+                  : t("rejectOutcomeBig", { by: byLabel })}
+              </div>
             </div>
           )}
 
