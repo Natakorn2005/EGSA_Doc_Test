@@ -30,6 +30,21 @@ export type EduDoc = {
   prevRejectBy: string;
 };
 
+/** เอกสารทางลัดที่ผู้ยื่นกรอกเลข สวศ. เอง — รอการศึกษาตรวจเลข (เอกสารเดินต่อได้ระหว่างนี้) */
+export type ShortcutDoc = {
+  trackingId: string;
+  docName: string;
+  applicant: string;
+  phone: string;
+  agency: string;
+  submittedAt: string;
+  status: string;
+  eduNumber: string;
+  wordUrl: string;
+  sharePending: boolean;
+  chainIds: string[];
+};
+
 type ActingAs = { name: string; roleLabel: string } | null;
 
 const MAX_SIZE = 3 * 1024 * 1024;
@@ -38,11 +53,13 @@ const isPdfName = (n: string) => /\.pdf$/i.test(n);
 
 export default function EducationQueue({
   docs,
+  shortcutDocs,
   numberIndex,
   actingAs,
   openId,
 }: {
   docs: EduDoc[];
+  shortcutDocs: ShortcutDoc[];
   numberIndex: EduNumberUse[];
   actingAs: ActingAs;
   openId: string | null;
@@ -52,7 +69,7 @@ export default function EducationQueue({
   const tcommon = useTranslations("common");
   const { jobs, enqueue } = useSendQueue();
   const [search, setSearch] = useState("");
-  const [modal, setModal] = useState<{ doc: EduDoc; action: "approve" | "reject" } | null>(null);
+  const [modal, setModal] = useState<{ doc: EduDoc; action: "approve" | "reject" | "fix"; fixFrom?: string } | null>(null);
 
   const busyIds = useMemo(
     () => new Set(jobs.filter((j) => j.status === "sending" && j.trackingId).map((j) => j.trackingId as string)),
@@ -261,24 +278,123 @@ export default function EducationQueue({
         })}
       </div>
 
-      {modal?.action === "approve" && (
+      {shortcutDocs.length > 0 && (
+        <section style={{ marginTop: 32 }}>
+          <h2 style={{ fontSize: 16, margin: "0 0 4px", display: "flex", alignItems: "center", gap: 8 }}>
+            <i className="ti ti-bolt" style={{ fontSize: 18, color: colors.primary }} aria-hidden="true" />
+            {t("shortcutTitle")}
+            <span style={{ fontSize: 12, fontWeight: 500, color: colors.primary, background: colors.tint, borderRadius: 20, padding: "1px 9px" }}>
+              {shortcutDocs.length}
+            </span>
+          </h2>
+          <p style={{ fontSize: 13, color: colors.textSecondary, margin: "0 0 12px" }}>{t("shortcutSubtitle")}</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }}>
+            {shortcutDocs.map((sd) => {
+              const busy = busyIds.has(sd.trackingId);
+              const doneKind = doneKinds.get(sd.trackingId);
+              const st = statusColors[sd.status];
+              return (
+                <div
+                  key={sd.trackingId}
+                  id={`edu-${sd.trackingId}`}
+                  style={{
+                    background: "#fff",
+                    border: `1px solid ${openId === sd.trackingId ? colors.primary : colors.cardBorder}`,
+                    borderRadius: 12,
+                    padding: 16,
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                    <strong style={{ fontSize: 15, overflowWrap: "anywhere" }}>{sd.docName || sd.trackingId}</strong>
+                    {st && (
+                      <span style={{ background: st.bg, color: st.color, fontSize: 12, padding: "3px 10px", borderRadius: 20, whiteSpace: "nowrap", height: "fit-content" }}>
+                        {st.label}
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ color: colors.textSecondary, fontSize: 13, margin: "6px 0 2px" }}>
+                    {t("applicant")}: {sd.applicant || "-"}
+                    {sd.phone ? ` · ${sd.phone}` : ""}
+                  </p>
+                  <p style={{ color: colors.textMuted, fontSize: 12, margin: "0 0 8px" }}>
+                    {sd.agency} · {sd.trackingId}
+                  </p>
+                  <div style={{ fontSize: 13, margin: "0 0 10px" }}>
+                    {t("shortcutNumberLabel")}: <strong>{sd.eduNumber || "-"}</strong>
+                  </div>
+                  {sd.wordUrl && !sd.sharePending && (
+                    <a href={sd.wordUrl} target="_blank" rel="noopener noreferrer" className="egsa-link-btn">
+                      <i className="ti ti-file-word" style={{ fontSize: 16 }} aria-hidden="true" />
+                      {t("openWord")}
+                    </a>
+                  )}
+                  {doneKind ? (
+                    <div role="status" style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, padding: "8px 12px", borderRadius: 8, background: "#f1f8f1", color: "#1b5e20", fontSize: 13 }}>
+                      <i className="ti ti-circle-check" style={{ fontSize: 17 }} aria-hidden="true" />
+                      {tsq(`done.${doneKind}`)}
+                    </div>
+                  ) : busy ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 13, color: colors.textSecondary }}>
+                      <span className="egsa-spinner egsa-spinner-dark" aria-hidden="true" />
+                      {tsq("inProgress")}
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+                      <button
+                        onClick={() =>
+                          enqueue({
+                            kind: "eduConfirm",
+                            label: sd.docName || sd.trackingId,
+                            trackingId: sd.trackingId,
+                            request: { endpoint: "/api/education/confirm-number", body: { trackingId: sd.trackingId } },
+                          })
+                        }
+                        style={btnPrimary}
+                      >
+                        {t("shortcutConfirm")}
+                      </button>
+                      <button
+                        onClick={() =>
+                          setModal({
+                            action: "fix",
+                            fixFrom: sd.eduNumber,
+                            doc: { ...sd, prevNumber: "", prevReason: "", prevRejectBy: "" },
+                          })
+                        }
+                        style={btnOutline}
+                      >
+                        {t("shortcutFix")}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {(modal?.action === "approve" || modal?.action === "fix") && (
         <ApproveModal
           doc={modal.doc}
+          fixFrom={modal.action === "fix" ? modal.fixFrom || "-" : undefined}
           numberIndex={numberIndex}
           latest={latest}
           actingAs={actingAs}
           onClose={() => setModal(null)}
           onSubmit={(word, pdf, eduNumber, confirmDuplicate) => {
+            const isFix = modal.action === "fix";
             const attach = (kind: "word" | "pdf", file: File) => {
               const fd = new FormData();
               fd.append("trackingId", modal.doc.trackingId);
               fd.append("kind", kind);
+              if (isFix) fd.append("mode", "fix");
               fd.append("file", file);
               return fd;
             };
             // ส่งทีละไฟล์ (ไฟล์ละไม่เกิน 3 MB) แล้วค่อยกดส่งคืน — ลองใหม่จะเริ่มจากขั้นที่ล้ม
             enqueue({
-              kind: "eduReturn",
+              kind: isFix ? "eduFix" : "eduReturn",
               label: modal.doc.docName || modal.doc.trackingId,
               trackingId: modal.doc.trackingId,
               request: {
@@ -287,7 +403,7 @@ export default function EducationQueue({
                 next: [
                   { endpoint: "/api/education/attach", body: attach("pdf", pdf) },
                   {
-                    endpoint: "/api/education/approve",
+                    endpoint: isFix ? "/api/education/fix-number" : "/api/education/approve",
                     body: { trackingId: modal.doc.trackingId, eduNumber, confirmDuplicate },
                   },
                 ],
@@ -328,6 +444,7 @@ export default function EducationQueue({
 
 function ApproveModal({
   doc,
+  fixFrom,
   numberIndex,
   latest,
   actingAs,
@@ -335,6 +452,8 @@ function ApproveModal({
   onSubmit,
 }: {
   doc: EduDoc;
+  /** มีค่า = แก้เลขทางลัด (เลขที่ผู้ยื่นกรอกไว้) */
+  fixFrom?: string;
   numberIndex: EduNumberUse[];
   latest: { plain: string | null; wor: string | null };
   actingAs: ActingAs;
@@ -388,8 +507,13 @@ function ApproveModal({
   }
 
   return (
-    <ModalFrame title={t("approveTitle")} doc={doc} actingAs={actingAs} onClose={onClose}>
-      <label style={labelStyle}>{t("numberLabel")} *</label>
+    <ModalFrame title={fixFrom ? t("fixTitle") : t("approveTitle")} doc={doc} actingAs={actingAs} onClose={onClose}>
+      {fixFrom && (
+        <div style={{ background: "#fff8e1", border: "1px solid #ffe082", borderRadius: 8, padding: "8px 10px", fontSize: 12, color: "#6b5200", marginBottom: 12 }}>
+          {t("fixCurrentNumber")}: <strong>{fixFrom}</strong>
+        </div>
+      )}
+      <label style={labelStyle}>{fixFrom ? t("fixNewNumberLabel") : t("numberLabel")} *</label>
 
       {isRecheck && (
         <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8, fontSize: 13 }}>
@@ -493,10 +617,10 @@ function ApproveModal({
       <p style={{ fontSize: 11, color: colors.textMuted, margin: "6px 0 0" }}>{t("filesHint")}</p>
       {fileMsg && <p style={{ fontSize: 12, color: "#8a4b00", margin: "6px 0 0" }}>{fileMsg}</p>}
 
-      <p style={{ fontSize: 12, color: colors.textMuted, margin: "14px 0 12px" }}>{t("approveNote")}</p>
+      <p style={{ fontSize: 12, color: colors.textMuted, margin: "14px 0 12px" }}>{fixFrom ? t("fixNote") : t("approveNote")}</p>
       {error && <p style={{ color: "#b00020", fontSize: 13, margin: "0 0 12px" }}>{error}</p>}
 
-      <ModalButtons confirmText={t("confirmApprove")} cancelText={tc("cancel")} onConfirm={handleConfirm} onClose={onClose} />
+      <ModalButtons confirmText={fixFrom ? t("confirmFix") : t("confirmApprove")} cancelText={tc("cancel")} onConfirm={handleConfirm} onClose={onClose} />
     </ModalFrame>
   );
 }

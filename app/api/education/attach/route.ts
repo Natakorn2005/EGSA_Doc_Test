@@ -12,6 +12,8 @@ export async function POST(req: Request) {
   const formData = await req.formData();
   const trackingId = String(formData.get("trackingId") || "").trim();
   const kind = String(formData.get("kind") || "");
+  // "fix" = แก้เลขทางลัด (ไม่แทนไฟล์เดิมจนกว่าจะกดแก้เลข)
+  const mode = formData.get("mode") === "fix" ? "fix" : "";
   const file = formData.get("file") as File | null;
 
   if (!trackingId) return jsonError("Missing trackingId");
@@ -24,6 +26,7 @@ export async function POST(req: Request) {
   return callAppsScript("eduAttach", {
     trackingId,
     kind,
+    mode,
     reviewerEmail: session.user.email,
     ...(await fileToPayload(file)),
   });

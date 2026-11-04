@@ -186,7 +186,7 @@
     "fileHintShortcut": ".docx or .doc, 3MB maximum",
     "shortcutLabel": "I already contacted the education office and have an SWS number",
     "eduNumberPlaceholder": "e.g. 123/2569 or ว123/2569",
-    "shortcutHint": "The education office is notified that a document using this number has entered the system; a wrong number gets the document rejected. Attach the numbered Word file below. Once the project chair and advisor have signed, upload the signed copy from the email link or My documents."
+    "shortcutHint": "The education office is emailed to check this number. If it is wrong, they will correct it and email you the right Word/PDF files. Attach the numbered Word file below. Once the project chair and advisor have signed, upload the signed copy from the email link or My documents."
   },
   "status": {
     "title": "Check Document Status",
@@ -449,7 +449,9 @@
       "eduReject": "Education rejection",
       "uploadSigned": "Signed copy",
       "rejectSmall": "Minor rejection",
-      "rejectBig": "Major rejection"
+      "rejectBig": "Major rejection",
+      "eduFix": "Fix SWS number",
+      "eduConfirm": "Confirm number"
     },
     "done": {
       "submit": "Document submitted",
@@ -460,7 +462,9 @@
       "eduReject": "Document rejected (no SWS number issued)",
       "uploadSigned": "Signed copy sent — the document is now in the secretary's queue",
       "rejectSmall": "Minor rejection sent — the applicant will resend a signed copy to the secretary",
-      "rejectBig": "Major rejection sent — applicant and education office notified"
+      "rejectBig": "Major rejection sent — applicant and education office notified",
+      "eduFix": "Number fixed and new files sent to the applicant",
+      "eduConfirm": "Number confirmed"
     },
     "failedTitle": "Sending failed",
     "interruptedTitle": "Your last send may not have finished",
@@ -519,7 +523,17 @@
     "chooseFile": "Choose file",
     "rejectNote": "No SWS number will be issued. The applicant receives the reason and a resubmission link by email. This cannot be undone.",
     "confirmReject": "Confirm rejection",
-    "errReasonRequired": "Please give a reason"
+    "errReasonRequired": "Please give a reason",
+    "shortcutTitle": "Shortcut — check numbers entered by applicants",
+    "shortcutSubtitle": "The applicant says they already got this number from the education office. The document keeps moving; a wrong number can be fixed until the president approves.",
+    "shortcutNumberLabel": "Number entered",
+    "shortcutConfirm": "Number is correct",
+    "shortcutFix": "Fix number",
+    "fixTitle": "Fix SWS number (shortcut)",
+    "fixCurrentNumber": "Number the applicant entered",
+    "fixNewNumberLabel": "Correct SWS number",
+    "fixNote": "The number is corrected in the sheet and file names, and the new Word and PDF are emailed to the applicant. If they already uploaded a signed copy, the document goes back to awaiting chair/advisor signatures.",
+    "confirmFix": "Fix number and send files"
   },
   "uploadSigned": {
     "title": "Upload signed copy",

@@ -30,6 +30,8 @@ export type SendKind =
   | "rejectBig"
   | "advance"
   | "eduReturn"
+  | "eduFix"
+  | "eduConfirm"
   | "eduReject"
   | "uploadSigned";
 export type SendStatus = "sending" | "done" | "error" | "interrupted";
@@ -145,6 +147,8 @@ const EMAIL_WARNING_KEY: Record<SendKind, string | null> = {
   rejectBig: "rejectEmailWarning",
   approve: "approveEmailWarning",
   eduReturn: "eduReturnEmailWarning",
+  eduFix: "eduReturnEmailWarning",
+  eduConfirm: null,
   eduReject: "rejectEmailWarning",
   uploadSigned: null,
 };

@@ -4,7 +4,7 @@ import { getStaffDisplayName } from "@/lib/roles";
 import { getTranslations } from "next-intl/server";
 import { colors } from "@/lib/theme";
 import type { EduNumberUse } from "@/lib/eduNumber";
-import EducationQueue, { type EduDoc } from "./EducationQueue";
+import EducationQueue, { type EduDoc, type ShortcutDoc } from "./EducationQueue";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +25,7 @@ export default async function EducationPage({
 
   let docs: EduDoc[] = [];
   let numberIndex: EduNumberUse[] = [];
+  let shortcutDocs: ShortcutDoc[] = [];
   let error: string | null = null;
 
   try {
@@ -76,6 +77,30 @@ export default async function EducationPage({
           prevRejectBy: prev && prevNumber ? get(prev, "ตีกลับโดย") : "",
         };
       });
+
+    // ทางลัดที่ยังไม่ได้ตรวจเลข — แก้เลขได้จนกว่านายกฯ จะอนุมัติ
+    shortcutDocs = rows
+      .filter(
+        (r) =>
+          get(r, "เข้าทางลัด") === "ใช่" &&
+          !get(r, "ตรวจเลขทางลัด").trim() &&
+          ["รอเซ็นประธาน/อาจารย์", "รอตรวจสอบ", "รอเซ็น"].includes(get(r, "สถานะ"))
+      )
+      .map((r) => ({
+        trackingId: get(r, "Tracking ID"),
+        docName: get(r, "ชื่อเอกสาร"),
+        applicant: get(r, "ชื่อ - นามสกุล"),
+        phone: get(r, "เบอร์โทรสำหรับติดต่อ"),
+        agency:
+          get(r, "ฝ่ายภายในสโมสร") || get(r, "ชมรม") || get(r, "ภาควิชา") || get(r, "หน่วยงานอื่น ๆ") ||
+          get(r, "หน่วยงานที่ยื่นเอกสาร"),
+        submittedAt: get(r, "ประทับเวลา"),
+        status: get(r, "สถานะ"),
+        eduNumber: get(r, "เลข สวศ."),
+        wordUrl: get(r, "ไฟล์ Word จากการศึกษา") || get(r, "เอกสารที่ต้องการยื่น"),
+        sharePending: !!get(r, "รอแชร์ไฟล์").trim(),
+        chainIds: ancestors(r),
+      }));
   } catch (e) {
     error = e instanceof Error ? e.message : "Unknown error";
   }
@@ -94,7 +119,7 @@ export default async function EducationPage({
           {tc("connectionError")}: {error}
         </div>
       ) : (
-        <EducationQueue docs={docs} numberIndex={numberIndex} actingAs={actingAs} openId={open || null} />
+        <EducationQueue docs={docs} shortcutDocs={shortcutDocs} numberIndex={numberIndex} actingAs={actingAs} openId={open || null} />
       )}
     </div>
   );
