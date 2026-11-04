@@ -32,7 +32,7 @@ type FormConfig = {
 // ฟอร์ม "อัปโหลดเอกสารที่เซ็นแล้ว"
 const SIGNED_FORM: FormConfig = {
   formUrl:
-    "https://docs.google.com/forms/d/e/1FAIpQLSdqbBs9JZoS-yhRkyg_jq5W9B6yby4szmk1WtR3FmN0yguVxA/viewform",
+    "https://docs.google.com/forms/d/e/1FAIpQLSeMd75by3h2l_jvQnp2913kyXz2Wdf6oMBBXLrkwhyF3-AQUQ/viewform",
   entries: {
     trackingId: "1339106815",
     // ตำแหน่งผู้เซ็นอนุมัติ — ค่าที่เติมมาจาก ROLE_DISPLAY ใน lib/roles.ts (เช่น "นายกสโมสร")
@@ -44,7 +44,7 @@ const SIGNED_FORM: FormConfig = {
 // ฟอร์ม "แจ้งตีกลับเอกสาร"
 const REJECT_FORM: FormConfig = {
   formUrl:
-    "https://docs.google.com/forms/d/e/1FAIpQLSde0GQV9D69ZuZIbSKnucBd9Dy43sOlCzahQNl8UfmzJbQYcA/viewform",
+    "https://docs.google.com/forms/d/e/1FAIpQLSflk5uY9tPwsKpC0oLrbVFnlH4J8bhMK0uYF8Lj2Au5lzM6HA/viewform",
   entries: {
     trackingId: "1095174600",
     reason: "1323536185", // เหตุผลที่ตีกลับ
