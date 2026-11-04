@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { colors } from "@/lib/theme";
 
@@ -19,9 +20,17 @@ export type DetailDoc = {
   resubmitLink: string;
   /** คิวเบื้องหลังยังแชร์ไฟล์ไม่เสร็จ (คอลัมน์ "รอแชร์ไฟล์" ไม่ว่าง) — ซ่อนลิงก์ไฟล์ไว้ก่อน */
   sharePending?: boolean;
+  /** flow การศึกษา (ว่างได้ในเอกสารที่ยื่นก่อนขึ้นระบบใหม่) */
+  eduNumber?: string;
+  eduWordUrl?: string;
+  eduPdfUrl?: string;
+  signedUrl?: string;
 };
 
 export const STATUS_META: Record<string, { key: string; color: string; bg: string }> = {
+  "รอการศึกษาตรวจ": { key: "statusEduReview", color: "#0d4f73", bg: "#e8f3fa" },
+  "รอเซ็นประธาน/อาจารย์": { key: "statusWaitingProjectSign", color: "#5b3c8c", bg: "#f2edf9" },
+  "รอรองคณบดีเซ็น": { key: "statusWaitingDean", color: "#0d4f73", bg: "#e8f3fa" },
   "รอตรวจสอบ": { key: "statusPending", color: "#665c00", bg: "#fff8e1" },
   "รอเซ็น": { key: "statusWaitingSign", color: "#8a4b00", bg: "#fff3e0" },
   "อนุมัติ": { key: "statusApproved", color: "#1b5e20", bg: "#f1f8f1" },
@@ -44,6 +53,7 @@ export default function DocumentDetailModal({
   const meta = STATUS_META[doc.status] || { key: "", color: "#444", bg: "#f5f5f5" };
   const isRejected = doc.status === "ตีกลับ";
   const isApproved = doc.status === "อนุมัติ";
+  const waitingProjectSign = doc.status === "รอเซ็นประธาน/อาจารย์";
 
   const steps = [
     { label: t("timelineSubmitted"), time: doc.submittedAt, done: true },
@@ -147,6 +157,11 @@ export default function DocumentDetailModal({
               {t("approvedBy")}: <strong>{doc.approver}</strong>
             </p>
           )}
+          {doc.eduNumber && (
+            <p style={{ fontSize: 13, margin: "0 0 6px" }}>
+              {t("eduNumber")}: <strong>{doc.eduNumber}</strong>
+            </p>
+          )}
           {doc.docNumber && (
             <p style={{ fontSize: 13, margin: "0 0 6px" }}>
               {t("docNumber")}: <strong>{doc.docNumber}</strong>
@@ -174,6 +189,29 @@ export default function DocumentDetailModal({
                 <i className="ti ti-file-text" style={{ fontSize: 16 }} aria-hidden="true" />
                 {t("viewFile")}
               </a>
+            )}
+            {waitingProjectSign && (
+              <div style={{ background: "#f2edf9", borderRadius: 8, padding: "10px 12px", fontSize: 12, color: "#5b3c8c", lineHeight: 1.6 }}>
+                {t("waitingProjectSignHint")}
+              </div>
+            )}
+            {waitingProjectSign && doc.eduWordUrl && !doc.sharePending && (
+              <a href={doc.eduWordUrl} target="_blank" rel="noopener noreferrer" className="egsa-link-btn">
+                <i className="ti ti-file-word" style={{ fontSize: 16 }} aria-hidden="true" />
+                {t("viewEduWord")}
+              </a>
+            )}
+            {waitingProjectSign && doc.eduPdfUrl && !doc.sharePending && (
+              <a href={doc.eduPdfUrl} target="_blank" rel="noopener noreferrer" className="egsa-link-btn">
+                <i className="ti ti-file-type-pdf" style={{ fontSize: 16 }} aria-hidden="true" />
+                {t("viewEduPdf")}
+              </a>
+            )}
+            {waitingProjectSign && (
+              <Link href={`/upload-signed?id=${encodeURIComponent(doc.trackingId)}`} className="egsa-link-btn">
+                <i className="ti ti-upload" style={{ fontSize: 16 }} aria-hidden="true" />
+                {t("uploadSigned")}
+              </Link>
             )}
             {isApproved && doc.finalFileUrl && !doc.sharePending && (
               <a href={doc.finalFileUrl} target="_blank" rel="noopener noreferrer" className="egsa-link-btn">

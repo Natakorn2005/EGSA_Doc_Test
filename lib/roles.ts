@@ -2,7 +2,14 @@ import { getSheetValues } from "./googleSheets";
 
 const STAFF_TAB_NAME = "เจ้าหน้าที่";
 
-export type StaffRole = "secretary" | "vice_secretary" | "president" | "vp_internal" | "vp_external" | null;
+export type StaffRole =
+  | "secretary"
+  | "vice_secretary"
+  | "president"
+  | "vp_internal"
+  | "vp_external"
+  | "education"
+  | null;
 
 const ROLE_MAP: Record<string, Exclude<StaffRole, null>> = {
   "secretary": "secretary",
@@ -10,6 +17,7 @@ const ROLE_MAP: Record<string, Exclude<StaffRole, null>> = {
   "president": "president",
   "vp_internal": "vp_internal",
   "vp_external": "vp_external",
+  "education": "education",
 };
 
 const ROLE_DISPLAY: Record<string, string> = {
@@ -18,6 +26,7 @@ const ROLE_DISPLAY: Record<string, string> = {
   president: "นายกสโมสร",
   vp_internal: "อุปนายกฝ่ายกิจการภายใน",
   vp_external: "อุปนายกฝ่ายกิจการภายนอก",
+  education: "เจ้าหน้าที่การศึกษา",
 };
 
 // *** ทุกบทบาทที่ตรวจสอบเอกสารในคิว "รอตรวจสอบ" ได้ — เลขาธิการและรองเลขาธิการ ***
@@ -95,6 +104,11 @@ export function isSecretaryRole(role: StaffRole): boolean {
   return !!role && SECRETARY_ROLES.includes(role as Exclude<StaffRole, null>);
 }
 
+// *** เจ้าหน้าที่การศึกษา — คิวการศึกษาของตัวเอง ดูฐานข้อมูลเอกสารได้ แต่ห้ามเข้าคิวเลขาฯ/นายกฯ ***
+export function isEducationRole(role: StaffRole): boolean {
+  return role === "education";
+}
+
 // *** ป้ายแสดงตำแหน่งสำหรับหน้าแรก — role ว่าง (นักศึกษาทั่วไป) ก็ยังได้ป้ายที่อ่านได้ ***
 export function getRoleDisplayLabel(role: StaffRole): string {
   if (!role) return "นักศึกษา";
@@ -108,6 +122,7 @@ export function getRoleI18nKey(role: StaffRole): string {
   if (role === "president") return "president";
   if (role === "vp_internal") return "vpInternal";
   if (role === "vp_external") return "vpExternal";
+  if (role === "education") return "education";
   return "student";
 }
 

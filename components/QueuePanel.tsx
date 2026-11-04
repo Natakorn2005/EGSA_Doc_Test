@@ -20,6 +20,8 @@ export type QueueDoc = {
   /** คิวเบื้องหลังยังแชร์ไฟล์ไม่เสร็จ — ซ่อนลิงก์เปิดไฟล์ไว้ก่อน */
   sharePending?: boolean;
   rejectFormUrl?: string;
+  /** เลข สวศ. (flow การศึกษา) */
+  eduNumber?: string;
 };
 
 type ActionKind = "advance" | "reject" | "approve";
@@ -209,6 +211,7 @@ export default function QueuePanel({
                   </p>
                   <p style={{ color: colors.textMuted, fontSize: 12, margin: "0 0 10px" }}>
                     {doc.agencyValue || doc.agencyType} · {doc.trackingId}
+                    {doc.eduNumber ? ` · ${doc.eduNumber}` : ""}
                   </p>
 
                   {doc.fileUrl && (

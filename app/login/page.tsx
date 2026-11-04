@@ -3,7 +3,18 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { colors, buttonPrimaryStyle } from "@/lib/theme";
 
-export default async function LoginPage() {
+// รับเฉพาะปลายทางในเว็บเดียวกัน (ขึ้นต้นด้วย "/" ตัวเดียว) กันลิงก์พาออกไปเว็บอื่น
+function safeCallback(raw: string | undefined): string {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/\\")) return "/";
+  return raw;
+}
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}) {
+  const redirectTo = safeCallback((await searchParams).callbackUrl);
   const t = await getTranslations("login");
   const tn = await getTranslations("nav");
 
@@ -11,7 +22,7 @@ export default async function LoginPage() {
   // กันกรณีมีคนเข้าหน้านี้ตรง ๆ ทั้งที่มี session อยู่แล้ว (เช่นกดย้อนกลับ หรือกด bookmark เก่า)
   const session = await auth();
   if (session?.user?.email) {
-    redirect("/");
+    redirect(redirectTo);
   }
 
   return (
@@ -22,7 +33,7 @@ export default async function LoginPage() {
           "use server";
           // *** ระบุปลายทางชัดเจนหลังล็อกอินสำเร็จ — เดิมไม่ได้ระบุ ทำให้ค่าเริ่มต้น
           // อาจย้อนกลับมาที่หน้า /login เอง (หน้าที่เรียก signIn) แทนที่จะไปหน้าแรก ***
-          await signIn("google", { redirectTo: "/" });
+          await signIn("google", { redirectTo });
         }}
       >
         <button type="submit" style={{ ...buttonPrimaryStyle, marginTop: 12 }}>

@@ -36,7 +36,10 @@ export default async function PresidentPage() {
           cell(data.headers, row, "หน่วยงานอื่น ๆ"),
         submittedAt: cell(data.headers, row, "ประทับเวลา"),
         reviewer: cell(data.headers, row, "ผู้ตรวจสอบ"),
-        fileUrl: cell(data.headers, row, "เอกสารที่ต้องการยื่น"),
+        // flow การศึกษา: ไฟล์ที่ต้องตรวจ/เซ็นคือฉบับที่ประธาน/อาจารย์เซ็นแล้ว (เอกสารเก่าไม่มี ใช้ไฟล์ที่ยื่น)
+        fileUrl:
+          cell(data.headers, row, "ไฟล์ที่ประธาน/อาจารย์เซ็นแล้ว") || cell(data.headers, row, "เอกสารที่ต้องการยื่น"),
+        eduNumber: cell(data.headers, row, "เลข สวศ."),
         sharePending: !!cell(data.headers, row, "รอแชร์ไฟล์").trim(),
         approveFormUrl: cell(data.headers, row, "ลิงก์อนุมัติ"),
         rejectFormUrl: cell(data.headers, row, "ลิงก์ส่งผลการตรวจสอบ"),

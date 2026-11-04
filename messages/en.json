@@ -10,7 +10,8 @@
     "signOut": "Sign out",
     "signIn": "Sign in with Google",
     "orgShort": "EGSA Doc System",
-    "guide": "User Guide"
+    "guide": "User Guide",
+    "educationQueue": "Education queue"
   },
   "home": {
     "orgName": "Student Union Document System",
@@ -31,7 +32,9 @@
     "stepReviewTitle": "Secretary Reviews",
     "stepReviewDesc": "Checked for accuracy before moving on",
     "stepApproveTitle": "President Approves",
-    "stepApproveDesc": "Signed and issued an official number"
+    "stepApproveDesc": "Signed and issued an official number",
+    "statEduReview": "Awaiting education review",
+    "statWaitingProjectSign": "Awaiting chair/advisor signatures"
   },
   "role": {
     "secretary": "Secretary",
@@ -39,7 +42,8 @@
     "president": "President",
     "vpInternal": "VP Internal Affairs",
     "vpExternal": "VP External Affairs",
-    "student": "Student"
+    "student": "Student",
+    "education": "Education Officer"
   },
   "common": {
     "connectionError": "Connection failed",
@@ -98,7 +102,8 @@
     "tooLargeUseForm": "This file is over 3 MB, which exceeds what the system accepts. Send it via Google Form instead (up to 10 MB) — what you've entered here will be filled in for you; just attach the file and submit. The result is exactly the same.",
     "tooLargeNoForm": "This file is over 3 MB, which exceeds what the system accepts. Please compress it and choose it again.",
     "tooLargeApproveButton": "Send signed file via Google Form",
-    "tooLargeRejectButton": "Reject via Google Form"
+    "tooLargeRejectButton": "Reject via Google Form",
+    "eduReturnEmailWarning": "Returned, but no applicant email was found — please contact them directly"
   },
   "submit": {
     "title": "Submit Document",
@@ -119,7 +124,7 @@
     "selectPrefix": "-- Select ",
     "noAgencyList": "(No list yet — please contact the secretary)",
     "previousTrackingLabel": "Previous reference ID (if resubmitting after rejection)",
-    "fileLabel": "Document file (PDF) *",
+    "fileLabel": "Document file (Word) *",
     "acknowledgeLabel": "I acknowledge the submission process and confirm the above information is correct.",
     "submitButton": "Submit",
     "sending": "Submitting...",
@@ -133,8 +138,8 @@
     "errMissingAgency": "Please complete the agency selection",
     "errNotAcknowledged": "Please acknowledge the submission process",
     "errMissingFile": "Please attach the document (PDF)",
-    "chooseFilePlaceholder": "Choose PDF file",
-    "fileHint": "PDF only, 3MB maximum",
+    "chooseFilePlaceholder": "Choose Word file",
+    "fileHint": ".docx or .doc, 3MB maximum",
     "needHelp": "Have a question?",
     "needHelpLink": "See the FAQ",
     "docNameHint": "Example: BudgetRequest / ตัวอย่าง: ขอเบิกงบประมาณ",
@@ -146,7 +151,7 @@
     "pdpaConsentLabel": "I consent to the collection and use of my personal data as described in the",
     "pdpaConsentLink": "Privacy Policy",
     "errNoPdpaConsent": "Please consent to data collection before submitting",
-    "processingTimeNote": "Processing normally takes no more than 3 working days from submission (covering both review and approval)",
+    "processingTimeNote": "Processing normally takes no more than 7 working days, not counting the time waiting for the project chair and advisor to sign",
     "emailRegisterLinkLabel": "How to register for the university’s Google Workspace",
     "emailRegisterLinkUrl": "https://muit.mahidol.ac.th/docs/users-guide/google-workspace/edu_workspace_reg_2026/",
     "fileTooLargeMessage": "This file is over 3 MB, which exceeds what the system accepts. You can compress it and try again, or submit via Google Form instead — it accepts files up to 10 MB.",
@@ -160,11 +165,30 @@
     "sendingHint": "You can move to other pages on this site meanwhile; a notice will pop up in the corner when it's done. Just don't close or refresh this tab until then.",
     "sendingGoHome": "Back to home",
     "errGeneric": "Sending failed, please try again",
-    "confirmEmailNote": "A confirmation email will arrive within a few minutes — no need to submit again. You can check the status right away with the reference ID above."
+    "confirmEmailNote": "A confirmation email will arrive within a few minutes — no need to submit again. You can check the status right away with the reference ID above.",
+    "errEduNumber": "SWS number format: 3 digits / 4-digit Buddhist year, e.g. 123/2569 or ว123/2569",
+    "errMustBeWord": "Word files only (.docx or .doc)",
+    "errShortcutFileType": "The numbered file must be Word or PDF",
+    "signedUploadFailed": "Submitted, but the signed copy could not be sent — please upload it again from My documents",
+    "nextStepEducation": "Next, the education office reviews the document, adds the SWS number and emails the files back. Then have the project chair and advisor sign, and upload the signed copy.",
+    "nextStepShortcut": "Next, have the project chair and advisor sign, then upload the signed copy on this document.",
+    "nextStepShortcutSigned": "Signed copy received — the document is in the secretary's queue.",
+    "uploadSignedLink": "Upload signed copy",
+    "fileLabelShortcut": "File with SWS number (Word or PDF) *",
+    "fileHintShortcut": "Word or PDF, 3MB maximum",
+    "shortcutLabel": "I already contacted the education office and have an SWS number",
+    "eduNumberPlaceholder": "e.g. 123/2569 or ว123/2569",
+    "shortcutHint": "The education office is notified that a document using this number has entered the system. If the number is wrong, the document will be rejected.",
+    "signedFileLabel": "Copy signed by the project chair and advisor (PDF, optional)",
+    "signedTooLarge": "The file is over 3 MB",
+    "signedMustBePdf": "The signed copy must be a PDF",
+    "signedFilePlaceholder": "Choose the signed PDF",
+    "signedFileHint": "If attached, the document goes straight to the secretary's queue. If not signed yet, you can upload it later.",
+    "signedNeedsLogin": "If it is already signed, sign in first to attach the signed copy too — or submit now and upload it later from the link in the email."
   },
   "status": {
     "title": "Check Document Status",
-    "subtitle": "Enter your Tracking ID together with the email or phone number you submitted with (not needed if you’re signed in) — processing normally takes no more than 3 working days",
+    "subtitle": "Enter the Tracking ID together with the email or phone number used to submit, to confirm the document is yours (not needed if you are signed in). Processing normally takes no more than 7 working days, not counting the time waiting for the project chair and advisor to sign.",
     "sessionDefaultBanner": "Showing documents submitted with {email} — search below to look up something else",
     "searchPlaceholder": "Tracking ID",
     "searchButton": "Search",
@@ -183,7 +207,10 @@
     "statusUnknown": "Unknown status",
     "verifyPlaceholder": "Email or phone used to submit",
     "verifyHint": "Enter the email or phone number you used when submitting, to verify this is your document",
-    "notFoundOrUnverified": "No document found — please check that the tracking ID and verification details match"
+    "notFoundOrUnverified": "No document found — please check that the tracking ID and verification details match",
+    "statusEduReview": "Awaiting education review",
+    "statusWaitingProjectSign": "Awaiting project chair/advisor signatures",
+    "statusWaitingDean": "Awaiting vice dean signature"
   },
   "my": {
     "title": "My Documents",
@@ -210,7 +237,15 @@
     "summaryWaitingSign": "Pending Signature",
     "summaryApproved": "Approved",
     "summaryRejected": "Rejected",
-    "viewSignedFile": "Open the signed document"
+    "viewSignedFile": "Open the signed document",
+    "eduNumber": "SWS number",
+    "waitingProjectSignHint": "The education office has reviewed this document. Have the project chair and advisor sign the file below, then upload the signed PDF here (no need to resubmit).",
+    "viewEduWord": "Word file from education office",
+    "viewEduPdf": "PDF file from education office",
+    "uploadSigned": "Upload signed copy",
+    "uploadSignedChip": "Waiting for your signed copy",
+    "summaryEduReview": "At education office",
+    "summaryWaitingUpload": "Waiting for you"
   },
   "profile": {
     "title": "Profile",
@@ -392,13 +427,19 @@
       "submit": "Submit",
       "approve": "Approve",
       "reject": "Reject",
-      "advance": "Send to President"
+      "advance": "Send to President",
+      "eduReturn": "Return to applicant",
+      "eduReject": "Education rejection",
+      "uploadSigned": "Signed copy"
     },
     "done": {
       "submit": "Document submitted",
       "approve": "Document approved",
       "reject": "Document rejected",
-      "advance": "Sent to the President"
+      "advance": "Sent to the President",
+      "eduReturn": "Files returned to the applicant",
+      "eduReject": "Document rejected (no SWS number issued)",
+      "uploadSigned": "Signed copy sent — the document is now in the secretary's queue"
     },
     "failedTitle": "Sending failed",
     "interruptedTitle": "Your last send may not have finished",
@@ -413,5 +454,72 @@
     "networkError": "Couldn't connect — check your internet and try again",
     "inProgress": "In progress…",
     "emailSoon": "A confirmation email will follow within a few minutes"
+  },
+  "education": {
+    "queueTitle": "Education queue",
+    "itemsPending": "waiting for review",
+    "actingAs": "Acting as",
+    "searchPlaceholder": "Search document, applicant, unit or Tracking ID",
+    "empty": "No documents waiting for education review",
+    "emptySearch": "No documents match your search",
+    "recheckBadge": "Re-review",
+    "applicant": "Applicant",
+    "recheckPrevNumber": "Previous number",
+    "recheckRejectedBy": "Rejected by",
+    "recheckReason": "Rejection reason",
+    "openWord": "Open Word file",
+    "approveButton": "Number and return",
+    "rejectButton": "Reject",
+    "approveTitle": "Enter SWS number and return to applicant",
+    "numberLabel": "SWS number",
+    "useOldNumber": "Use the previous number",
+    "useNewNumber": "Use a new number",
+    "numberPlaceholder": "e.g. 123/2569 or ว123/2569",
+    "latestNumbers": "Latest numbers in the system",
+    "filesLabel": "Numbered files (Word and PDF)",
+    "dropHint": "Choose or drop files — Word and PDF together is fine",
+    "fileMissing": "Not chosen yet",
+    "filesHint": "3 MB maximum per file — sent one file at a time",
+    "approveNote": "The applicant receives both files by email and the status becomes Awaiting project chair/advisor signatures.",
+    "confirmApprove": "Return to applicant",
+    "fileTooLarge": "{name} is over 3 MB and cannot be sent through the website",
+    "fileWrongType": "{name} is not a Word or PDF file",
+    "errNumberRequired": "Please enter the SWS number",
+    "numberFormatHint": "Format: 3 digits / 4-digit Buddhist year, e.g. 123/2569 or ว123/2569",
+    "errBothFiles": "Both the Word and PDF files are required",
+    "errConfirmDuplicate": "This number is in use on another document — tick the confirmation first",
+    "numberUsedBefore": "This number was used on a round that was rejected ({ids})",
+    "numberInUse": "{number} is currently used on:",
+    "confirmDuplicate": "Confirm reusing this number (recorded as confirmed by the education office)",
+    "rejectTitle": "Reject document",
+    "reasonLabel": "Reason (shown to the applicant)",
+    "rejectFileLabel": "Marked-up file (PDF, optional)",
+    "rejectFileMustBePdf": "The marked-up file must be a PDF",
+    "chooseFile": "Choose file",
+    "rejectNote": "No SWS number will be issued. The applicant receives the reason and a resubmission link by email. This cannot be undone.",
+    "confirmReject": "Confirm rejection",
+    "errReasonRequired": "Please give a reason"
+  },
+  "uploadSigned": {
+    "title": "Upload signed copy",
+    "subtitle": "Send the copy signed by the project chair and advisor on the same document — no need to resubmit or re-enter the SWS number.",
+    "missingId": "No Tracking ID in this link — open it from the email button or from My documents.",
+    "notYours": "This document was not found under the account you are signed in with — please sign in with the email used to submit.",
+    "notWaiting": "This document's status is \"{status}\" — it is not waiting for a signed copy.",
+    "goMyDocs": "Go to My documents",
+    "fileTooLarge": "The file is over 3 MB — compress it and choose again",
+    "mustBePdf": "Must be a PDF file",
+    "sameAsEduFile": "This file is byte-for-byte identical to the PDF from the education office, so it has no signatures yet — choose the signed copy",
+    "pleaseChoose": "Please choose the signed PDF",
+    "successTitle": "Signed copy sent",
+    "successBody": "The document is now in the secretary's queue. You will be notified by email.",
+    "eduWord": "Word file from education office",
+    "eduPdf": "PDF file from education office",
+    "mustBeSigned": "It must be the PDF fully signed by the project chair and advisor.",
+    "checking": "Checking file…",
+    "chooseFile": "Choose the signed PDF",
+    "fileHint": "PDF, 3 MB maximum",
+    "sending": "Sending…",
+    "submitButton": "Send signed copy"
   }
 }

@@ -6,6 +6,11 @@ import { useTranslations } from "next-intl";
 import { useSendQueue, useSendJob } from "@/components/SendQueue";
 import type { AgencyOptions } from "@/lib/agencies";
 import { colors, inputStyle, buttonPrimaryStyle } from "@/lib/theme";
+import { normalizeEduNumber } from "@/lib/eduNumber";
+
+const WORD_ACCEPT = ".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const isWordName = (n: string) => /\.docx?$/i.test(n);
+const isPdfName = (n: string) => /\.pdf$/i.test(n);
 
 // sheetKey = null หมายถึงหมวด "อื่น ๆ" ที่ให้พิมพ์ชื่อหน่วยงานเอง ไม่มีรายการให้เลือก
 const AGENCY_TYPES = [
@@ -99,6 +104,15 @@ export default function SubmitForm({
   const [file, setFile] = useState<File | null>(null);
   const [fileTooLarge, setFileTooLarge] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [fileTypeError, setFileTypeError] = useState("");
+
+  // *** ทางลัด: เคยติดต่อการศึกษาและได้เลข สวศ. แล้ว ***
+  const [shortcut, setShortcut] = useState(false);
+  const [eduNumber, setEduNumber] = useState("");
+  const [signedFile, setSignedFile] = useState<File | null>(null);
+  const [signedError, setSignedError] = useState("");
+  const signedRef = useRef<HTMLInputElement>(null);
+  const eduNumberNormalized = normalizeEduNumber(eduNumber);
 
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -111,7 +125,12 @@ export default function SubmitForm({
   const job = useSendJob(jobId);
   const result =
     job?.status === "done" && job.result?.trackingId
-      ? { trackingId: job.result.trackingId, docName: job.result.docName || job.label }
+      ? {
+          trackingId: job.result.trackingId,
+          docName: job.result.docName || job.label,
+          // ขั้นถัดไปที่บอกผู้ยื่น: การศึกษาตรวจ / รอเซ็นประธาน-อาจารย์ / เข้าคิวเลขาฯ แล้ว
+          status: String((job.result as Record<string, unknown>).status || ""),
+        }
       : null;
 
   // ส่งไม่สำเร็จขณะยังอยู่หน้านี้: แสดงฟอร์มเดิม (ข้อมูลที่กรอกยังอยู่ครบ) พร้อมสาเหตุ
@@ -196,6 +215,16 @@ export default function SubmitForm({
       setStatus("error");
       return;
     }
+    if (shortcut && !eduNumberNormalized) {
+      setErrorMsg(t("errEduNumber"));
+      setStatus("error");
+      return;
+    }
+    if (!shortcut && !isWordName(file.name)) {
+      setErrorMsg(t("errMustBeWord"));
+      setStatus("error");
+      return;
+    }
 
     setErrorMsg("");
     if (jobId) dismiss(jobId); // ล้างผลการส่งครั้งก่อนที่ไม่สำเร็จ
@@ -212,6 +241,8 @@ export default function SubmitForm({
     formData.append("acknowledged", "true");
     formData.append("pdpaConsent", "true");
     formData.append("file", file);
+    formData.append("shortcut", shortcut ? "true" : "false");
+    if (shortcut && eduNumberNormalized) formData.append("eduNumber", eduNumberNormalized);
     // *** Honeypot — ส่งค่าว่างเสมอสำหรับผู้ใช้จริง (ช่องนี้ซ่อนอยู่ คนมองไม่เห็น) ***
     formData.append("website", honeypot);
 
@@ -220,7 +251,29 @@ export default function SubmitForm({
       enqueue({
         kind: "submit",
         label: docName.trim(),
-        request: { endpoint: "/api/submit", body: formData },
+        request: {
+          endpoint: "/api/submit",
+          body: formData,
+          // ทางลัดที่แนบฉบับเซ็นมาด้วย: ยื่นเสร็จแล้วอัปโหลดฉบับเซ็นต่อในเอกสารเดิมทันที (ต้องเข้าสู่ระบบ)
+          // ขั้นนี้ล้มก็ไม่ยื่นซ้ำ — บอกผู้ยื่นให้อัปโหลดเองจากหน้าเอกสารของฉัน
+          next:
+            shortcut && signedFile && isLoggedIn
+              ? [
+                  {
+                    endpoint: "/api/upload-signed",
+                    optional: true,
+                    optionalFailMessage: t("signedUploadFailed"),
+                    body: (prev) => {
+                      if (!prev.trackingId) return null;
+                      const fd = new FormData();
+                      fd.append("trackingId", String(prev.trackingId));
+                      fd.append("file", signedFile);
+                      return fd;
+                    },
+                  },
+                ]
+              : undefined,
+        },
       })
     );
     window.scrollTo({ top: 0 });
@@ -294,6 +347,35 @@ export default function SubmitForm({
               aria-hidden="true"
             />
             <span>{t("processingTimeNote")}</span>
+          </div>
+
+          {/* ขั้นถัดไปตามเส้นทางที่ยื่น */}
+          <div
+            style={{
+              marginTop: 10,
+              padding: "9px 12px",
+              background: "#fff",
+              borderRadius: 6,
+              fontSize: 13,
+              color: colors.primaryDark,
+              lineHeight: 1.6,
+            }}
+          >
+            {result.status === "รอเซ็นประธาน/อาจารย์" && job?.warning
+              ? job.warning
+              : result.status === "รอเซ็นประธาน/อาจารย์"
+                ? t("nextStepShortcut")
+                : shortcut
+                  ? t("nextStepShortcutSigned")
+                  : t("nextStepEducation")}
+            {result.status === "รอเซ็นประธาน/อาจารย์" && isLoggedIn && (
+              <>
+                {" "}
+                <Link href={`/upload-signed?id=${encodeURIComponent(result.trackingId)}`} style={{ color: colors.primary }}>
+                  {t("uploadSignedLink")}
+                </Link>
+              </>
+            )}
           </div>
 
           {/* อีเมลยืนยันส่งจากคิวเบื้องหลัง อาจมาช้ากว่าหน้านี้ 1–2 นาที — บอกไว้กันคนยื่นซ้ำ */}
@@ -506,14 +588,116 @@ export default function SubmitForm({
           style={{ ...inputStyle, boxSizing: "border-box" }}
         />
 
+        {/* *** ทางลัด: ได้เลข สวศ. จากการศึกษาแล้ว ข้ามขั้นการศึกษาตรวจ *** */}
+        <div style={{ border: `1px solid ${colors.cardBorder}`, borderRadius: 8, padding: "10px 12px", background: "#fff" }}>
+          <label style={{ fontSize: 13, display: "flex", alignItems: "flex-start", gap: 6 }}>
+            <input
+              type="checkbox"
+              checked={shortcut}
+              onChange={(e) => {
+                setShortcut(e.target.checked);
+                setFile(null);
+                setFileTypeError("");
+                setSignedFile(null);
+                if (fileRef.current) fileRef.current.value = "";
+              }}
+              style={{ marginTop: 2 }}
+            />
+            {t("shortcutLabel")}
+          </label>
+          {shortcut && (
+            <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "stretch" }}>
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "0 10px",
+                    background: "#f5f5f5",
+                    border: "1px solid #ccc",
+                    borderRight: "none",
+                    borderRadius: "6px 0 0 6px",
+                    fontSize: 14,
+                    color: colors.textSecondary,
+                  }}
+                >
+                  สวศ.
+                </span>
+                <input
+                  placeholder={t("eduNumberPlaceholder")}
+                  value={eduNumber}
+                  onChange={(e) => setEduNumber(e.target.value)}
+                  style={{ ...inputStyle, flex: 1, minWidth: 0, borderRadius: "0 6px 6px 0", boxSizing: "border-box" }}
+                />
+              </div>
+              {eduNumber.trim() !== "" && (
+                <p style={{ fontSize: 12, margin: 0, color: eduNumberNormalized ? "#1b5e20" : "#b00020" }}>
+                  {eduNumberNormalized ? `✓ ${eduNumberNormalized}` : t("errEduNumber")}
+                </p>
+              )}
+              <p style={{ fontSize: 11, color: colors.textMuted, margin: 0 }}>{t("shortcutHint")}</p>
+
+              <label style={{ fontSize: 13, color: colors.textSecondary, marginTop: 4 }}>{t("signedFileLabel")}</label>
+              {isLoggedIn ? (
+                <>
+                  <input
+                    ref={signedRef}
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    onChange={(e) => {
+                      const picked = e.target.files?.[0] || null;
+                      setSignedError("");
+                      if (picked && picked.size > 3 * 1024 * 1024) {
+                        setSignedFile(null);
+                        setSignedError(t("signedTooLarge"));
+                      } else if (picked && !isPdfName(picked.name)) {
+                        setSignedFile(null);
+                        setSignedError(t("signedMustBePdf"));
+                      } else {
+                        setSignedFile(picked);
+                      }
+                      if (signedRef.current) signedRef.current.value = "";
+                    }}
+                    style={{ display: "none" }}
+                  />
+                  <div
+                    onClick={() => signedRef.current?.click()}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "10px 12px",
+                      border: `1px dashed ${colors.tintBorder}`,
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      background: colors.tint,
+                      fontSize: 13,
+                      color: signedFile ? colors.primaryDark : colors.primary,
+                    }}
+                  >
+                    <i className="ti ti-signature" style={{ fontSize: 18, color: colors.primary }} aria-hidden="true" />
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {signedFile ? signedFile.name : t("signedFilePlaceholder")}
+                    </span>
+                  </div>
+                  {signedError && <p style={{ fontSize: 12, color: "#b00020", margin: 0 }}>{signedError}</p>}
+                  <p style={{ fontSize: 11, color: colors.textMuted, margin: 0 }}>{t("signedFileHint")}</p>
+                </>
+              ) : (
+                <p style={{ fontSize: 12, color: colors.textSecondary, margin: 0 }}>{t("signedNeedsLogin")}</p>
+              )}
+            </div>
+          )}
+        </div>
+
         <div>
           <label style={{ fontSize: 13, color: colors.textSecondary, display: "block", marginBottom: 6 }}>
-            {t("fileLabel")}
+            {shortcut ? t("fileLabelShortcut") : t("fileLabel")}
           </label>
           <input
             ref={fileRef}
             type="file"
-            accept="application/pdf"
+            accept={shortcut ? `${WORD_ACCEPT},.pdf,application/pdf` : WORD_ACCEPT}
             onChange={(e) => {
               const picked = e.target.files?.[0] || null;
               // *** เช็คขนาดทันทีที่เลือกไฟล์ ไม่ต้องรออัปโหลดจนสุดแล้วค่อยโดนปฏิเสธ ***
@@ -525,6 +709,14 @@ export default function SubmitForm({
                 return;
               }
               setFileTooLarge(false);
+              // Word เท่านั้น (ทางลัดรับ PDF ที่ลงเลขแล้วได้ด้วย)
+              if (picked && !isWordName(picked.name) && !(shortcut && isPdfName(picked.name))) {
+                setFile(null);
+                setFileTypeError(shortcut ? t("errShortcutFileType") : t("errMustBeWord"));
+                if (fileRef.current) fileRef.current.value = "";
+                return;
+              }
+              setFileTypeError("");
               setFile(picked);
             }}
             style={{ display: "none" }}
@@ -555,7 +747,10 @@ export default function SubmitForm({
               {file ? file.name : t("chooseFilePlaceholder")}
             </span>
           </div>
-          <p style={{ fontSize: 11, color: colors.textMuted, margin: "6px 0 0" }}>{t("fileHint")}</p>
+          <p style={{ fontSize: 11, color: colors.textMuted, margin: "6px 0 0" }}>
+            {shortcut ? t("fileHintShortcut") : t("fileHint")}
+          </p>
+          {fileTypeError && <p style={{ fontSize: 12, color: "#b00020", margin: "6px 0 0" }}>{fileTypeError}</p>}
 
           {/* *** ไฟล์ใหญ่เกิน — เสนอทางเลือกยื่นผ่าน Google Form แทน ***
               Google Form อัปไฟล์เข้า Drive โดยตรง ไม่ผ่าน Vercel จึงรับไฟล์ใหญ่กว่าได้ */}

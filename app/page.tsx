@@ -1,5 +1,5 @@
 import { auth, signIn } from "@/auth";
-import { getStaffRole, getRoleI18nKey, isSignerRole, isSecretaryRole } from "@/lib/roles";
+import { getStaffRole, getRoleI18nKey, isSignerRole, isSecretaryRole, isEducationRole } from "@/lib/roles";
 import { getUserProfile } from "@/lib/profile";
 import { getSecretarySheet } from "@/lib/googleSheets";
 import { redirect } from "next/navigation";
@@ -10,6 +10,9 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 const STATUS_META: Record<string, { key: string; color: string; bg: string }> = {
+  "รอการศึกษาตรวจ": { key: "statusEduReview", color: "#0d4f73", bg: "#e8f3fa" },
+  "รอเซ็นประธาน/อาจารย์": { key: "statusWaitingProjectSign", color: "#5b3c8c", bg: "#f2edf9" },
+  "รอรองคณบดีเซ็น": { key: "statusWaitingDean", color: "#0d4f73", bg: "#e8f3fa" },
   "รอตรวจสอบ": { key: "statusPending", color: "#665c00", bg: "#fff8e1" },
   "รอเซ็น": { key: "statusWaitingSign", color: "#8a4b00", bg: "#fff3e0" },
   "ตีกลับ": { key: "statusRejected", color: colors.primaryDark, bg: colors.tint },
@@ -206,14 +209,33 @@ export default async function HomePage() {
   type NotifItem = { trackingId: string; docName: string; applicant: string; status: string };
   let notifications: NotifItem[] = [];
   let notifQueueLink = "/secretary";
-  const isStaffView = isSecretaryRole(role) || isSigner;
+  const isEducation = isEducationRole(role);
+  const isStaffView = isSecretaryRole(role) || isSigner || isEducation;
 
   try {
     const data = await getSecretarySheet();
     const statusCol = data.headers.indexOf("สถานะ");
     const emailCol = data.headers.indexOf("อีเมล");
 
-    if (isSecretaryRole(role)) {
+    if (isEducation) {
+      // หน้าแรกเต็มรูปแบบของการศึกษามาในช่วงถัดไป — ตอนนี้: รอตรวจ / ค้างที่ผู้ยื่น / อนุมัติ
+      statKeys = { a: "statEduReview", b: "statWaitingProjectSign", c: "statApproved" };
+      stats = {
+        a: data.rows.filter((r) => r[statusCol] === "รอการศึกษาตรวจ").length,
+        b: data.rows.filter((r) => r[statusCol] === "รอเซ็นประธาน/อาจารย์").length,
+        c: data.rows.filter((r) => r[statusCol] === "อนุมัติ").length,
+      };
+      notifQueueLink = "/education";
+      notifications = data.rows
+        .filter((r) => r[statusCol] === "รอการศึกษาตรวจ")
+        .slice(0, 5)
+        .map((r) => ({
+          trackingId: cell(data.headers, r, "Tracking ID"),
+          docName: cell(data.headers, r, "ชื่อเอกสาร"),
+          applicant: cell(data.headers, r, "ชื่อ - นามสกุล"),
+          status: "รอการศึกษาตรวจ",
+        }));
+    } else if (isSecretaryRole(role)) {
       statKeys = { a: "statPendingReview", b: "statPendingSign", c: "statApproved" };
       stats = {
         a: data.rows.filter((r) => r[statusCol] === "รอตรวจสอบ").length,
@@ -270,8 +292,12 @@ export default async function HomePage() {
           r[statusCol] === "ตีกลับ" &&
           !alreadyResubmittedIds.has(cell(data.headers, r, "Tracking ID").trim())
       );
-      const inProgress = mine.filter((r) => r[statusCol] === "รอตรวจสอบ" || r[statusCol] === "รอเซ็น");
-      notifications = [...rejected, ...inProgress].slice(0, 5).map((r) => ({
+      // เอกสารที่รอผู้ยื่นอัปโหลดฉบับเซ็น ขึ้นก่อนเอกสารที่รอคนอื่น
+      const waitingUpload = mine.filter((r) => r[statusCol] === "รอเซ็นประธาน/อาจารย์");
+      const inProgress = mine.filter((r) =>
+        ["รอการศึกษาตรวจ", "รอตรวจสอบ", "รอเซ็น", "รอรองคณบดีเซ็น"].includes(r[statusCol])
+      );
+      notifications = [...rejected, ...waitingUpload, ...inProgress].slice(0, 5).map((r) => ({
         trackingId: cell(data.headers, r, "Tracking ID"),
         docName: cell(data.headers, r, "ชื่อเอกสาร"),
         applicant: "",
@@ -350,7 +376,15 @@ export default async function HomePage() {
                 return (
                   <Link
                     key={n.trackingId}
-                    href={isStaffView ? notifQueueLink : `/status?q=${encodeURIComponent(n.trackingId)}`}
+                    href={
+                      isEducation
+                        ? `/education?open=${encodeURIComponent(n.trackingId)}`
+                        : isStaffView
+                          ? notifQueueLink
+                          : n.status === "รอเซ็นประธาน/อาจารย์"
+                            ? `/upload-signed?id=${encodeURIComponent(n.trackingId)}`
+                            : `/status?q=${encodeURIComponent(n.trackingId)}`
+                    }
                     style={{
                       ...cardStyle,
                       display: "flex",

@@ -63,6 +63,10 @@ export default async function MyPage() {
         finalFileUrl: cell(data.headers, row, "เอกสารเซ็นอนุมัติแล้ว"),
         resubmitLink: cell(data.headers, row, "ลิงก์ฟอร์มส่งเอกสารแก้"),
         sharePending: !!cell(data.headers, row, "รอแชร์ไฟล์").trim(),
+        eduNumber: cell(data.headers, row, "เลข สวศ."),
+        eduWordUrl: cell(data.headers, row, "ไฟล์ Word จากการศึกษา"),
+        eduPdfUrl: cell(data.headers, row, "ไฟล์ PDF จากการศึกษา"),
+        signedUrl: cell(data.headers, row, "ไฟล์ที่ประธาน/อาจารย์เซ็นแล้ว"),
       }));
   } catch (e) {
     error = e instanceof Error ? e.message : "Unknown error";
@@ -92,9 +96,11 @@ export default async function MyPage() {
 
       {!error && docs.length > 0 && (
         <>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(96px, 1fr))", gap: 10, marginBottom: 20 }}>
             {(
               [
+                { key: "รอการศึกษาตรวจ", labelKey: "summaryEduReview" },
+                { key: "รอเซ็นประธาน/อาจารย์", labelKey: "summaryWaitingUpload" },
                 { key: "รอตรวจสอบ", labelKey: "summaryPending" },
                 { key: "รอเซ็น", labelKey: "summaryWaitingSign" },
                 { key: "อนุมัติ", labelKey: "summaryApproved" },

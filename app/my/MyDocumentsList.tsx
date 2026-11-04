@@ -47,6 +47,12 @@ export default function MyDocumentsList({ docs }: { docs: MyDoc[] }) {
                 <div style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>
                   {doc.trackingId} · {t("submittedAt")}: {doc.submittedAt || "-"}
                 </div>
+                {doc.status === "รอเซ็นประธาน/อาจารย์" && (
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6, fontSize: 12, color: "#5b3c8c", fontWeight: 500 }}>
+                    <i className="ti ti-upload" style={{ fontSize: 14 }} aria-hidden="true" />
+                    {t("uploadSignedChip")}
+                  </div>
+                )}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                 <span

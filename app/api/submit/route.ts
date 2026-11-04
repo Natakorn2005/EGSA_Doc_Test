@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkSubmitRateLimit } from "@/lib/rateLimit";
 import { parseAppsScriptResponse } from "@/lib/appsScript";
+import { isPdfFile, isWordFile } from "@/lib/appsScriptCall";
 
 export async function POST(req: Request) {
   const formData = await req.formData();
@@ -26,6 +27,9 @@ export async function POST(req: Request) {
   const acknowledged = formData.get("acknowledged") === "true";
   const pdpaConsent = formData.get("pdpaConsent") === "true";
   const file = formData.get("file") as File | null;
+  // *** ทางลัด: ได้เลข สวศ. จากการศึกษามาก่อนแล้ว — แนบไฟล์ที่ลงเลขแล้ว (Word หรือ PDF) ***
+  const shortcut = formData.get("shortcut") === "true";
+  const eduNumber = String(formData.get("eduNumber") || "").trim();
 
   // *** Rate limit — กันการยิงรัว ๆ จาก IP เดียวหรืออีเมลเดียว ***
   const ip =
@@ -59,8 +63,15 @@ export async function POST(req: Request) {
   if (file.size > MAX_SIZE) {
     return NextResponse.json({ success: false, error: "ไฟล์ใหญ่เกินไป (จำกัด 3MB)" }, { status: 400 });
   }
-  if (file.type !== "application/pdf") {
-    return NextResponse.json({ success: false, error: "รองรับเฉพาะไฟล์ PDF" }, { status: 400 });
+  if (shortcut) {
+    if (!eduNumber) {
+      return NextResponse.json({ success: false, error: "กรุณากรอกเลข สวศ." }, { status: 400 });
+    }
+    if (!isWordFile(file) && !isPdfFile(file)) {
+      return NextResponse.json({ success: false, error: "ไฟล์ที่ลงเลขแล้วต้องเป็น Word (.docx/.doc) หรือ PDF" }, { status: 400 });
+    }
+  } else if (!isWordFile(file)) {
+    return NextResponse.json({ success: false, error: "รองรับเฉพาะไฟล์ Word (.docx หรือ .doc)" }, { status: 400 });
   }
 
   const arrayBuffer = await file.arrayBuffer();
@@ -88,6 +99,8 @@ export async function POST(req: Request) {
         previousTrackingId,
         acknowledged,
         pdpaConsent,
+        shortcut,
+        eduNumber: shortcut ? eduNumber : "",
         fileBase64: base64,
         fileName: file.name,
         mimeType: file.type,

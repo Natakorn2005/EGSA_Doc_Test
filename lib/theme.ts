@@ -21,6 +21,9 @@ export const layout = {
 
 // ป้ายสถานะ — ตั้งใจไม่ใช้สีธีมหลัก เพราะสีสถานะสื่อความหมายของตัวเอง
 export const statusColors: Record<string, { label: string; color: string; bg: string }> = {
+  "รอการศึกษาตรวจ": { label: "รอการศึกษาตรวจ", color: "#0d4f73", bg: "#e8f3fa" },
+  "รอเซ็นประธาน/อาจารย์": { label: "รอเซ็นประธาน/อาจารย์", color: "#5b3c8c", bg: "#f2edf9" },
+  "รอรองคณบดีเซ็น": { label: "รอรองคณบดีเซ็น", color: "#0d4f73", bg: "#e8f3fa" },
   "รอตรวจสอบ": { label: "รอตรวจสอบ", color: "#665c00", bg: "#fff8e1" },
   "รอเซ็น": { label: "รอเซ็นอนุมัติ", color: "#8a4b00", bg: "#fff3e0" },
   "อนุมัติ": { label: "อนุมัติแล้ว", color: "#1b5e20", bg: "#f1f8f1" },

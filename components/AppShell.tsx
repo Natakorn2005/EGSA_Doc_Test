@@ -1,5 +1,5 @@
 import { auth, signOut } from "@/auth";
-import { getStaffRole, isSignerRole, isSecretaryRole, getRoleI18nKey } from "@/lib/roles";
+import { getStaffRole, isSignerRole, isSecretaryRole, isEducationRole, getRoleI18nKey } from "@/lib/roles";
 import { colors, layout } from "@/lib/theme";
 import { getTranslations } from "next-intl/server";
 import Sidebar from "./Sidebar";
@@ -27,7 +27,9 @@ export default async function AppShell({ children }: { children: React.ReactNode
   const role = await getStaffRole(session.user.email);
   const roleLabel = t(`role.${getRoleI18nKey(role)}`);
   const displayName = session.user.name || session.user.email;
-  const isStaff = isSecretaryRole(role) || isSignerRole(role);
+  const isClubStaff = isSecretaryRole(role) || isSignerRole(role);
+  const isEducation = isEducationRole(role);
+  const isStaff = isClubStaff || isEducation;
 
   const links: NavLink[] = [{ href: "/", icon: "ti-home", label: t("nav.home") }];
   if (isSecretaryRole(role)) {
@@ -36,15 +38,23 @@ export default async function AppShell({ children }: { children: React.ReactNode
   if (isSignerRole(role)) {
     links.push({ href: "/president", icon: "ti-checkbox", label: t("nav.presidentQueue") });
   }
+  if (isEducation) {
+    links.push({ href: "/education", icon: "ti-school", label: t("nav.educationQueue") });
+  }
   if (isStaff) {
     links.push({ href: "/records", icon: "ti-database", label: t("records.navLabel") });
+  }
+  if (isClubStaff) {
     links.push({ href: "/registry", icon: "ti-notebook", label: t("registry.navLabel") });
   }
-  links.push({ href: "/submit", icon: "ti-file-plus", label: t("nav.submit") });
-  links.push({ href: "/status", icon: "ti-search", label: t("nav.status") });
-  links.push({ href: "/my", icon: "ti-folder", label: t("nav.myDocs") });
-  links.push({ href: "/profile", icon: "ti-user", label: t("nav.profile") });
-  links.push({ href: "/faq", icon: "ti-message-circle-question", label: t("faq.navLabel") });
+  // เจ้าหน้าที่การศึกษาไม่ได้ยื่นเอกสาร — เห็นเฉพาะเมนูงานของตัวเอง คู่มือ และช่วยเหลือ
+  if (!isEducation) {
+    links.push({ href: "/submit", icon: "ti-file-plus", label: t("nav.submit") });
+    links.push({ href: "/status", icon: "ti-search", label: t("nav.status") });
+    links.push({ href: "/my", icon: "ti-folder", label: t("nav.myDocs") });
+    links.push({ href: "/profile", icon: "ti-user", label: t("nav.profile") });
+    links.push({ href: "/faq", icon: "ti-message-circle-question", label: t("faq.navLabel") });
+  }
   links.push({ href: "/guide", icon: "ti-book", label: t("nav.guide") });
   if (isStaff) {
     links.push({ href: "/help", icon: "ti-help-circle", label: t("help.navLabel") });

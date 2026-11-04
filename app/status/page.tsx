@@ -8,6 +8,9 @@ import AutoRefresh from "@/components/AutoRefresh";
 export const dynamic = "force-dynamic";
 
 const STATUS_KEY_MAP: Record<string, { key: string; color: string; bg: string }> = {
+  "รอการศึกษาตรวจ": { key: "statusEduReview", color: "#0d4f73", bg: "#e8f3fa" },
+  "รอเซ็นประธาน/อาจารย์": { key: "statusWaitingProjectSign", color: "#5b3c8c", bg: "#f2edf9" },
+  "รอรองคณบดีเซ็น": { key: "statusWaitingDean", color: "#0d4f73", bg: "#e8f3fa" },
   "รอตรวจสอบ": { key: "statusPending", color: "#665c00", bg: "#fff8e1" },
   "รอเซ็น": { key: "statusWaitingSign", color: "#8a4b00", bg: "#fff3e0" },
   "อนุมัติ": { key: "statusApproved", color: "#1b5e20", bg: "#f1f8f1" },

@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { colors } from "@/lib/theme";
 
-export type SendKind = "submit" | "approve" | "reject" | "advance";
+export type SendKind = "submit" | "approve" | "reject" | "advance" | "eduReturn" | "eduReject" | "uploadSigned";
 export type SendStatus = "sending" | "done" | "error" | "interrupted";
 
 export type SendJob = {
@@ -42,10 +42,28 @@ export type SendJob = {
   retryable: boolean;
 };
 
+type SendBody = FormData | Record<string, unknown>;
+
+/**
+ * คำขอต่อเนื่อง — ทำหลังคำขอก่อนหน้าสำเร็จ (เช่น การศึกษาส่ง Word แล้วค่อยส่ง PDF แล้วค่อยกดส่งคืน)
+ * ส่งไฟล์ทีละคำขอเพื่อไม่ให้ชนเพดานขนาดคำขอของ Vercel
+ */
+export type SendStep = {
+  endpoint: string;
+  /** สร้างเนื้อคำขอจากผลรวมของขั้นก่อนหน้า คืน null = ข้ามขั้นนี้ */
+  body: SendBody | ((prev: Record<string, unknown>) => SendBody | null);
+  /** ขั้นเสริม: ล้มแล้วไม่ถือว่างานล้ม แสดงเป็นคำเตือนแทน (ขั้นหลักทำสำเร็จไปแล้ว ห้ามส่งซ้ำ) */
+  optional?: boolean;
+  /** คำเตือนที่แสดงเมื่อขั้นเสริมนี้ล้ม */
+  optionalFailMessage?: string;
+};
+
 export type SendRequest = {
   endpoint: string;
   /** FormData สำหรับคำขอที่มีไฟล์ หรือ object ธรรมดาสำหรับคำขอ JSON */
-  body: FormData | Record<string, unknown>;
+  body: SendBody;
+  /** คำขอที่ต้องทำต่อตามลำดับ — ลองส่งใหม่จะเริ่มจากขั้นที่ล้ม ไม่ส่งขั้นที่สำเร็จแล้วซ้ำ */
+  next?: SendStep[];
 };
 
 type EnqueueInput = {
@@ -115,7 +133,25 @@ const EMAIL_WARNING_KEY: Record<SendKind, string | null> = {
   advance: "advanceEmailWarning",
   reject: "rejectEmailWarning",
   approve: "approveEmailWarning",
+  eduReturn: "eduReturnEmailWarning",
+  eduReject: "rejectEmailWarning",
+  uploadSigned: null,
 };
+
+type StepResponse = { success?: boolean; error?: string; data?: Record<string, unknown> };
+
+async function postStep(endpoint: string, body: SendBody): Promise<StepResponse> {
+  const init: RequestInit =
+    body instanceof FormData
+      ? { method: "POST", body }
+      : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
+  const res = await fetch(endpoint, init);
+  try {
+    return (await res.json()) as StepResponse;
+  } catch {
+    return { success: false, error: `HTTP ${res.status}` };
+  }
+}
 
 export function SendQueueProvider({ children }: { children: React.ReactNode }) {
   const t = useTranslations("sendQueue");
@@ -124,6 +160,8 @@ export function SendQueueProvider({ children }: { children: React.ReactNode }) {
   const [jobs, setJobs] = useState<SendJob[]>([]);
   const requests = useRef(new Map<string, SendRequest>());
   const meta = useRef(new Map<string, { kind: SendKind; label: string }>());
+  // ความคืบหน้าของคำขอหลายขั้น: ขั้นถัดไปที่ต้องทำ + ผลรวมของขั้นที่สำเร็จแล้ว
+  const progress = useRef(new Map<string, { index: number; acc: Record<string, unknown> }>());
   const watchers = useRef(new Map<string, number>());
   const tabId = useRef<string>("");
 
@@ -148,29 +186,53 @@ export function SendQueueProvider({ children }: { children: React.ReactNode }) {
       trackInflight(id, true);
 
       let next: Partial<SendJob>;
+      const steps: SendStep[] = [{ endpoint: req.endpoint, body: req.body }, ...(req.next || [])];
+      const prog = progress.current.get(id) || { index: 0, acc: {} };
+      const warnings: string[] = [];
+      let failure: string | null = null;
+      let lastData: Record<string, unknown> | undefined;
       try {
-        const init: RequestInit =
-          req.body instanceof FormData
-            ? { method: "POST", body: req.body }
-            : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(req.body) };
-        const res = await fetch(req.endpoint, init);
-        let data: { success?: boolean; error?: string; data?: Record<string, unknown> };
-        try {
-          data = await res.json();
-        } catch {
-          data = { success: false, error: `HTTP ${res.status}` };
+        for (let i = prog.index; i < steps.length; i++) {
+          const step = steps[i];
+          const body = typeof step.body === "function" ? step.body(prog.acc) : step.body;
+          if (body === null) {
+            prog.index = i + 1;
+            continue;
+          }
+          let data: StepResponse;
+          try {
+            data = await postStep(step.endpoint, body);
+          } catch {
+            data = { success: false, error: t("networkError") };
+          }
+          if (data.success) {
+            lastData = data.data || {};
+            prog.acc = { ...prog.acc, ...lastData };
+            prog.index = i + 1;
+            progress.current.set(id, prog);
+          } else if (step.optional) {
+            warnings.push(step.optionalFailMessage ? `${step.optionalFailMessage} (${data.error || ""})` : data.error || "");
+            prog.index = i + 1;
+            progress.current.set(id, prog);
+          } else {
+            failure = data.error || t("genericError");
+            progress.current.set(id, prog);
+            break;
+          }
         }
 
-        if (data.success) {
+        if (failure === null) {
           const warnKey = EMAIL_WARNING_KEY[m.kind];
+          if (warnKey && lastData?.emailSent === false) warnings.push(tq(warnKey));
           next = {
             status: "done",
-            result: (data.data as SendJob["result"]) || {},
-            warning: warnKey && data.data?.emailSent === false ? tq(warnKey) : undefined,
+            result: prog.acc as SendJob["result"],
+            warning: warnings.length ? warnings.join(" ") : undefined,
             error: undefined,
           };
+          progress.current.delete(id);
         } else {
-          next = { status: "error", error: data.error || t("genericError") };
+          next = { status: "error", error: failure };
         }
       } catch {
         next = { status: "error", error: t("networkError") };
@@ -220,6 +282,7 @@ export function SendQueueProvider({ children }: { children: React.ReactNode }) {
 
   const dismiss = useCallback((id: string) => {
     requests.current.delete(id);
+    progress.current.delete(id);
     meta.current.delete(id);
     setJobs((prev) => prev.filter((j) => j.id !== id));
   }, []);
